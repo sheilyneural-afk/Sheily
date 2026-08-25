@@ -39,18 +39,32 @@ export function App() {
     setMission(current);
     if (terminal.has(current.status)) setBusy(false);
     if (current.status === "completed") setMemories(await listMemories(activeToken));
+    return current;
   }
 
   async function follow(activeToken: string, missionId: string) {
-    await streamMission(activeToken, missionId, (event) => {
-      setEvents((current) =>
-        current.some((item) => item.sequence === event.sequence)
-          ? current
-          : [...current, event],
-      );
-      void refreshMission(activeToken, missionId);
-    });
-    await refreshMission(activeToken, missionId);
+    try {
+      await streamMission(activeToken, missionId, (event) => {
+        setEvents((current) =>
+          current.some((item) => item.sequence === event.sequence)
+            ? current
+            : [...current, event],
+        );
+        void refreshMission(activeToken, missionId);
+      });
+    } catch {
+      // SSE can be interrupted by a tunnel or reverse proxy while the mission
+      // continues safely on the server. Polling below recovers the result.
+    }
+
+    const deadline = Date.now() + 5 * 60 * 1000;
+    while (Date.now() < deadline) {
+      const current = await refreshMission(activeToken, missionId);
+      if (terminal.has(current.status)) return;
+      await new Promise((resolve) => window.setTimeout(resolve, 1500));
+    }
+    setBusy(false);
+    throw new Error("La misión sigue activa; vuelve a consultarla en unos minutos");
   }
 
   async function onLogin(event: React.FormEvent) {
@@ -98,7 +112,10 @@ export function App() {
         remember,
       );
       setMission(created);
-      void follow(token, created.id).catch((reason: Error) => setError(reason.message));
+      void follow(token, created.id).catch((reason: Error) => {
+        setBusy(false);
+        setError(reason.message);
+      });
     } catch (reason) {
       setBusy(false);
       setError(reason instanceof Error ? reason.message : "No se pudo crear la misión");
@@ -111,7 +128,10 @@ export function App() {
     setError("");
     try {
       await approveMission(token, mission.id, approved, remember);
-      void follow(token, mission.id).catch((reason: Error) => setError(reason.message));
+      void follow(token, mission.id).catch((reason: Error) => {
+        setBusy(false);
+        setError(reason.message);
+      });
     } catch (reason) {
       setBusy(false);
       setError(reason instanceof Error ? reason.message : "No se pudo registrar la decisión");
