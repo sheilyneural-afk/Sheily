@@ -1,10 +1,26 @@
 global:
   imageRegistry: ghcr.io/sheilyneural-afk
-  imageTag: "0.2.0"
+  imageTag: "0.3.0"
   nodeId: node-unconfigured
   environment: production
   otlpEndpoint: http://otel-collector:4317
   opaUrl: http://opa:8181
+  natsUrl: nats://nats:4222
+  identityUrl: http://identity-service:8102
+  cognitionUrl: http://cognition-service:8105
+  agencyUrl: http://agency-service:8106
+  governanceUrl: http://governance-service:8107
+  executionUrl: http://execution-service:8108
+  modelBaseUrl: http://ollama:11434
+  modelName: qwen3:8b
+  identityKeyId: identity-production-v1
+  identityPublicKeyB64: replace-with-identity-public-key
+  agencyKeyId: agency-production-v1
+  agencyPublicKeyB64: replace-with-agency-public-key
+  governanceKeyId: governance-production-v1
+  governancePublicKeyB64: replace-with-governance-public-key
+  auditKeyId: audit-production-v1
+  auditPublicKeyB64: replace-with-audit-public-key
 
 services:
   - {name: experience-service, port: 8101, replicas: 2, family: EXP}

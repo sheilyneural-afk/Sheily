@@ -1,0 +1,77 @@
+{
+  "additionalProperties": false,
+  "description": "Consentimiento ligado a usuario, misión y plan; lo firma Identity.",
+  "properties": {
+    "id": {
+      "title": "Id",
+      "type": "string"
+    },
+    "user_id": {
+      "title": "User Id",
+      "type": "string"
+    },
+    "mission_id": {
+      "title": "Mission Id",
+      "type": "string"
+    },
+    "plan_hash": {
+      "pattern": "^[a-f0-9]{64}$",
+      "title": "Plan Hash",
+      "type": "string"
+    },
+    "approved": {
+      "title": "Approved",
+      "type": "boolean"
+    },
+    "remember_result": {
+      "title": "Remember Result",
+      "type": "boolean"
+    },
+    "reason": {
+      "default": "",
+      "maxLength": 1000,
+      "title": "Reason",
+      "type": "string"
+    },
+    "issued_at": {
+      "format": "date-time",
+      "title": "Issued At",
+      "type": "string"
+    },
+    "expiry": {
+      "format": "date-time",
+      "title": "Expiry",
+      "type": "string"
+    },
+    "key_id": {
+      "title": "Key Id",
+      "type": "string"
+    },
+    "algorithm": {
+      "const": "Ed25519",
+      "default": "Ed25519",
+      "title": "Algorithm",
+      "type": "string"
+    },
+    "signature": {
+      "title": "Signature",
+      "type": "string"
+    }
+  },
+  "required": [
+    "id",
+    "user_id",
+    "mission_id",
+    "plan_hash",
+    "approved",
+    "remember_result",
+    "issued_at",
+    "expiry",
+    "key_id",
+    "signature"
+  ],
+  "title": "ApprovalReceipt",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://noosfera.invalid/schemas/approval-receipt.schema.json"
+}

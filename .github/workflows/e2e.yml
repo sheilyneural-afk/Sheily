@@ -1,0 +1,42 @@
+name: governed-e2e
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  multiprocess-reference-stack:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      NOOSFERA_MODEL_PROVIDER: deterministic
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build and start governed stack
+        run: >-
+          docker compose -f deploy/local/docker-compose.yml up -d --build
+          experience-service audit-service
+      - name: Exercise cognition to signed execution and audit
+        run: >-
+          docker compose -f deploy/local/docker-compose.yml exec -T
+          -e NOOSFERA_E2E_API_URL=http://127.0.0.1:8080
+          -e NOOSFERA_E2E_AUDIT_URL=http://audit-service:8080
+          experience-service python - < tools/run_local_e2e.py
+      - name: Prove append-only audit rejects mutation
+        run: |
+          if docker compose -f deploy/local/docker-compose.yml exec -T postgres \
+            psql -U noosfera -d noosfera \
+            -c "UPDATE agent_events SET event_type='tampered' WHERE sequence=1"; then
+            echo "append-only audit accepted a forbidden UPDATE"
+            exit 1
+          fi
+      - name: Capture diagnostics
+        if: failure()
+        run: docker compose -f deploy/local/docker-compose.yml logs --no-color --tail=300
+      - name: Tear down
+        if: always()
+        run: docker compose -f deploy/local/docker-compose.yml down -v

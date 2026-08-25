@@ -1,189 +1,1423 @@
 openapi: 3.1.0
 info:
-  title: Noosfera Control Plane
-  version: 0.2.0
-  description: API del plano de control y del agente local soberano; no conecta actuadores reales.
-servers:
-  - url: https://node.example.invalid
-security: [{mutualTLS: []}]
+  title: Sheily local sovereign agent
+  description: Agente cognitivo local con autoridades independientes y ejecución Rust.
+  version: 0.3.0
 paths:
   /health/live:
     get:
-      operationId: liveness
-      security: []
-      responses: {"200": {description: Proceso vivo}}
+      summary: Liveness
+      operationId: liveness_health_live_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+                title: Response Liveness Health Live Get
   /health/ready:
     get:
-      operationId: readiness
-      security: []
-      responses: {"200": {description: Dependencias y políticas preparadas}, "503": {description: Denegación segura}}
+      summary: Readiness
+      operationId: readiness_health_ready_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+                title: Response Readiness Health Ready Get
   /v1/auth/login:
     post:
-      operationId: localLogin
-      security: []
+      summary: Login
+      operationId: login_v1_auth_login_post
       requestBody:
-        required: true
         content:
           application/json:
             schema:
-              type: object
-              additionalProperties: false
-              required: [username, password]
-              properties: {username: {type: string}, password: {type: string, format: password}}
-      responses: {"200": {description: Token local temporal}, "401": {description: Credenciales inválidas}}
+              $ref: '#/components/schemas/LoginRequest'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenResponse'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
   /v1/me:
     get:
-      operationId: getPrincipal
-      security: [{bearerAuth: []}]
-      responses: {"200": {description: Identidad autenticada}, "401": {description: Token inválido}}
+      summary: Me
+      operationId: me_v1_me_get
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Principal'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
   /v1/conversations:
     post:
-      operationId: createConversation
-      x-noosfera-owner: experience-service
-      security: [{bearerAuth: []}]
-      responses: {"201": {description: Conversación local creada}}
-  /v1/conversations/{conversationId}/messages:
-    get:
-      operationId: listConversationMessages
-      x-noosfera-owner: experience-service
-      security: [{bearerAuth: []}]
-      parameters: [{name: conversationId, in: path, required: true, schema: {type: string}}]
-      responses: {"200": {description: Mensajes de la conversación}, "404": {description: Conversación ajena o inexistente}}
-    post:
-      operationId: createAgentMission
-      x-noosfera-owner: experience-service
-      security: [{bearerAuth: []}]
-      parameters: [{name: conversationId, in: path, required: true, schema: {type: string}}]
+      summary: Create Conversation
+      operationId: create_conversation_v1_conversations_post
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              type: object
-              additionalProperties: false
-              required: [content]
-              properties:
-                content: {type: string, minLength: 1, maxLength: 20000}
-                document_ids: {type: array, maxItems: 20, uniqueItems: true, items: {type: string}}
-                remember: {type: boolean, default: false}
+              $ref: '#/components/schemas/ConversationCreate'
       responses:
-        "202": {description: Misión recibida, content: {application/json: {schema: {$ref: ../schemas/agent-mission.schema.json}}}}
-        "404": {description: Conversación o documento no encontrado}
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Conversation'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/conversations/{conversation_id}/messages:
+    get:
+      summary: List Messages
+      operationId: list_messages_v1_conversations__conversation_id__messages_get
+      parameters:
+      - name: conversation_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Conversation Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Message'
+                title: Response List Messages V1 Conversations  Conversation Id  Messages
+                  Get
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    post:
+      summary: Create Message
+      operationId: create_message_v1_conversations__conversation_id__messages_post
+      parameters:
+      - name: conversation_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Conversation Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MessageCreate'
+      responses:
+        '202':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Mission'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/missions/{mission_id}:
+    get:
+      summary: Get Mission
+      operationId: get_mission_v1_missions__mission_id__get
+      parameters:
+      - name: mission_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Mission Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Mission'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/missions/{mission_id}/approval:
+    post:
+      summary: Approve Mission
+      operationId: approve_mission_v1_missions__mission_id__approval_post
+      parameters:
+      - name: mission_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Mission Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApprovalRequest'
+      responses:
+        '202':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Mission'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/missions/{mission_id}/events:
+    get:
+      summary: Stream Events
+      operationId: stream_events_v1_missions__mission_id__events_get
+      parameters:
+      - name: mission_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Mission Id
+      - name: after
+        in: query
+        required: false
+        schema:
+          type: integer
+          minimum: 0
+          default: 0
+          title: After
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
   /v1/documents:
     post:
-      operationId: uploadLocalDocument
-      x-noosfera-owner: experience-service
-      security: [{bearerAuth: []}]
+      summary: Upload Document
+      operationId: upload_document_v1_documents_post
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
       requestBody:
         required: true
         content:
           multipart/form-data:
-            schema: {type: object, required: [upload], properties: {upload: {type: string, format: binary}}}
-      responses: {"201": {description: Documento extraído dentro del nodo}, "422": {description: Tipo tamaño o contenido rechazado}}
-  /v1/missions/{missionId}:
-    get:
-      operationId: getAgentMission
-      x-noosfera-owner: experience-service
-      security: [{bearerAuth: []}]
-      parameters: [{name: missionId, in: path, required: true, schema: {type: string}}]
+            schema:
+              $ref: '#/components/schemas/Body_upload_document_v1_documents_post'
       responses:
-        "200": {description: Estado de misión, content: {application/json: {schema: {$ref: ../schemas/agent-mission.schema.json}}}}
-        "404": {description: Misión ajena o inexistente}
-  /v1/missions/{missionId}/approval:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DocumentPublic'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/memories:
+    get:
+      summary: List Memories
+      operationId: list_memories_v1_memories_get
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MemoryRecord'
+                title: Response List Memories V1 Memories Get
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/memories/{memory_id}:
+    delete:
+      summary: Delete Memory
+      operationId: delete_memory_v1_memories__memory_id__delete
+      parameters:
+      - name: memory_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Memory Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '204':
+          description: Successful Response
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/operator/audit:
+    get:
+      summary: Audit
+      operationId: audit_v1_operator_audit_get
+      parameters:
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: integer
+          maximum: 1000
+          minimum: 1
+          default: 200
+          title: Limit
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AuditEntry'
+                title: Response Audit V1 Operator Audit Get
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/operator/status:
+    get:
+      summary: Operator Status
+      operationId: operator_status_v1_operator_status_get
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OperatorStatus'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/operator/stop:
     post:
-      operationId: decideAgentMission
-      x-noosfera-owner: experience-service
-      security: [{bearerAuth: []}]
-      parameters: [{name: missionId, in: path, required: true, schema: {type: string}}]
+      summary: Safe Stop
+      operationId: safe_stop_v1_operator_stop_post
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              type: object
-              additionalProperties: false
-              required: [approved]
-              properties:
-                approved: {type: boolean}
-                remember_result: {type: [boolean, "null"]}
-                reason: {type: string, maxLength: 1000}
-      responses: {"202": {description: Decisión registrada}, "409": {description: La misión no espera aprobación}}
-  /v1/missions/{missionId}/events:
-    get:
-      operationId: streamMissionEvents
-      x-noosfera-owner: experience-service
-      security: [{bearerAuth: []}]
+              $ref: '#/components/schemas/StopRequest'
+      responses:
+        '202':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                title: Response Safe Stop V1 Operator Stop Post
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/operator/capabilities/{capability_id}/revoke:
+    post:
+      summary: Revoke Capability
+      operationId: revoke_capability_v1_operator_capabilities__capability_id__revoke_post
       parameters:
-        - {name: missionId, in: path, required: true, schema: {type: string}}
-        - {name: after, in: query, required: false, schema: {type: integer, minimum: 0}}
+      - name: capability_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Capability Id
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RevocationRequest'
       responses:
-        "200": {description: Flujo SSE de eventos encadenados, content: {text/event-stream: {schema: {type: string}}}}
-  /v1/memories:
+        '202':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                title: Response Revoke Capability V1 Operator Capabilities  Capability
+                  Id  Revoke Post
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/manifest:
     get:
-      operationId: listAgentMemories
-      x-noosfera-owner: experience-service
-      security: [{bearerAuth: []}]
-      responses: {"200": {description: Memorias activas de la persona}}
-  /v1/memories/{memoryId}:
-    delete:
-      operationId: deleteAgentMemory
-      x-noosfera-owner: experience-service
-      security: [{bearerAuth: []}]
-      parameters: [{name: memoryId, in: path, required: true, schema: {type: string}}]
-      responses: {"204": {description: Memoria marcada como borrada}, "404": {description: Memoria ajena o inexistente}}
-  /v1/operator/status:
-    get:
-      operationId: getAgentRuntimeStatus
-      x-noosfera-owner: experience-service
-      security: [{bearerAuth: []}]
-      responses: {"200": {description: Estado y proveedores activos}}
-  /v1/operator/audit:
-    get:
-      operationId: listAgentAudit
-      x-noosfera-owner: audit-service
-      security: [{bearerAuth: []}]
-      responses: {"200": {description: Recibos de auditoría encadenados}}
-  /v1/operator/stop:
-    post:
-      operationId: setNodeSafeStop
-      x-noosfera-owner: execution-service
-      security: [{bearerAuth: []}]
-      responses: {"202": {description: Parada o reanudación propagada al kernel Rust}}
-  /v1/intent/compile:
-    post:
-      operationId: compileIntent
-      x-noosfera-owner: agency-service
-      requestBody: {required: true, content: {application/json: {schema: {$ref: ../schemas/intent-contract.schema.json}}}}
-      responses: {"200": {description: Contrato compilado}, "422": {description: Requiere aclaración}}
-  /v1/governance/evaluate:
-    post:
-      operationId: evaluatePolicy
-      x-noosfera-owner: governance-service
-      requestBody: {required: true, content: {application/json: {schema: {type: object}}}}
+      summary: Service Manifest
+      operationId: service_manifest_v1_manifest_get
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
       responses:
-        "200": {description: Decisión, content: {application/json: {schema: {$ref: ../schemas/policy-decision.schema.json}}}}
-        "403": {description: Rechazado}
-  /v1/capabilities:
-    post:
-      operationId: issueCapability
-      x-noosfera-owner: governance-service
-      responses:
-        "201": {description: Capacidad emitida, content: {application/json: {schema: {$ref: ../schemas/capability.schema.json}}}}
-        "403": {description: Falta legitimidad o cuórum}
-  /v1/executions:
-    post:
-      operationId: requestExecution
-      x-noosfera-owner: execution-service
-      security: [{mutualTLS: [], capabilityToken: []}]
-      responses: {"202": {description: Ejecución limitada aceptada}, "403": {description: Plan o capacidad rechazados}}
-  /v1/executions/{executionId}/stop:
-    post:
-      operationId: safeStop
-      x-noosfera-owner: execution-service
-      parameters: [{name: executionId, in: path, required: true, schema: {type: string}}]
-      responses: {"202": {description: Parada prioritaria aceptada}}
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                title: Response Service Manifest V1 Manifest Get
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
 components:
-  securitySchemes:
-    mutualTLS: {type: mutualTLS}
-    capabilityToken: {type: http, scheme: bearer, bearerFormat: Noosfera-Capability}
-    bearerAuth: {type: http, scheme: bearer, bearerFormat: Sheily-Local-HMAC}
+  schemas:
+    ApprovalReceipt:
+      properties:
+        id:
+          type: string
+          title: Id
+        user_id:
+          type: string
+          title: User Id
+        mission_id:
+          type: string
+          title: Mission Id
+        plan_hash:
+          type: string
+          pattern: ^[a-f0-9]{64}$
+          title: Plan Hash
+        approved:
+          type: boolean
+          title: Approved
+        remember_result:
+          type: boolean
+          title: Remember Result
+        reason:
+          type: string
+          maxLength: 1000
+          title: Reason
+          default: ''
+        issued_at:
+          type: string
+          format: date-time
+          title: Issued At
+        expiry:
+          type: string
+          format: date-time
+          title: Expiry
+        key_id:
+          type: string
+          title: Key Id
+        algorithm:
+          type: string
+          const: Ed25519
+          title: Algorithm
+          default: Ed25519
+        signature:
+          type: string
+          title: Signature
+      additionalProperties: false
+      type: object
+      required:
+      - id
+      - user_id
+      - mission_id
+      - plan_hash
+      - approved
+      - remember_result
+      - issued_at
+      - expiry
+      - key_id
+      - signature
+      title: ApprovalReceipt
+      description: Consentimiento ligado a usuario, misión y plan; lo firma Identity.
+    ApprovalRequest:
+      properties:
+        approved:
+          type: boolean
+          title: Approved
+        remember_result:
+          anyOf:
+          - type: boolean
+          - type: 'null'
+          title: Remember Result
+        reason:
+          type: string
+          maxLength: 1000
+          title: Reason
+          default: ''
+      additionalProperties: false
+      type: object
+      required:
+      - approved
+      title: ApprovalRequest
+    AuditEntry:
+      properties:
+        mission_id:
+          type: string
+          title: Mission Id
+        sequence:
+          type: integer
+          title: Sequence
+        event_type:
+          type: string
+          title: Event Type
+        event_hash:
+          type: string
+          title: Event Hash
+        previous_receipt_hash:
+          type: string
+          title: Previous Receipt Hash
+        receipt_hash:
+          type: string
+          title: Receipt Hash
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+      additionalProperties: false
+      type: object
+      required:
+      - mission_id
+      - sequence
+      - event_type
+      - event_hash
+      - previous_receipt_hash
+      - receipt_hash
+      - created_at
+      title: AuditEntry
+    Body_upload_document_v1_documents_post:
+      properties:
+        upload:
+          type: string
+          contentMediaType: application/octet-stream
+          title: Upload
+      type: object
+      required:
+      - upload
+      title: Body_upload_document_v1_documents_post
+    Conversation:
+      properties:
+        id:
+          type: string
+          title: Id
+        user_id:
+          type: string
+          title: User Id
+        title:
+          type: string
+          title: Title
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+      additionalProperties: false
+      type: object
+      required:
+      - id
+      - user_id
+      - title
+      - created_at
+      title: Conversation
+    ConversationCreate:
+      properties:
+        title:
+          type: string
+          maxLength: 200
+          minLength: 1
+          title: Title
+          default: Nueva conversación
+      additionalProperties: false
+      type: object
+      title: ConversationCreate
+    DocumentPublic:
+      properties:
+        id:
+          type: string
+          title: Id
+        name:
+          type: string
+          title: Name
+        media_type:
+          type: string
+          title: Media Type
+        content_hash:
+          type: string
+          title: Content Hash
+        size_bytes:
+          type: integer
+          title: Size Bytes
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+      additionalProperties: false
+      type: object
+      required:
+      - id
+      - name
+      - media_type
+      - content_hash
+      - size_bytes
+      - created_at
+      title: DocumentPublic
+    EvidenceReference:
+      properties:
+        document_id:
+          type: string
+          title: Document Id
+        label:
+          type: string
+          title: Label
+      additionalProperties: false
+      type: object
+      required:
+      - document_id
+      - label
+      title: EvidenceReference
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    InternalStateClaim:
+      properties:
+        claim:
+          type: string
+          maxLength: 500
+          minLength: 1
+          title: Claim
+        observation_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Observation Id
+        confidence:
+          type: number
+          maximum: 1.0
+          minimum: 0.0
+          title: Confidence
+        observed:
+          type: boolean
+          title: Observed
+        sealed:
+          type: boolean
+          title: Sealed
+      additionalProperties: false
+      type: object
+      required:
+      - claim
+      - confidence
+      - observed
+      - sealed
+      title: InternalStateClaim
+    LoginRequest:
+      properties:
+        username:
+          type: string
+          maxLength: 128
+          minLength: 1
+          title: Username
+        password:
+          type: string
+          maxLength: 512
+          minLength: 1
+          title: Password
+      additionalProperties: false
+      type: object
+      required:
+      - username
+      - password
+      title: LoginRequest
+    MemoryRecord:
+      properties:
+        id:
+          type: string
+          title: Id
+        user_id:
+          type: string
+          title: User Id
+        purpose:
+          type: string
+          title: Purpose
+        content:
+          type: string
+          title: Content
+        source_mission_id:
+          type: string
+          title: Source Mission Id
+        retention_days:
+          type: integer
+          maximum: 3650.0
+          minimum: 1.0
+          title: Retention Days
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        deleted_at:
+          anyOf:
+          - type: string
+            format: date-time
+          - type: 'null'
+          title: Deleted At
+      additionalProperties: false
+      type: object
+      required:
+      - id
+      - user_id
+      - purpose
+      - content
+      - source_mission_id
+      - retention_days
+      - created_at
+      title: MemoryRecord
+    Message:
+      properties:
+        id:
+          type: string
+          title: Id
+        conversation_id:
+          type: string
+          title: Conversation Id
+        role:
+          type: string
+          enum:
+          - user
+          - assistant
+          - system
+          title: Role
+        content:
+          type: string
+          title: Content
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+      additionalProperties: false
+      type: object
+      required:
+      - id
+      - conversation_id
+      - role
+      - content
+      - created_at
+      title: Message
+    MessageCreate:
+      properties:
+        content:
+          type: string
+          maxLength: 20000
+          minLength: 1
+          title: Content
+        document_ids:
+          items:
+            type: string
+          type: array
+          maxItems: 20
+          title: Document Ids
+        remember:
+          type: boolean
+          title: Remember
+          default: false
+      additionalProperties: false
+      type: object
+      required:
+      - content
+      title: MessageCreate
+    Mission:
+      properties:
+        id:
+          type: string
+          title: Id
+        user_id:
+          type: string
+          title: User Id
+        conversation_id:
+          type: string
+          title: Conversation Id
+        prompt:
+          type: string
+          title: Prompt
+        document_ids:
+          items:
+            type: string
+          type: array
+          title: Document Ids
+        remember:
+          type: boolean
+          title: Remember
+        status:
+          $ref: '#/components/schemas/MissionStatus'
+        plan:
+          anyOf:
+          - $ref: '#/components/schemas/MissionPlan'
+          - type: 'null'
+        plan_hash:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Plan Hash
+        plan_attestation:
+          anyOf:
+          - $ref: '#/components/schemas/PlanAttestation'
+          - type: 'null'
+        cognitive_cycle_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Cognitive Cycle Id
+        risk:
+          anyOf:
+          - $ref: '#/components/schemas/RiskDecision'
+          - type: 'null'
+        approval_receipt:
+          anyOf:
+          - $ref: '#/components/schemas/ApprovalReceipt'
+          - type: 'null'
+        capability_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Capability Id
+        result:
+          anyOf:
+          - $ref: '#/components/schemas/ModelOutput'
+          - type: 'null'
+        error:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Error
+        version:
+          type: integer
+          minimum: 1.0
+          title: Version
+          default: 1
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        updated_at:
+          type: string
+          format: date-time
+          title: Updated At
+      additionalProperties: false
+      type: object
+      required:
+      - id
+      - user_id
+      - conversation_id
+      - prompt
+      - document_ids
+      - remember
+      - status
+      - created_at
+      - updated_at
+      title: Mission
+    MissionPlan:
+      properties:
+        objective:
+          type: string
+          maxLength: 2000
+          minLength: 1
+          title: Objective
+        tool:
+          type: string
+          enum:
+          - conversation.answer
+          - document.report
+          title: Tool
+        operation:
+          type: string
+          enum:
+          - answer
+          - generate
+          title: Operation
+        resource:
+          type: string
+          enum:
+          - urn:noosfera:tool:conversation-answer
+          - urn:noosfera:tool:document-report
+          title: Resource
+        steps:
+          items:
+            $ref: '#/components/schemas/PlanStep'
+          type: array
+          maxItems: 20
+          minItems: 1
+          title: Steps
+        success_criteria:
+          items:
+            type: string
+          type: array
+          maxItems: 10
+          minItems: 1
+          title: Success Criteria
+        risk_factors:
+          items:
+            type: string
+          type: array
+          maxItems: 10
+          title: Risk Factors
+        requires_documents:
+          type: boolean
+          title: Requires Documents
+        cognitive_cycle_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Cognitive Cycle Id
+      additionalProperties: false
+      type: object
+      required:
+      - objective
+      - tool
+      - operation
+      - resource
+      - steps
+      - success_criteria
+      - requires_documents
+      title: MissionPlan
+    MissionStatus:
+      type: string
+      enum:
+      - received
+      - planning
+      - awaiting-approval
+      - authorized
+      - executing
+      - verifying
+      - completed
+      - rejected
+      - failed
+      - stopped
+      title: MissionStatus
+    ModelOutput:
+      properties:
+        answer:
+          type: string
+          maxLength: 100000
+          minLength: 1
+          title: Answer
+        citations:
+          items:
+            $ref: '#/components/schemas/EvidenceReference'
+          type: array
+          maxItems: 100
+          title: Citations
+        internal_state_claims:
+          items:
+            $ref: '#/components/schemas/InternalStateClaim'
+          type: array
+          maxItems: 20
+          title: Internal State Claims
+      additionalProperties: false
+      type: object
+      required:
+      - answer
+      title: ModelOutput
+    OperatorStatus:
+      properties:
+        stop_active:
+          type: boolean
+          title: Stop Active
+        model_provider:
+          type: string
+          title: Model Provider
+        model_name:
+          type: string
+          title: Model Name
+        storage_backend:
+          type: string
+          title: Storage Backend
+        event_bus:
+          type: string
+          title: Event Bus
+        policy_engine:
+          type: string
+          title: Policy Engine
+        execution_kernel:
+          type: string
+          title: Execution Kernel
+      additionalProperties: false
+      type: object
+      required:
+      - stop_active
+      - model_provider
+      - model_name
+      - storage_backend
+      - event_bus
+      - policy_engine
+      - execution_kernel
+      title: OperatorStatus
+    PlanAttestation:
+      properties:
+        mission_id:
+          type: string
+          title: Mission Id
+        user_id:
+          type: string
+          title: User Id
+        agent_id:
+          type: string
+          title: Agent Id
+        prompt_hash:
+          type: string
+          pattern: ^[a-f0-9]{64}$
+          title: Prompt Hash
+        context_hash:
+          type: string
+          pattern: ^[a-f0-9]{64}$
+          title: Context Hash
+        plan:
+          $ref: '#/components/schemas/MissionPlan'
+        plan_hash:
+          type: string
+          pattern: ^[a-f0-9]{64}$
+          title: Plan Hash
+        budget:
+          $ref: '#/components/schemas/ResourceBudget'
+        created_at:
+          type: string
+          format: date-time
+          title: Created At
+        expiry:
+          type: string
+          format: date-time
+          title: Expiry
+        key_id:
+          type: string
+          title: Key Id
+        algorithm:
+          type: string
+          const: Ed25519
+          title: Algorithm
+          default: Ed25519
+        signature:
+          type: string
+          title: Signature
+      additionalProperties: false
+      type: object
+      required:
+      - mission_id
+      - user_id
+      - agent_id
+      - prompt_hash
+      - context_hash
+      - plan
+      - plan_hash
+      - budget
+      - created_at
+      - expiry
+      - key_id
+      - signature
+      title: PlanAttestation
+      description: Plan causal validado y firmado exclusivamente por Agency.
+    PlanStep:
+      properties:
+        index:
+          type: integer
+          maximum: 20.0
+          minimum: 1.0
+          title: Index
+        description:
+          type: string
+          maxLength: 500
+          minLength: 1
+          title: Description
+      additionalProperties: false
+      type: object
+      required:
+      - index
+      - description
+      title: PlanStep
+    Principal:
+      properties:
+        user_id:
+          type: string
+          title: User Id
+        username:
+          type: string
+          title: Username
+        role:
+          type: string
+          enum:
+          - user
+          - operator
+          - admin
+          title: Role
+      additionalProperties: false
+      type: object
+      required:
+      - user_id
+      - username
+      - role
+      title: Principal
+    ResourceBudget:
+      properties:
+        wall_time_seconds:
+          type: integer
+          maximum: 300.0
+          minimum: 1.0
+          title: Wall Time Seconds
+          default: 30
+        cpu_time_ms:
+          type: integer
+          maximum: 300000.0
+          minimum: 1.0
+          title: Cpu Time Ms
+          default: 5000
+        memory_bytes:
+          type: integer
+          maximum: 4294967296.0
+          minimum: 1048576.0
+          title: Memory Bytes
+          default: 268435456
+        input_bytes:
+          type: integer
+          maximum: 100000000.0
+          minimum: 1.0
+          title: Input Bytes
+          default: 5000000
+        output_bytes:
+          type: integer
+          maximum: 10000000.0
+          minimum: 1.0
+          title: Output Bytes
+          default: 250000
+        model_input_tokens:
+          type: integer
+          maximum: 1000000.0
+          minimum: 1.0
+          title: Model Input Tokens
+          default: 32768
+        model_output_tokens:
+          type: integer
+          maximum: 100000.0
+          minimum: 1.0
+          title: Model Output Tokens
+          default: 4096
+        cost_microunits:
+          type: integer
+          maximum: 1000000000.0
+          minimum: 0.0
+          title: Cost Microunits
+          default: 0
+        max_tool_calls:
+          type: integer
+          maximum: 100.0
+          minimum: 1.0
+          title: Max Tool Calls
+          default: 1
+        max_child_processes:
+          type: integer
+          maximum: 16.0
+          minimum: 0.0
+          title: Max Child Processes
+          default: 0
+        network_allowed:
+          type: boolean
+          title: Network Allowed
+          default: false
+      additionalProperties: false
+      type: object
+      title: ResourceBudget
+      description: Límites duros que viajan desde Agency hasta el núcleo Rust.
+    RevocationRequest:
+      properties:
+        reason:
+          type: string
+          maxLength: 500
+          minLength: 1
+          title: Reason
+      additionalProperties: false
+      type: object
+      required:
+      - reason
+      title: RevocationRequest
+    RiskDecision:
+      properties:
+        risk_class:
+          type: string
+          enum:
+          - R0
+          - R1
+          - R2
+          - R3
+          - R4
+          - R5
+          title: Risk Class
+        score:
+          type: number
+          maximum: 1.0
+          minimum: 0.0
+          title: Score
+        requires_approval:
+          type: boolean
+          title: Requires Approval
+        reasons:
+          items:
+            type: string
+          type: array
+          title: Reasons
+      additionalProperties: false
+      type: object
+      required:
+      - risk_class
+      - score
+      - requires_approval
+      title: RiskDecision
+    StopRequest:
+      properties:
+        active:
+          type: boolean
+          title: Active
+        reason:
+          type: string
+          maxLength: 500
+          minLength: 1
+          title: Reason
+      additionalProperties: false
+      type: object
+      required:
+      - active
+      - reason
+      title: StopRequest
+    TokenResponse:
+      properties:
+        access_token:
+          type: string
+          title: Access Token
+        token_type:
+          type: string
+          const: bearer
+          title: Token Type
+          default: bearer
+        expires_in:
+          type: integer
+          title: Expires In
+        user_id:
+          type: string
+          title: User Id
+        role:
+          type: string
+          title: Role
+      additionalProperties: false
+      type: object
+      required:
+      - access_token
+      - expires_in
+      - user_id
+      - role
+      title: TokenResponse
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError

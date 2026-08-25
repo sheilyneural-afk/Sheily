@@ -1,6 +1,6 @@
 id: temporal-service
 family: TMP
-version: 0.2.0
+version: 0.3.0
 runtime: python
 target_runtime: rust
 modules: [TMP-01, TMP-02, TMP-03, TMP-04, TMP-05]

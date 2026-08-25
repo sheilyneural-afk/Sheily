@@ -1,21 +1,21 @@
 # Matriz de completitud
 
-Esta matriz cierra Noosfera `0.2.0`. Una celda «definida» significa que existen archivos, propietario, contrato y verificación; no afirma que una capacidad del año 2300 sea tecnológicamente realizable hoy. Una celda «funcional» posee además un recorrido ejecutable y pruebas.
+Esta matriz cierra Noosfera `0.3.0`. Una celda «definida» significa que existen archivos, propietario, contrato y verificación; no afirma que una capacidad del año 2300 sea tecnológicamente realizable hoy. La madurez individual está en `registry/module-maturity.yaml`.
 
-| Área | Estado 0.2 | Evidencia principal |
+| Área | Estado 0.3 | Evidencia principal |
 |---|---|---|
 | Perímetro | Cerrado | `SCOPE.md` |
 | Arquitectura | Definida | `ARCHITECTURE.md`, `docs/architecture/` |
-| 105 módulos | Registrados | `registry/modules/` |
+| 105 módulos | Registrados y clasificados por madurez | `registry/modules/`, `registry/module-maturity.yaml` |
 | 14 servicios | Desplegables en referencia | `services/`, `deploy/services/` |
 | Tipos de puerto | Cerrados por productor/consumidor | `registry/port-types.yaml` |
 | Contratos | Versionados | `schemas/`, `proto/`, `api/` |
 | Constitución | Texto y política | `docs/governance/`, `policies/constitution/` |
 | Autorización | Política + kernel | `policies/authorization/`, `packages/rust/noosfera-capability/` |
 | Ejecución | Kernel de unión real | `packages/rust/noosfera-execution-kernel/` |
-| Identidad | Contrato y dominio | `proto/noosfera/identity/`, `services/identity-service/` |
+| Identidad | Autoridad Ed25519 funcional | `agent/identity.py`, `services/identity-service/` |
 | Memoria | Contrato, política y almacenamiento | `schemas/memory-record.schema.json`, `policies/privacy/`, `database/` |
-| Auditoría | Recibos encadenados | `packages/python/noosfera_core/audit.py`, `database/migrations/0004_audit.sql` |
+| Auditoría | Append-only, recibos y anclas Merkle firmadas | `agent/audit_anchor.py`, `database/migrations/0009_immutable_audit.sql` |
 | Federación | Contrato tolerante a demoras | `schemas/federation-package.schema.json`, `docs/architecture/federation.md` |
 | Evolución | Política de etapas | `policies/evolution/`, `services/evolution-service/` |
 | Seguridad | Amenazas y controles | `docs/security/`, `security/`, `.github/workflows/security.yml` |
@@ -34,7 +34,13 @@ Esta matriz cierra Noosfera `0.2.0`. Una celda «definida» significa que existe
 | Herramientas limitadas | Funcional en Rust | `packages/rust/noosfera-execution-service/` |
 | Memoria consentida | Funcional | `database/migrations/0007_agent_runtime.sql`, `policies/privacy/memory_write.rego` |
 | Streaming | Funcional mediante SSE | `agent/api.py`, `apps/personal-console/src/api.ts` |
-| Parada operacional | Funcional de extremo a extremo | `apps/operator-console/`, `tests/agent/test_api_flow.py` |
+| Cognición anterior al LLM | Funcional y persistente | `agent/cognition.py`, `tests/agent/test_cognitive_kernel.py` |
+| Agency independiente | Plan atestado Ed25519 | `agent/agency.py`, `services/agency-service/` |
+| Governance independiente | Único emisor de capacidades | `agent/governance_authority.py`, `services/governance-service/` |
+| Anti-replay | Durable y compartido | `execution_capability_ledger`, ejecutor Rust |
+| Parada operacional | Firmada, monotónica y durable | ejecutor Rust, `tests/agent/test_api_flow.py` |
+| Revocación | Firmada y durable | `execution_revocations`, ejecutor Rust |
+| E2E multiproceso | Automatizado | `.github/workflows/e2e.yml`, `tools/run_local_e2e.py` |
 
 ## No implementado deliberadamente
 

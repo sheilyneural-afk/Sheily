@@ -9,9 +9,12 @@ fn capability(hash: String, now: OffsetDateTime) -> Capability {
         id: "urn:noosfera:capability:test".into(),
         issuer: "urn:noosfera:authority:test".into(),
         holder: "urn:noosfera:gateway:test".into(),
+        mission_id: "urn:noosfera:mission:test".into(),
+        user_id: "urn:noosfera:identity:test".into(),
         resource: "urn:noosfera:actuator:test".into(),
         permitted_operations: BTreeSet::from(["set".into()]),
         plan_hash: hash,
+        arguments_hash: "11".repeat(32),
         bounds: BTreeMap::new(),
         preconditions: vec![],
         mandatory_monitors: BTreeSet::from(["monitor".into()]),
@@ -20,6 +23,7 @@ fn capability(hash: String, now: OffsetDateTime) -> Capability {
         expiry: now + Duration::minutes(1),
         max_uses: 1,
         delegation: Delegation::Forbidden,
+        network_allowed: false,
         quorum_proof: "urn:noosfera:quorum:test".into(),
     }
 }

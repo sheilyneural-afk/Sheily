@@ -52,13 +52,21 @@ flowchart LR
 
 ## Condición de ejecución
 
-`execution-service` solo acepta una operación cuando recibe por canales distintos:
+La cadena gobernada solo llega a `execution-service` cuando existen:
 
-1. Un plan identificado y firmado por `agency-service`.
-2. Una capacidad firmada por `governance-service` cuyo `plan_hash` coincide.
+1. Un plan firmado por `agency-service` y verificado previamente por Governance.
+2. Una capacidad firmada por `governance-service` cuyo `plan_hash` y `arguments_hash` coinciden.
 3. Evidencia de monitores activos.
-4. Presupuestos reservados por `resource-service`.
+4. Presupuestos atestados y transportados dentro de la capacidad.
 5. Un canal de parada válido.
+
+En el runtime 0.3 estas condiciones son código, no solo una regla conceptual. Experience solicita un ciclo a Cognition; Agency firma el plan; Identity firma el consentimiento; Governance verifica ambos y firma la capacidad. Rust no recibe la clave de Agency ni necesita confiar en Experience: conserva únicamente la clave pública de Governance y vuelve a calcular los hashes del plan y los parámetros. El contenido ejecutado queda ligado por `plan_hash` y `arguments_hash`.
+
+El cableado, las tablas, endpoints, dominios de firma y fallos se especifican en `docs/architecture/agent-runtime-0.3.md`.
+
+## Madurez
+
+La tabla de dominios expresa la arquitectura objetivo. La capacidad realmente disponible de cada módulo se publica por separado en `registry/module-maturity.yaml`. Los estados forman una secuencia explícita: `declared → hosted → implemented → integrated → verified → production-ready`. Ningún host genérico se cuenta como motor funcional por el mero hecho de arrancar.
 
 ## Persistencia
 

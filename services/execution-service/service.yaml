@@ -1,6 +1,6 @@
 id: execution-service
 family: EXE
-version: 0.2.0
+version: 0.3.0
 runtime: python
 target_runtime: rust
 modules: [EXE-01, EXE-02, EXE-03, EXE-04, EXE-05, EXE-06, EXE-07, EXE-08]

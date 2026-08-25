@@ -1,4 +1,4 @@
-"""API funcional de Sheily 0.2 para la consola personal y operacional."""
+"""API de experiencia de Sheily 0.3; orquesta autoridades separadas."""
 
 import asyncio
 from collections.abc import AsyncIterator
@@ -21,7 +21,10 @@ from fastapi import (
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
 
-from noosfera_core.agent.auth import AuthenticationError, AuthService
+from noosfera_core.agent.agency import AgencyAuthority, AgencyGateway, RemoteAgencyClient
+from noosfera_core.agent.auth import AuthenticationError
+from noosfera_core.agent.cognition import CognitionGateway, CognitiveKernel, RemoteCognitionClient
+from noosfera_core.agent.crypto import Ed25519Signer, Ed25519Verifier
 from noosfera_core.agent.documents import DocumentRejected, parse_upload
 from noosfera_core.agent.events import EventPublisher, NatsEventPublisher, NullEventPublisher
 from noosfera_core.agent.execution import (
@@ -29,10 +32,17 @@ from noosfera_core.agent.execution import (
     InProcessExecutionGateway,
     RustExecutionClient,
 )
-from noosfera_core.agent.governance import (
-    DeterministicGovernance,
-    GovernanceEngine,
-    OpaGovernance,
+from noosfera_core.agent.governance import DeterministicGovernance
+from noosfera_core.agent.governance_authority import (
+    GovernanceAuthority,
+    GovernanceGateway,
+    GovernanceStore,
+    RemoteGovernanceClient,
+)
+from noosfera_core.agent.identity import (
+    IdentityAuthority,
+    IdentityGateway,
+    RemoteIdentityClient,
 )
 from noosfera_core.agent.model_provider import AgentModel, DeterministicLocalModel, OllamaModel
 from noosfera_core.agent.models import (
@@ -50,6 +60,7 @@ from noosfera_core.agent.models import (
     MissionStatus,
     OperatorStatus,
     Principal,
+    RevocationRequest,
     StopRequest,
     TokenResponse,
     new_id,
@@ -58,8 +69,8 @@ from noosfera_core.agent.models import (
 from noosfera_core.agent.orchestrator import AgentOrchestrator, MissionConflict
 from noosfera_core.agent.persistence import InMemoryStateStore, PostgresStateStore, StateStore
 from noosfera_core.config import Settings
+from noosfera_core.hashing import canonical_hash
 from noosfera_core.manifest import ServiceManifest, load_service_manifest
-from noosfera_core.policy import OpaClient
 
 
 @dataclass
@@ -67,7 +78,7 @@ class AgentContainer:
     settings: Settings
     manifest: ServiceManifest
     store: StateStore
-    auth: AuthService
+    identity: IdentityGateway
     orchestrator: AgentOrchestrator
 
     @classmethod
@@ -86,15 +97,71 @@ class AgentContainer:
         else:
             raise ValueError("unsupported event backend")
 
+        if settings.identity_backend == "in-process-test":
+            identity: IdentityGateway = IdentityAuthority(
+                username=settings.local_username,
+                password=settings.local_password,
+                signer=Ed25519Signer(
+                    settings.identity_private_key_b64, key_id=settings.identity_key_id
+                ),
+                token_ttl_seconds=settings.token_ttl_seconds,
+            )
+        elif settings.identity_backend == "remote":
+            identity = RemoteIdentityClient(
+                settings.identity_url,
+                public_key_b64=settings.identity_public_key_b64,
+                key_id=settings.identity_key_id,
+            )
+        else:
+            raise ValueError("unsupported identity backend")
+
+        if settings.cognition_backend == "in-process-test":
+            cognition: CognitionGateway = CognitiveKernel()
+        elif settings.cognition_backend == "remote":
+            cognition = RemoteCognitionClient(
+                settings.cognition_url, service_token=settings.internal_service_token
+            )
+        else:
+            raise ValueError("unsupported cognition backend")
+
+        if settings.agency_backend == "in-process-test":
+            agency: AgencyGateway = AgencyAuthority(
+                Ed25519Signer(settings.agency_private_key_b64, key_id=settings.agency_key_id)
+            )
+        elif settings.agency_backend == "remote":
+            agency = RemoteAgencyClient(
+                settings.agency_url, service_token=settings.internal_service_token
+            )
+        else:
+            raise ValueError("unsupported agency backend")
+
         if settings.governance_backend == "deterministic-test":
-            governance: GovernanceEngine = DeterministicGovernance()
-        elif settings.governance_backend == "opa":
-            governance = OpaGovernance(OpaClient(settings.opa_url))
+            governance: GovernanceGateway = GovernanceAuthority(
+                policy=DeterministicGovernance(),
+                signer=Ed25519Signer(
+                    settings.governance_private_key_b64, key_id=settings.governance_key_id
+                ),
+                agency_verifier=Ed25519Verifier(
+                    settings.agency_public_key_b64, key_id=settings.agency_key_id
+                ),
+                identity_verifier=Ed25519Verifier(
+                    settings.identity_public_key_b64, key_id=settings.identity_key_id
+                ),
+                store=GovernanceStore(),
+                capability_ttl_seconds=settings.capability_ttl_seconds,
+            )
+        elif settings.governance_backend == "remote":
+            governance = RemoteGovernanceClient(
+                settings.governance_url, service_token=settings.internal_service_token
+            )
         else:
             raise ValueError("unsupported governance backend")
 
         if settings.execution_backend == "in-process-test":
-            execution: ExecutionGateway = InProcessExecutionGateway()
+            execution: ExecutionGateway = InProcessExecutionGateway(
+                governance_public_key_b64=settings.governance_public_key_b64,
+                governance_key_id=settings.governance_key_id,
+            )
         elif settings.execution_backend == "rust":
             execution = RustExecutionClient(settings.execution_url)
         else:
@@ -115,23 +182,20 @@ class AgentContainer:
         else:
             raise ValueError("unsupported model provider")
 
-        auth = AuthService(
-            username=settings.local_username,
-            password=settings.local_password,
-            secret=settings.token_secret,
-            token_ttl_seconds=settings.token_ttl_seconds,
-        )
         orchestrator = AgentOrchestrator(
             store=store,
             model=model,
+            cognition=cognition,
+            agency=agency,
             governance=governance,
+            identity=identity,
             execution=execution,
             events=events,
-            capability_secret=settings.capability_secret,
-            capability_ttl_seconds=settings.capability_ttl_seconds,
             max_output_bytes=settings.max_output_bytes,
+            model_context_tokens=settings.model_context_tokens,
+            model_output_tokens=settings.model_output_tokens,
         )
-        return cls(settings, manifest, store, auth, orchestrator)
+        return cls(settings, manifest, store, identity, orchestrator)
 
 
 def create_agent_app(
@@ -149,17 +213,21 @@ def create_agent_app(
     async def lifespan(app: FastAPI) -> AsyncIterator[None]:
         del app
         await runtime.store.initialize()
+        if isinstance(runtime.orchestrator.governance, GovernanceAuthority):
+            await runtime.orchestrator.governance.initialize()
         await runtime.orchestrator.events.connect()
         try:
             yield
         finally:
             await runtime.orchestrator.events.close()
+            if isinstance(runtime.orchestrator.governance, GovernanceAuthority):
+                await runtime.orchestrator.governance.close()
             await runtime.store.close()
 
     app = FastAPI(
         title="Sheily local sovereign agent",
-        version="0.2.0",
-        description="Agente local-first con autorización humana y ejecución mediada por Rust.",
+        version="0.3.0",
+        description="Agente cognitivo local con autoridades independientes y ejecución Rust.",
         lifespan=lifespan,
     )
     app.state.container = runtime
@@ -179,7 +247,9 @@ def create_agent_app(
                 status_code=status.HTTP_401_UNAUTHORIZED, detail="missing bearer token"
             )
         try:
-            return runtime.auth.verify(authorization.removeprefix("Bearer ").strip())
+            return runtime.identity.verify_access_token(
+                authorization.removeprefix("Bearer ").strip()
+            )
         except AuthenticationError as exc:
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=str(exc)) from exc
 
@@ -196,29 +266,38 @@ def create_agent_app(
 
     @app.get("/health/live")
     async def liveness() -> dict[str, Any]:
-        return {"service": manifest.id, "version": "0.2.0", "status": "alive"}
+        return {"service": manifest.id, "version": "0.3.0", "status": "alive"}
 
     @app.get("/health/ready")
     async def readiness() -> dict[str, Any]:
         (
             model_ready,
+            identity_ready,
+            cognition_ready,
+            agency_ready,
+            governance_ready,
             execution_ready,
             storage_ready,
             events_ready,
-            policy_ready,
         ) = await asyncio.gather(
             runtime.orchestrator.model.health(),
+            runtime.identity.health(),
+            runtime.orchestrator.cognition.health(),
+            runtime.orchestrator.agency.health(),
+            runtime.orchestrator.governance.health(),
             runtime.orchestrator.execution.health(),
             runtime.store.health(),
             runtime.orchestrator.events.health(),
-            runtime.orchestrator.governance.health(),
         )
         checks = {
             "model": model_ready,
+            "identity_authority": identity_ready,
+            "cognitive_kernel": cognition_ready,
+            "agency_authority": agency_ready,
+            "governance_authority": governance_ready,
             "execution_kernel": execution_ready,
             "storage": storage_ready,
             "event_bus": events_ready,
-            "policy_engine": policy_ready,
         }
         if not all(checks.values()):
             raise HTTPException(
@@ -234,7 +313,7 @@ def create_agent_app(
     @app.post("/v1/auth/login", response_model=TokenResponse)
     async def login(request: LoginRequest) -> TokenResponse:
         try:
-            return runtime.auth.login(request.username, request.password)
+            return await runtime.identity.login(request.username, request.password)
         except AuthenticationError as exc:
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=str(exc)) from exc
 
@@ -323,6 +402,7 @@ def create_agent_app(
         request: ApprovalRequest,
         background_tasks: BackgroundTasks,
         principal: PrincipalDependency,
+        authorization: Annotated[str | None, Header()] = None,
     ) -> Mission:
         mission = await runtime.store.get_mission(mission_id, principal.user_id)
         if mission is None:
@@ -333,6 +413,7 @@ def create_agent_app(
             runtime.orchestrator.approve,
             mission_id,
             principal.user_id,
+            access_token=(authorization or "").removeprefix("Bearer ").strip(),
             approved=request.approved,
             remember_result=request.remember_result,
             reason=request.reason,
@@ -421,8 +502,24 @@ def create_agent_app(
         )
 
     @app.post("/v1/operator/stop", status_code=202)
-    async def safe_stop(request: StopRequest, principal: OperatorDependency) -> dict[str, Any]:
-        await runtime.orchestrator.execution.set_stop(request.active, request.reason)
+    async def safe_stop(
+        request: StopRequest,
+        principal: OperatorDependency,
+        authorization: Annotated[str | None, Header()] = None,
+    ) -> dict[str, Any]:
+        directive_hash = canonical_hash({"active": request.active, "reason": request.reason})
+        approval = await runtime.identity.approve(
+            token=(authorization or "").removeprefix("Bearer ").strip(),
+            mission_id="urn:noosfera:mission:operator-control",
+            plan_hash=directive_hash,
+            approved=True,
+            remember_result=False,
+            reason=request.reason,
+        )
+        directive = await runtime.orchestrator.governance.issue_stop(
+            active=request.active, reason=request.reason, approval=approval
+        )
+        await runtime.orchestrator.execution.set_stop(directive)
         await runtime.store.set_stop(request.active, request.reason)
         await runtime.store.append_control_event(
             "safety.stop-changed",
@@ -430,6 +527,8 @@ def create_agent_app(
                 "active": request.active,
                 "reason": request.reason,
                 "operator": principal.user_id,
+                "directive_id": directive.id,
+                "directive_version": directive.version,
             },
         )
         await runtime.orchestrator.events.publish(
@@ -439,9 +538,48 @@ def create_agent_app(
                 "reason": request.reason,
                 "operator": principal.user_id,
                 "timestamp": utc_now().isoformat(),
+                "directive_id": directive.id,
             },
         )
         return {"accepted": True, "active": request.active}
+
+    @app.post("/v1/operator/capabilities/{capability_id}/revoke", status_code=202)
+    async def revoke_capability(
+        capability_id: str,
+        request: RevocationRequest,
+        principal: OperatorDependency,
+        authorization: Annotated[str | None, Header()] = None,
+    ) -> dict[str, Any]:
+        directive_hash = canonical_hash({"capability_id": capability_id, "reason": request.reason})
+        approval = await runtime.identity.approve(
+            token=(authorization or "").removeprefix("Bearer ").strip(),
+            mission_id="urn:noosfera:mission:operator-control",
+            plan_hash=directive_hash,
+            approved=True,
+            remember_result=False,
+            reason=request.reason,
+        )
+        directive = await runtime.orchestrator.governance.issue_revocation(
+            capability_id=capability_id,
+            reason=request.reason,
+            approval=approval,
+        )
+        await runtime.orchestrator.execution.revoke(directive)
+        await runtime.store.append_control_event(
+            "capability.revoked",
+            {
+                "capability_id": capability_id,
+                "reason": request.reason,
+                "operator": principal.user_id,
+                "directive_id": directive.id,
+                "directive_version": directive.version,
+            },
+        )
+        await runtime.orchestrator.events.publish(
+            "authorization.revocation.v1",
+            directive.model_dump(mode="json"),
+        )
+        return {"accepted": True, "capability_id": capability_id}
 
     @app.get("/v1/manifest")
     async def service_manifest(principal: PrincipalDependency) -> dict[str, Any]:

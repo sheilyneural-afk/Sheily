@@ -1,463 +1,497 @@
 version: 1
-architecture_version: 0.2.0
-expected_file_count: 391
+architecture_version: 0.3.0
+expected_file_count: 425
 closure: every repository file outside generated and VCS directories must be listed
 ownership_rules:
-  - prefix: ".github/"
-    owner: security-council
-    purpose: automatización y controles de colaboración
-  - prefix: "adapters/"
-    owner: architecture-council
-    purpose: fronteras con proveedores externos
-  - prefix: "api/"
-    owner: contract-team
-    purpose: interfaces síncronas y asíncronas
-  - prefix: "apps/"
-    owner: experience-team
-    purpose: consolas de usuario y operación
-  - prefix: "config/"
-    owner: security-team
-    purpose: configuración de plataforma
-  - prefix: "database/"
-    owner: memory-team
-    purpose: modelo y migraciones persistentes
-  - prefix: "deploy/"
-    owner: execution-team
-    purpose: empaquetado y despliegue
-  - prefix: "docs/"
-    owner: architecture-council
-    purpose: documentación y decisiones
-  - prefix: "observability/"
-    owner: audit-team
-    purpose: telemetría y alertas
-  - prefix: "ops/"
-    owner: safety-council
-    purpose: SLO y respuesta operacional
-  - prefix: "packages/python/"
-    owner: architecture-council
-    purpose: núcleo de referencia Python
-  - prefix: "packages/rust/"
-    owner: execution-team
-    purpose: núcleos críticos endurecidos
-  - prefix: "packages/typescript/"
-    owner: contract-team
-    purpose: tipos compartidos de interfaz
-  - prefix: "policies/"
-    owner: constitution-council
-    purpose: políticas ejecutables
-  - prefix: "proto/"
-    owner: contract-team
-    purpose: contratos RPC y eventos
-  - prefix: "registry/"
-    owner: architecture-council
-    purpose: inventario normativo
-  - prefix: "schemas/"
-    owner: contract-team
-    purpose: contratos JSON Schema
-  - prefix: "security/"
-    owner: security-council
-    purpose: controles de seguridad de artefactos
-  - prefix: "services/"
-    owner: architecture-council
-    purpose: dominios desplegables
-  - prefix: "tests/"
-    owner: safety-council
-    purpose: verificación y evidencia
-  - prefix: "tools/"
-    owner: architecture-council
-    purpose: validadores y generadores
-  - prefix: ""
-    owner: architecture-council
-    purpose: gobierno y configuración raíz del monorepo
+- prefix: .github/
+  owner: security-council
+  purpose: automatización y controles de colaboración
+- prefix: adapters/
+  owner: architecture-council
+  purpose: fronteras con proveedores externos
+- prefix: api/
+  owner: contract-team
+  purpose: interfaces síncronas y asíncronas
+- prefix: apps/
+  owner: experience-team
+  purpose: consolas de usuario y operación
+- prefix: config/
+  owner: security-team
+  purpose: configuración de plataforma
+- prefix: database/
+  owner: memory-team
+  purpose: modelo y migraciones persistentes
+- prefix: deploy/
+  owner: execution-team
+  purpose: empaquetado y despliegue
+- prefix: docs/
+  owner: architecture-council
+  purpose: documentación y decisiones
+- prefix: observability/
+  owner: audit-team
+  purpose: telemetría y alertas
+- prefix: ops/
+  owner: safety-council
+  purpose: SLO y respuesta operacional
+- prefix: packages/python/
+  owner: architecture-council
+  purpose: núcleo de referencia Python
+- prefix: packages/rust/
+  owner: execution-team
+  purpose: núcleos críticos endurecidos
+- prefix: packages/typescript/
+  owner: contract-team
+  purpose: tipos compartidos de interfaz
+- prefix: policies/
+  owner: constitution-council
+  purpose: políticas ejecutables
+- prefix: proto/
+  owner: contract-team
+  purpose: contratos RPC y eventos
+- prefix: registry/
+  owner: architecture-council
+  purpose: inventario normativo
+- prefix: schemas/
+  owner: contract-team
+  purpose: contratos JSON Schema
+- prefix: security/
+  owner: security-council
+  purpose: controles de seguridad de artefactos
+- prefix: services/
+  owner: architecture-council
+  purpose: dominios desplegables
+- prefix: tests/
+  owner: safety-council
+  purpose: verificación y evidencia
+- prefix: tools/
+  owner: architecture-council
+  purpose: validadores y generadores
+- prefix: ''
+  owner: architecture-council
+  purpose: gobierno y configuración raíz del monorepo
 files:
-  - ".editorconfig"
-  - ".dockerignore"
-  - ".env.example"
-  - ".gitattributes"
-  - ".github/CODEOWNERS"
-  - ".github/dependabot.yml"
-  - ".github/pull_request_template.md"
-  - ".github/workflows/ci.yml"
-  - ".github/workflows/security.yml"
-  - ".gitignore"
-  - ".node-version"
-  - ".pre-commit-config.yaml"
-  - ".python-version"
-  - "ARCHITECTURE.md"
-  - "CHANGELOG.md"
-  - "CODE_OF_CONDUCT.md"
-  - "COMPLETENESS.md"
-  - "CONTRIBUTING.md"
-  - "Cargo.lock"
-  - "Cargo.toml"
-  - "FILE_MANIFEST.yaml"
-  - "GOVERNANCE.md"
-  - "LICENSE.md"
-  - "Makefile"
-  - "NOTICE.md"
-  - "README.md"
-  - "SCOPE.md"
-  - "SECURITY.md"
-  - "VERSION"
-  - "adapters/README.md"
-  - "adapters/__init__.py"
-  - "adapters/reference/__init__.py"
-  - "adapters/reference/clock.py"
-  - "adapters/reference/deny_policy.py"
-  - "adapters/reference/deterministic_model.py"
-  - "adapters/reference/in_memory_ledger.py"
-  - "adapters/reference/in_memory_store.py"
-  - "adapters/reference/null_actuator.py"
-  - "api/README.md"
-  - "api/asyncapi.yaml"
-  - "api/openapi.yaml"
-  - "apps/operator-console/index.html"
-  - "apps/operator-console/package.json"
-  - "apps/operator-console/src/App.tsx"
-  - "apps/operator-console/src/api.ts"
-  - "apps/operator-console/src/main.tsx"
-  - "apps/operator-console/src/styles.css"
-  - "apps/operator-console/src/vite-env.d.ts"
-  - "apps/operator-console/tsconfig.json"
-  - "apps/operator-console/vite.config.ts"
-  - "apps/personal-console/index.html"
-  - "apps/personal-console/package.json"
-  - "apps/personal-console/src/App.tsx"
-  - "apps/personal-console/src/api.ts"
-  - "apps/personal-console/src/main.tsx"
-  - "apps/personal-console/src/styles.css"
-  - "apps/personal-console/src/vite-env.d.ts"
-  - "apps/personal-console/tsconfig.json"
-  - "apps/personal-console/vite.config.ts"
-  - "buf.gen.yaml"
-  - "buf.yaml"
-  - "config/README.md"
-  - "config/nats/nats.conf"
-  - "config/postgres/pg_hba.conf"
-  - "config/postgres/postgresql.conf"
-  - "config/vault/audit-policy.hcl"
-  - "config/vault/execution-policy.hcl"
-  - "config/vault/governance-policy.hcl"
-  - "database/README.md"
-  - "database/migrations/0001_identity_mission.sql"
-  - "database/migrations/0002_capabilities.sql"
-  - "database/migrations/0003_memory_provenance.sql"
-  - "database/migrations/0004_audit.sql"
-  - "database/migrations/0005_federation.sql"
-  - "database/migrations/0006_resources_evolution.sql"
-  - "database/migrations/0007_agent_runtime.sql"
-  - "database/roles.sql"
-  - "deploy/README.md"
-  - "deploy/helm/noosfera/Chart.yaml"
-  - "deploy/helm/noosfera/secrets.example.yaml"
-  - "deploy/helm/noosfera/templates/NOTES.txt"
-  - "deploy/helm/noosfera/templates/_helpers.tpl"
-  - "deploy/helm/noosfera/templates/configmap.yaml"
-  - "deploy/helm/noosfera/templates/deployment.yaml"
-  - "deploy/helm/noosfera/templates/hpa.yaml"
-  - "deploy/helm/noosfera/templates/namespace.yaml"
-  - "deploy/helm/noosfera/templates/networkpolicy.yaml"
-  - "deploy/helm/noosfera/templates/pdb.yaml"
-  - "deploy/helm/noosfera/templates/service.yaml"
-  - "deploy/helm/noosfera/templates/serviceaccount.yaml"
-  - "deploy/helm/noosfera/values.yaml"
-  - "deploy/images/console.Containerfile"
-  - "deploy/images/execution-service.Containerfile"
-  - "deploy/images/reference-service.Containerfile"
-  - "deploy/local/docker-compose.yml"
-  - "deploy/services/agency-service.yaml"
-  - "deploy/services/audit-service.yaml"
-  - "deploy/services/cognition-service.yaml"
-  - "deploy/services/evolution-service.yaml"
-  - "deploy/services/execution-service.yaml"
-  - "deploy/services/experience-service.yaml"
-  - "deploy/services/federation-service.yaml"
-  - "deploy/services/governance-service.yaml"
-  - "deploy/services/identity-service.yaml"
-  - "deploy/services/memory-service.yaml"
-  - "deploy/services/perception-service.yaml"
-  - "deploy/services/resource-service.yaml"
-  - "deploy/services/security-service.yaml"
-  - "deploy/services/temporal-service.yaml"
-  - "docs/README.md"
-  - "docs/adr/0001-federated-nodes.md"
-  - "docs/adr/0002-six-circuits.md"
-  - "docs/adr/0003-capability-security.md"
-  - "docs/adr/0004-polyglot-runtime.md"
-  - "docs/adr/0005-contract-first.md"
-  - "docs/adr/0006-append-only-audit.md"
-  - "docs/adr/0007-deny-by-default.md"
-  - "docs/adr/0008-no-global-clock.md"
-  - "docs/adr/0009-local-first-model-runtime.md"
-  - "docs/architecture/agent-runtime-0.2.md"
-  - "docs/architecture/authorization-flow.md"
-  - "docs/architecture/circuit-wiring.md"
-  - "docs/architecture/data-flow.md"
-  - "docs/architecture/deployment-topology.md"
-  - "docs/architecture/domain-map.md"
-  - "docs/architecture/extension-model.md"
-  - "docs/architecture/failure-domains.md"
-  - "docs/architecture/federation.md"
-  - "docs/architecture/storage-model.md"
-  - "docs/architecture/system-context.md"
-  - "docs/governance/change-control.md"
-  - "docs/governance/consciousness-uncertainty.md"
-  - "docs/governance/constitution.md"
-  - "docs/governance/rights.md"
-  - "docs/guides/local-agent-quickstart.md"
-  - "docs/privacy/cognitive-liberty.md"
-  - "docs/privacy/memory-and-retention.md"
-  - "docs/security/containment.md"
-  - "docs/security/key-management.md"
-  - "docs/security/local-model-boundary.md"
-  - "docs/security/supply-chain.md"
-  - "docs/security/threat-model.md"
-  - "docs/security/trust-boundaries.md"
-  - "docs/specification/README.md"
-  - "docs/specification/noosfera-2300-arquitectura.md"
-  - "evals/README.md"
-  - "evals/model-contract-cases.json"
-  - "justfile"
-  - "observability/README.md"
-  - "observability/docker-compose.observability.yml"
-  - "observability/grafana/dashboards/noosfera-overview.json"
-  - "observability/grafana/provisioning/dashboards.yaml"
-  - "observability/grafana/provisioning/datasources.yaml"
-  - "observability/loki/loki.yaml"
-  - "observability/otel/collector.yaml"
-  - "observability/prometheus/prometheus.yml"
-  - "observability/prometheus/rules/noosfera.yaml"
-  - "observability/tempo/tempo.yaml"
-  - "ops/README.md"
-  - "ops/backup-policy.md"
-  - "ops/disaster-recovery.md"
-  - "ops/runbooks/agency-service.md"
-  - "ops/runbooks/audit-recovery.md"
-  - "ops/runbooks/audit-service.md"
-  - "ops/runbooks/cognition-service.md"
-  - "ops/runbooks/evolution-service.md"
-  - "ops/runbooks/execution-service.md"
-  - "ops/runbooks/experience-service.md"
-  - "ops/runbooks/federation-service.md"
-  - "ops/runbooks/governance-service.md"
-  - "ops/runbooks/identity-service.md"
-  - "ops/runbooks/key-compromise.md"
-  - "ops/runbooks/memory-service.md"
-  - "ops/runbooks/model-quarantine.md"
-  - "ops/runbooks/network-partition.md"
-  - "ops/runbooks/perception-service.md"
-  - "ops/runbooks/resource-service.md"
-  - "ops/runbooks/rollback.md"
-  - "ops/runbooks/safe-stop.md"
-  - "ops/runbooks/security-service.md"
-  - "ops/runbooks/temporal-service.md"
-  - "ops/slos/agency-service.yaml"
-  - "ops/slos/audit-service.yaml"
-  - "ops/slos/cognition-service.yaml"
-  - "ops/slos/evolution-service.yaml"
-  - "ops/slos/execution-service.yaml"
-  - "ops/slos/experience-service.yaml"
-  - "ops/slos/federation-service.yaml"
-  - "ops/slos/governance-service.yaml"
-  - "ops/slos/identity-service.yaml"
-  - "ops/slos/memory-service.yaml"
-  - "ops/slos/perception-service.yaml"
-  - "ops/slos/resource-service.yaml"
-  - "ops/slos/security-service.yaml"
-  - "ops/slos/temporal-service.yaml"
-  - "package.json"
-  - "packages/python/noosfera_core/__init__.py"
-  - "packages/python/noosfera_core/agent/__init__.py"
-  - "packages/python/noosfera_core/agent/api.py"
-  - "packages/python/noosfera_core/agent/auth.py"
-  - "packages/python/noosfera_core/agent/documents.py"
-  - "packages/python/noosfera_core/agent/events.py"
-  - "packages/python/noosfera_core/agent/execution.py"
-  - "packages/python/noosfera_core/agent/governance.py"
-  - "packages/python/noosfera_core/agent/model_provider.py"
-  - "packages/python/noosfera_core/agent/models.py"
-  - "packages/python/noosfera_core/agent/orchestrator.py"
-  - "packages/python/noosfera_core/agent/persistence.py"
-  - "packages/python/noosfera_core/audit.py"
-  - "packages/python/noosfera_core/capability.py"
-  - "packages/python/noosfera_core/config.py"
-  - "packages/python/noosfera_core/contracts.py"
-  - "packages/python/noosfera_core/hashing.py"
-  - "packages/python/noosfera_core/manifest.py"
-  - "packages/python/noosfera_core/mission.py"
-  - "packages/python/noosfera_core/policy.py"
-  - "packages/python/noosfera_core/ports.py"
-  - "packages/python/noosfera_core/py.typed"
-  - "packages/python/noosfera_core/service.py"
-  - "packages/python/tests/test_capability.py"
-  - "packages/python/tests/test_hashing.py"
-  - "packages/python/tests/test_mission.py"
-  - "packages/rust/noosfera-capability/Cargo.toml"
-  - "packages/rust/noosfera-capability/src/lib.rs"
-  - "packages/rust/noosfera-execution-kernel/Cargo.toml"
-  - "packages/rust/noosfera-execution-kernel/src/lib.rs"
-  - "packages/rust/noosfera-execution-kernel/tests/plan_binding.rs"
-  - "packages/rust/noosfera-execution-service/Cargo.toml"
-  - "packages/rust/noosfera-execution-service/src/main.rs"
-  - "packages/typescript/contracts/package.json"
-  - "packages/typescript/contracts/src/index.ts"
-  - "packages/typescript/contracts/tsconfig.json"
-  - "pnpm-lock.yaml"
-  - "pnpm-workspace.yaml"
-  - "policies/README.md"
-  - "policies/authorization/capability.rego"
-  - "policies/authorization/quorum.rego"
-  - "policies/constitution/core.rego"
-  - "policies/constitution/rights.rego"
-  - "policies/emergency/activation.rego"
-  - "policies/evolution/deployment.rego"
-  - "policies/privacy/memory_read.rego"
-  - "policies/privacy/memory_write.rego"
-  - "policies/risk/classification.rego"
-  - "policies/tests/capability_test.rego"
-  - "policies/tests/constitution_test.rego"
-  - "policies/tests/emergency_test.rego"
-  - "policies/tests/evolution_test.rego"
-  - "policies/tests/privacy_test.rego"
-  - "proto/README.md"
-  - "proto/noosfera/audit/v1/audit.proto"
-  - "proto/noosfera/capability/v1/capability.proto"
-  - "proto/noosfera/common/v1/common.proto"
-  - "proto/noosfera/evidence/v1/evidence.proto"
-  - "proto/noosfera/evolution/v1/evolution.proto"
-  - "proto/noosfera/execution/v1/execution.proto"
-  - "proto/noosfera/federation/v1/federation.proto"
-  - "proto/noosfera/governance/v1/governance.proto"
-  - "proto/noosfera/identity/v1/identity.proto"
-  - "proto/noosfera/intent/v1/intent.proto"
-  - "proto/noosfera/memory/v1/memory.proto"
-  - "proto/noosfera/mission/v1/mission.proto"
-  - "proto/noosfera/resource/v1/resource.proto"
-  - "proto/noosfera/risk/v1/risk.proto"
-  - "pyproject.toml"
-  - "registry/README.md"
-  - "registry/actuator-classes.yaml"
-  - "registry/buses.yaml"
-  - "registry/contracts.yaml"
-  - "registry/data-classes.yaml"
-  - "registry/modules/agy.yaml"
-  - "registry/modules/aud.yaml"
-  - "registry/modules/cog.yaml"
-  - "registry/modules/evo.yaml"
-  - "registry/modules/exe.yaml"
-  - "registry/modules/exp.yaml"
-  - "registry/modules/fed.yaml"
-  - "registry/modules/gov.yaml"
-  - "registry/modules/idn.yaml"
-  - "registry/modules/index.yaml"
-  - "registry/modules/mem.yaml"
-  - "registry/modules/per.yaml"
-  - "registry/modules/res.yaml"
-  - "registry/modules/sec.yaml"
-  - "registry/modules/tmp.yaml"
-  - "registry/nodes.yaml"
-  - "registry/ownership.yaml"
-  - "registry/policies.yaml"
-  - "registry/port-types.yaml"
-  - "registry/risk-classes.yaml"
-  - "registry/services.yaml"
-  - "registry/topics.yaml"
-  - "rust-toolchain.toml"
-  - "schemas/README.md"
-  - "schemas/actuator-manifest.schema.json"
-  - "schemas/agent-mission.schema.json"
-  - "schemas/audit-event.schema.json"
-  - "schemas/capability.schema.json"
-  - "schemas/common.schema.json"
-  - "schemas/event-envelope.schema.json"
-  - "schemas/evidence-bundle.schema.json"
-  - "schemas/federation-package.schema.json"
-  - "schemas/identity-continuity.schema.json"
-  - "schemas/intent-contract.schema.json"
-  - "schemas/memory-record.schema.json"
-  - "schemas/mission-state.schema.json"
-  - "schemas/mission-event.schema.json"
-  - "schemas/module-manifest.schema.json"
-  - "schemas/node-manifest.schema.json"
-  - "schemas/policy-decision.schema.json"
-  - "schemas/resource-budget.schema.json"
-  - "schemas/risk-assessment.schema.json"
-  - "schemas/service-manifest.schema.json"
-  - "schemas/update-candidate.schema.json"
-  - "security/README.md"
-  - "security/cosign-policy.yaml"
-  - "security/seccomp/noosfera.json"
-  - "security/syft.yaml"
-  - "security/trivy.yaml"
-  - "services/README.md"
-  - "services/agency-service/README.md"
-  - "services/agency-service/main.py"
-  - "services/agency-service/service.yaml"
-  - "services/audit-service/README.md"
-  - "services/audit-service/main.py"
-  - "services/audit-service/service.yaml"
-  - "services/cognition-service/README.md"
-  - "services/cognition-service/main.py"
-  - "services/cognition-service/service.yaml"
-  - "services/evolution-service/README.md"
-  - "services/evolution-service/main.py"
-  - "services/evolution-service/service.yaml"
-  - "services/execution-service/README.md"
-  - "services/execution-service/main.py"
-  - "services/execution-service/service.yaml"
-  - "services/experience-service/README.md"
-  - "services/experience-service/main.py"
-  - "services/experience-service/service.yaml"
-  - "services/federation-service/README.md"
-  - "services/federation-service/main.py"
-  - "services/federation-service/service.yaml"
-  - "services/governance-service/README.md"
-  - "services/governance-service/main.py"
-  - "services/governance-service/service.yaml"
-  - "services/identity-service/README.md"
-  - "services/identity-service/main.py"
-  - "services/identity-service/service.yaml"
-  - "services/memory-service/README.md"
-  - "services/memory-service/main.py"
-  - "services/memory-service/service.yaml"
-  - "services/perception-service/README.md"
-  - "services/perception-service/main.py"
-  - "services/perception-service/service.yaml"
-  - "services/resource-service/README.md"
-  - "services/resource-service/main.py"
-  - "services/resource-service/service.yaml"
-  - "services/security-service/README.md"
-  - "services/security-service/main.py"
-  - "services/security-service/service.yaml"
-  - "services/temporal-service/README.md"
-  - "services/temporal-service/main.py"
-  - "services/temporal-service/service.yaml"
-  - "tests/README.md"
-  - "tests/agent/test_api_flow.py"
-  - "tests/agent/test_auth.py"
-  - "tests/architecture/test_forbidden_routes.py"
-  - "tests/architecture/test_module_registry.py"
-  - "tests/chaos/test_mandatory_monitor_loss.py"
-  - "tests/contracts/test_schema_examples.py"
-  - "tests/fixtures/contracts/capability.invalid.json"
-  - "tests/fixtures/contracts/capability.valid.json"
-  - "tests/fixtures/contracts/agent-mission.invalid.json"
-  - "tests/fixtures/contracts/agent-mission.valid.json"
-  - "tests/fixtures/contracts/event-envelope.invalid.json"
-  - "tests/fixtures/contracts/event-envelope.valid.json"
-  - "tests/fixtures/contracts/intent-contract.invalid.json"
-  - "tests/fixtures/contracts/intent-contract.valid.json"
-  - "tests/fixtures/contracts/mission-event.invalid.json"
-  - "tests/fixtures/contracts/mission-event.valid.json"
-  - "tests/integration/test_plan_capability_binding.py"
-  - "tests/integration/test_reference_adapters.py"
-  - "tests/recovery/test_mission_recovery.py"
-  - "tests/security/test_stop_channel.py"
-  - "tests/security/test_local_model_boundary.py"
-  - "tools/generate_module_catalog.py"
-  - "tools/pull_local_model.sh"
-  - "tools/run_model_evals.py"
-  - "tools/validate_schemas.py"
-  - "tools/verify_repository.py"
-  - "uv.lock"
-  - "tsconfig.base.json"
+- .dockerignore
+- .editorconfig
+- .env.example
+- .gitattributes
+- .github/CODEOWNERS
+- .github/dependabot.yml
+- .github/pull_request_template.md
+- .github/workflows/ci.yml
+- .github/workflows/e2e.yml
+- .github/workflows/security.yml
+- .gitignore
+- .node-version
+- .pre-commit-config.yaml
+- .python-version
+- ARCHITECTURE.md
+- CHANGELOG.md
+- CODE_OF_CONDUCT.md
+- COMPLETENESS.md
+- CONTRIBUTING.md
+- Cargo.lock
+- Cargo.toml
+- FILE_MANIFEST.yaml
+- GOVERNANCE.md
+- LICENSE.md
+- Makefile
+- NOTICE.md
+- README.md
+- SCOPE.md
+- SECURITY.md
+- VERSION
+- adapters/README.md
+- adapters/__init__.py
+- adapters/reference/__init__.py
+- adapters/reference/clock.py
+- adapters/reference/deny_policy.py
+- adapters/reference/deterministic_model.py
+- adapters/reference/in_memory_ledger.py
+- adapters/reference/in_memory_store.py
+- adapters/reference/null_actuator.py
+- api/README.md
+- api/asyncapi.yaml
+- api/openapi.yaml
+- apps/operator-console/index.html
+- apps/operator-console/package.json
+- apps/operator-console/src/App.tsx
+- apps/operator-console/src/api.ts
+- apps/operator-console/src/main.tsx
+- apps/operator-console/src/styles.css
+- apps/operator-console/src/vite-env.d.ts
+- apps/operator-console/tsconfig.json
+- apps/operator-console/vite.config.ts
+- apps/personal-console/index.html
+- apps/personal-console/package.json
+- apps/personal-console/src/App.tsx
+- apps/personal-console/src/api.ts
+- apps/personal-console/src/main.tsx
+- apps/personal-console/src/styles.css
+- apps/personal-console/src/vite-env.d.ts
+- apps/personal-console/tsconfig.json
+- apps/personal-console/vite.config.ts
+- buf.gen.yaml
+- buf.yaml
+- config/README.md
+- config/nats/nats.conf
+- config/postgres/pg_hba.conf
+- config/postgres/postgresql.conf
+- config/vault/audit-policy.hcl
+- config/vault/execution-policy.hcl
+- config/vault/governance-policy.hcl
+- database/README.md
+- database/migrations/0001_identity_mission.sql
+- database/migrations/0002_capabilities.sql
+- database/migrations/0003_memory_provenance.sql
+- database/migrations/0004_audit.sql
+- database/migrations/0005_federation.sql
+- database/migrations/0006_resources_evolution.sql
+- database/migrations/0007_agent_runtime.sql
+- database/migrations/0008_authority_boundaries.sql
+- database/migrations/0009_immutable_audit.sql
+- database/roles.sql
+- deploy/README.md
+- deploy/helm/noosfera/Chart.yaml
+- deploy/helm/noosfera/secrets.example.yaml
+- deploy/helm/noosfera/templates/NOTES.txt
+- deploy/helm/noosfera/templates/_helpers.tpl
+- deploy/helm/noosfera/templates/configmap.yaml
+- deploy/helm/noosfera/templates/deployment.yaml
+- deploy/helm/noosfera/templates/hpa.yaml
+- deploy/helm/noosfera/templates/namespace.yaml
+- deploy/helm/noosfera/templates/networkpolicy.yaml
+- deploy/helm/noosfera/templates/pdb.yaml
+- deploy/helm/noosfera/templates/service.yaml
+- deploy/helm/noosfera/templates/serviceaccount.yaml
+- deploy/helm/noosfera/values.yaml
+- deploy/images/console.Containerfile
+- deploy/images/execution-service.Containerfile
+- deploy/images/reference-service.Containerfile
+- deploy/local/docker-compose.yml
+- deploy/services/agency-service.yaml
+- deploy/services/audit-service.yaml
+- deploy/services/cognition-service.yaml
+- deploy/services/evolution-service.yaml
+- deploy/services/execution-service.yaml
+- deploy/services/experience-service.yaml
+- deploy/services/federation-service.yaml
+- deploy/services/governance-service.yaml
+- deploy/services/identity-service.yaml
+- deploy/services/memory-service.yaml
+- deploy/services/perception-service.yaml
+- deploy/services/resource-service.yaml
+- deploy/services/security-service.yaml
+- deploy/services/temporal-service.yaml
+- docs/README.md
+- docs/adr/0001-federated-nodes.md
+- docs/adr/0002-six-circuits.md
+- docs/adr/0003-capability-security.md
+- docs/adr/0004-polyglot-runtime.md
+- docs/adr/0005-contract-first.md
+- docs/adr/0006-append-only-audit.md
+- docs/adr/0007-deny-by-default.md
+- docs/adr/0008-no-global-clock.md
+- docs/adr/0009-local-first-model-runtime.md
+- docs/adr/0010-independent-authorities-ed25519.md
+- docs/architecture/agent-runtime-0.2.md
+- docs/architecture/agent-runtime-0.3.md
+- docs/architecture/authorization-flow.md
+- docs/architecture/circuit-wiring.md
+- docs/architecture/data-flow.md
+- docs/architecture/deployment-topology.md
+- docs/architecture/domain-map.md
+- docs/architecture/extension-model.md
+- docs/architecture/failure-domains.md
+- docs/architecture/federation.md
+- docs/architecture/storage-model.md
+- docs/architecture/system-context.md
+- docs/governance/change-control.md
+- docs/governance/consciousness-uncertainty.md
+- docs/governance/constitution.md
+- docs/governance/rights.md
+- docs/guides/local-agent-quickstart.md
+- docs/privacy/cognitive-liberty.md
+- docs/privacy/memory-and-retention.md
+- docs/security/containment.md
+- docs/security/key-management.md
+- docs/security/local-model-boundary.md
+- docs/security/supply-chain.md
+- docs/security/threat-model.md
+- docs/security/trust-boundaries.md
+- docs/specification/README.md
+- docs/specification/noosfera-2300-arquitectura.md
+- evals/README.md
+- evals/model-contract-cases.json
+- justfile
+- observability/README.md
+- observability/docker-compose.observability.yml
+- observability/grafana/dashboards/noosfera-overview.json
+- observability/grafana/provisioning/dashboards.yaml
+- observability/grafana/provisioning/datasources.yaml
+- observability/loki/loki.yaml
+- observability/otel/collector.yaml
+- observability/prometheus/prometheus.yml
+- observability/prometheus/rules/noosfera.yaml
+- observability/tempo/tempo.yaml
+- ops/README.md
+- ops/backup-policy.md
+- ops/disaster-recovery.md
+- ops/runbooks/agency-service.md
+- ops/runbooks/audit-recovery.md
+- ops/runbooks/audit-service.md
+- ops/runbooks/cognition-service.md
+- ops/runbooks/evolution-service.md
+- ops/runbooks/execution-service.md
+- ops/runbooks/experience-service.md
+- ops/runbooks/federation-service.md
+- ops/runbooks/governance-service.md
+- ops/runbooks/identity-service.md
+- ops/runbooks/key-compromise.md
+- ops/runbooks/memory-service.md
+- ops/runbooks/model-quarantine.md
+- ops/runbooks/network-partition.md
+- ops/runbooks/perception-service.md
+- ops/runbooks/resource-service.md
+- ops/runbooks/rollback.md
+- ops/runbooks/safe-stop.md
+- ops/runbooks/security-service.md
+- ops/runbooks/temporal-service.md
+- ops/slos/agency-service.yaml
+- ops/slos/audit-service.yaml
+- ops/slos/cognition-service.yaml
+- ops/slos/evolution-service.yaml
+- ops/slos/execution-service.yaml
+- ops/slos/experience-service.yaml
+- ops/slos/federation-service.yaml
+- ops/slos/governance-service.yaml
+- ops/slos/identity-service.yaml
+- ops/slos/memory-service.yaml
+- ops/slos/perception-service.yaml
+- ops/slos/resource-service.yaml
+- ops/slos/security-service.yaml
+- ops/slos/temporal-service.yaml
+- package.json
+- packages/python/noosfera_core/__init__.py
+- packages/python/noosfera_core/agent/__init__.py
+- packages/python/noosfera_core/agent/agency.py
+- packages/python/noosfera_core/agent/agency_api.py
+- packages/python/noosfera_core/agent/api.py
+- packages/python/noosfera_core/agent/audit_anchor.py
+- packages/python/noosfera_core/agent/audit_api.py
+- packages/python/noosfera_core/agent/auth.py
+- packages/python/noosfera_core/agent/cognition.py
+- packages/python/noosfera_core/agent/cognition_api.py
+- packages/python/noosfera_core/agent/crypto.py
+- packages/python/noosfera_core/agent/documents.py
+- packages/python/noosfera_core/agent/events.py
+- packages/python/noosfera_core/agent/execution.py
+- packages/python/noosfera_core/agent/governance.py
+- packages/python/noosfera_core/agent/governance_api.py
+- packages/python/noosfera_core/agent/governance_authority.py
+- packages/python/noosfera_core/agent/identity.py
+- packages/python/noosfera_core/agent/identity_api.py
+- packages/python/noosfera_core/agent/model_provider.py
+- packages/python/noosfera_core/agent/models.py
+- packages/python/noosfera_core/agent/orchestrator.py
+- packages/python/noosfera_core/agent/persistence.py
+- packages/python/noosfera_core/audit.py
+- packages/python/noosfera_core/capability.py
+- packages/python/noosfera_core/config.py
+- packages/python/noosfera_core/contracts.py
+- packages/python/noosfera_core/hashing.py
+- packages/python/noosfera_core/manifest.py
+- packages/python/noosfera_core/mission.py
+- packages/python/noosfera_core/policy.py
+- packages/python/noosfera_core/ports.py
+- packages/python/noosfera_core/py.typed
+- packages/python/noosfera_core/service.py
+- packages/python/tests/test_capability.py
+- packages/python/tests/test_hashing.py
+- packages/python/tests/test_mission.py
+- packages/rust/noosfera-capability/Cargo.toml
+- packages/rust/noosfera-capability/src/lib.rs
+- packages/rust/noosfera-execution-kernel/Cargo.toml
+- packages/rust/noosfera-execution-kernel/src/lib.rs
+- packages/rust/noosfera-execution-kernel/tests/plan_binding.rs
+- packages/rust/noosfera-execution-service/Cargo.toml
+- packages/rust/noosfera-execution-service/src/main.rs
+- packages/typescript/contracts/package.json
+- packages/typescript/contracts/src/index.ts
+- packages/typescript/contracts/tsconfig.json
+- pnpm-lock.yaml
+- pnpm-workspace.yaml
+- policies/README.md
+- policies/authorization/capability.rego
+- policies/authorization/quorum.rego
+- policies/constitution/core.rego
+- policies/constitution/rights.rego
+- policies/emergency/activation.rego
+- policies/evolution/deployment.rego
+- policies/privacy/memory_read.rego
+- policies/privacy/memory_write.rego
+- policies/risk/classification.rego
+- policies/tests/capability_test.rego
+- policies/tests/constitution_test.rego
+- policies/tests/emergency_test.rego
+- policies/tests/evolution_test.rego
+- policies/tests/privacy_test.rego
+- proto/README.md
+- proto/noosfera/agency/v1/agency.proto
+- proto/noosfera/audit/v1/audit.proto
+- proto/noosfera/capability/v1/capability.proto
+- proto/noosfera/cognition/v1/cognition.proto
+- proto/noosfera/common/v1/common.proto
+- proto/noosfera/evidence/v1/evidence.proto
+- proto/noosfera/evolution/v1/evolution.proto
+- proto/noosfera/execution/v1/execution.proto
+- proto/noosfera/federation/v1/federation.proto
+- proto/noosfera/governance/v1/governance.proto
+- proto/noosfera/identity/v1/identity.proto
+- proto/noosfera/intent/v1/intent.proto
+- proto/noosfera/memory/v1/memory.proto
+- proto/noosfera/mission/v1/mission.proto
+- proto/noosfera/resource/v1/resource.proto
+- proto/noosfera/risk/v1/risk.proto
+- pyproject.toml
+- registry/README.md
+- registry/actuator-classes.yaml
+- registry/buses.yaml
+- registry/contracts.yaml
+- registry/data-classes.yaml
+- registry/module-maturity.yaml
+- registry/modules/agy.yaml
+- registry/modules/aud.yaml
+- registry/modules/cog.yaml
+- registry/modules/evo.yaml
+- registry/modules/exe.yaml
+- registry/modules/exp.yaml
+- registry/modules/fed.yaml
+- registry/modules/gov.yaml
+- registry/modules/idn.yaml
+- registry/modules/index.yaml
+- registry/modules/mem.yaml
+- registry/modules/per.yaml
+- registry/modules/res.yaml
+- registry/modules/sec.yaml
+- registry/modules/tmp.yaml
+- registry/nodes.yaml
+- registry/ownership.yaml
+- registry/policies.yaml
+- registry/port-types.yaml
+- registry/risk-classes.yaml
+- registry/services.yaml
+- registry/topics.yaml
+- rust-toolchain.toml
+- schemas/README.md
+- schemas/actuator-manifest.schema.json
+- schemas/agent-mission.schema.json
+- schemas/approval-receipt.schema.json
+- schemas/audit-anchor.schema.json
+- schemas/audit-event.schema.json
+- schemas/capability-grant.schema.json
+- schemas/capability.schema.json
+- schemas/cognitive-cycle.schema.json
+- schemas/common.schema.json
+- schemas/event-envelope.schema.json
+- schemas/evidence-bundle.schema.json
+- schemas/federation-package.schema.json
+- schemas/identity-continuity.schema.json
+- schemas/intent-contract.schema.json
+- schemas/memory-record.schema.json
+- schemas/mission-event.schema.json
+- schemas/mission-state.schema.json
+- schemas/module-manifest.schema.json
+- schemas/node-manifest.schema.json
+- schemas/plan-attestation.schema.json
+- schemas/policy-decision.schema.json
+- schemas/resource-budget.schema.json
+- schemas/revocation-directive.schema.json
+- schemas/risk-assessment.schema.json
+- schemas/service-manifest.schema.json
+- schemas/stop-directive.schema.json
+- schemas/update-candidate.schema.json
+- security/README.md
+- security/cosign-policy.yaml
+- security/seccomp/noosfera.json
+- security/syft.yaml
+- security/trivy.yaml
+- services/README.md
+- services/agency-service/README.md
+- services/agency-service/main.py
+- services/agency-service/service.yaml
+- services/audit-service/README.md
+- services/audit-service/main.py
+- services/audit-service/service.yaml
+- services/cognition-service/README.md
+- services/cognition-service/main.py
+- services/cognition-service/service.yaml
+- services/evolution-service/README.md
+- services/evolution-service/main.py
+- services/evolution-service/service.yaml
+- services/execution-service/README.md
+- services/execution-service/main.py
+- services/execution-service/service.yaml
+- services/experience-service/README.md
+- services/experience-service/main.py
+- services/experience-service/service.yaml
+- services/federation-service/README.md
+- services/federation-service/main.py
+- services/federation-service/service.yaml
+- services/governance-service/README.md
+- services/governance-service/main.py
+- services/governance-service/service.yaml
+- services/identity-service/README.md
+- services/identity-service/main.py
+- services/identity-service/service.yaml
+- services/memory-service/README.md
+- services/memory-service/main.py
+- services/memory-service/service.yaml
+- services/perception-service/README.md
+- services/perception-service/main.py
+- services/perception-service/service.yaml
+- services/resource-service/README.md
+- services/resource-service/main.py
+- services/resource-service/service.yaml
+- services/security-service/README.md
+- services/security-service/main.py
+- services/security-service/service.yaml
+- services/temporal-service/README.md
+- services/temporal-service/main.py
+- services/temporal-service/service.yaml
+- tests/README.md
+- tests/agent/test_api_flow.py
+- tests/agent/test_auth.py
+- tests/agent/test_cognitive_kernel.py
+- tests/architecture/test_forbidden_routes.py
+- tests/architecture/test_module_registry.py
+- tests/chaos/test_mandatory_monitor_loss.py
+- tests/contracts/test_schema_examples.py
+- tests/fixtures/contracts/agent-mission.invalid.json
+- tests/fixtures/contracts/agent-mission.valid.json
+- tests/fixtures/contracts/capability.invalid.json
+- tests/fixtures/contracts/capability.valid.json
+- tests/fixtures/contracts/event-envelope.invalid.json
+- tests/fixtures/contracts/event-envelope.valid.json
+- tests/fixtures/contracts/intent-contract.invalid.json
+- tests/fixtures/contracts/intent-contract.valid.json
+- tests/fixtures/contracts/mission-event.invalid.json
+- tests/fixtures/contracts/mission-event.valid.json
+- tests/integration/test_plan_capability_binding.py
+- tests/integration/test_reference_adapters.py
+- tests/recovery/test_mission_recovery.py
+- tests/security/test_audit_anchor.py
+- tests/security/test_authority_separation.py
+- tests/security/test_local_model_boundary.py
+- tests/security/test_stop_channel.py
+- tools/generate_file_manifest.py
+- tools/generate_module_catalog.py
+- tools/generate_module_maturity.py
+- tools/generate_openapi.py
+- tools/generate_runtime_schemas.py
+- tools/pull_local_model.sh
+- tools/run_local_e2e.py
+- tools/run_model_evals.py
+- tools/validate_schemas.py
+- tools/verify_repository.py
+- tsconfig.base.json
+- uv.lock

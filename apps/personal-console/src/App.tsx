@@ -155,7 +155,7 @@ export function App() {
   return (
     <main className="app-shell">
       <aside>
-        <p className="eyebrow">SHEILY 0.2</p>
+        <p className="eyebrow">SHEILY 0.3</p>
         <h2>Memoria soberana</h2>
         <p className="muted">Solo se guarda cuando lo autorizas expresamente.</p>
         <div className="memory-list">

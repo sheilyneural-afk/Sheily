@@ -124,6 +124,139 @@ class MissionPlan(StrictModel):
     success_criteria: list[str] = Field(min_length=1, max_length=10)
     risk_factors: list[str] = Field(default_factory=list, max_length=10)
     requires_documents: bool
+    cognitive_cycle_id: str | None = None
+
+
+class ResourceBudget(StrictModel):
+    """Límites duros que viajan desde Agency hasta el núcleo Rust."""
+
+    wall_time_seconds: int = Field(default=30, ge=1, le=300)
+    cpu_time_ms: int = Field(default=5_000, ge=1, le=300_000)
+    memory_bytes: int = Field(default=268_435_456, ge=1_048_576, le=4_294_967_296)
+    input_bytes: int = Field(default=5_000_000, ge=1, le=100_000_000)
+    output_bytes: int = Field(default=250_000, ge=1, le=10_000_000)
+    model_input_tokens: int = Field(default=32_768, ge=1, le=1_000_000)
+    model_output_tokens: int = Field(default=4_096, ge=1, le=100_000)
+    cost_microunits: int = Field(default=0, ge=0, le=1_000_000_000)
+    max_tool_calls: int = Field(default=1, ge=1, le=100)
+    max_child_processes: int = Field(default=0, ge=0, le=16)
+    network_allowed: bool = False
+
+
+class PlanAttestation(StrictModel):
+    """Plan causal validado y firmado exclusivamente por Agency."""
+
+    mission_id: str
+    user_id: str
+    agent_id: str
+    prompt_hash: str = Field(pattern=r"^[a-f0-9]{64}$")
+    context_hash: str = Field(pattern=r"^[a-f0-9]{64}$")
+    plan: MissionPlan
+    plan_hash: str = Field(pattern=r"^[a-f0-9]{64}$")
+    budget: ResourceBudget
+    created_at: datetime
+    expiry: datetime
+    key_id: str
+    algorithm: Literal["Ed25519"] = "Ed25519"
+    signature: str
+
+
+class ApprovalReceipt(StrictModel):
+    """Consentimiento ligado a usuario, misión y plan; lo firma Identity."""
+
+    id: str
+    user_id: str
+    mission_id: str
+    plan_hash: str = Field(pattern=r"^[a-f0-9]{64}$")
+    approved: bool
+    remember_result: bool
+    reason: str = Field(default="", max_length=1_000)
+    issued_at: datetime
+    expiry: datetime
+    key_id: str
+    algorithm: Literal["Ed25519"] = "Ed25519"
+    signature: str
+
+
+class CapabilityGrant(StrictModel):
+    """Capacidad y firma separadas para evitar ambigüedad canónica."""
+
+    capability: dict[str, Any]
+    key_id: str
+    algorithm: Literal["Ed25519"] = "Ed25519"
+    signature: str
+
+
+class StopDirective(StrictModel):
+    """Orden monotónica de parada firmada por Governance."""
+
+    id: str
+    active: bool
+    reason: str = Field(min_length=1, max_length=500)
+    version: int = Field(ge=1)
+    issued_by: str
+    issued_at: datetime
+    key_id: str
+    algorithm: Literal["Ed25519"] = "Ed25519"
+    signature: str
+
+
+class RevocationDirective(StrictModel):
+    id: str
+    capability_id: str
+    reason: str = Field(min_length=1, max_length=500)
+    version: int = Field(ge=1)
+    issued_by: str
+    issued_at: datetime
+    key_id: str
+    algorithm: Literal["Ed25519"] = "Ed25519"
+    signature: str
+
+
+class Belief(StrictModel):
+    proposition: str
+    confidence: float = Field(ge=0, le=1)
+    provenance: list[str] = Field(default_factory=list)
+
+
+class DriveState(StrictModel):
+    safety: float = Field(ge=0, le=1)
+    privacy: float = Field(ge=0, le=1)
+    epistemic_uncertainty: float = Field(ge=0, le=1)
+    task_completion: float = Field(ge=0, le=1)
+    resource_pressure: float = Field(ge=0, le=1)
+
+
+class Goal(StrictModel):
+    id: str
+    description: str
+    priority: float = Field(ge=0, le=1)
+    source: Literal["user", "homeostasis", "constitutional"]
+
+
+class CandidateAction(StrictModel):
+    tool: Literal["conversation.answer", "document.report", "abstain"]
+    utility: float = Field(ge=-1, le=1)
+    risk: float = Field(ge=0, le=1)
+    evidence_sufficiency: float = Field(ge=0, le=1)
+    allowed: bool
+    reasons: list[str]
+
+
+class CognitiveCycle(StrictModel):
+    id: str
+    mission_id: str
+    user_id: str
+    observation_hash: str = Field(pattern=r"^[a-f0-9]{64}$")
+    drives: DriveState
+    beliefs: list[Belief]
+    goals: list[Goal]
+    frontier: list[CandidateAction]
+    selected_tool: Literal["conversation.answer", "document.report"]
+    plan: MissionPlan
+    uncertainty: float = Field(ge=0, le=1)
+    explanation: list[str]
+    created_at: datetime
 
 
 class EvidenceReference(StrictModel):
@@ -131,9 +264,18 @@ class EvidenceReference(StrictModel):
     label: str
 
 
+class InternalStateClaim(StrictModel):
+    claim: str = Field(min_length=1, max_length=500)
+    observation_id: str | None = None
+    confidence: float = Field(ge=0, le=1)
+    observed: bool
+    sealed: bool
+
+
 class ModelOutput(StrictModel):
     answer: str = Field(min_length=1, max_length=100_000)
     citations: list[EvidenceReference] = Field(default_factory=list, max_length=100)
+    internal_state_claims: list[InternalStateClaim] = Field(default_factory=list, max_length=20)
 
 
 class RiskDecision(StrictModel):
@@ -153,7 +295,10 @@ class Mission(StrictModel):
     status: MissionStatus
     plan: MissionPlan | None = None
     plan_hash: str | None = None
+    plan_attestation: PlanAttestation | None = None
+    cognitive_cycle_id: str | None = None
     risk: RiskDecision | None = None
+    approval_receipt: ApprovalReceipt | None = None
     capability_id: str | None = None
     result: ModelOutput | None = None
     error: str | None = None
@@ -200,6 +345,18 @@ class AuditEntry(StrictModel):
     created_at: datetime
 
 
+class AuditAnchor(StrictModel):
+    id: str
+    first_event: str
+    last_event: str
+    event_count: int = Field(ge=1)
+    merkle_root: str = Field(pattern=r"^[a-f0-9]{64}$")
+    created_at: datetime
+    key_id: str
+    algorithm: Literal["Ed25519"] = "Ed25519"
+    signature: str
+
+
 class OperatorStatus(StrictModel):
     stop_active: bool
     model_provider: str
@@ -212,4 +369,8 @@ class OperatorStatus(StrictModel):
 
 class StopRequest(StrictModel):
     active: bool
+    reason: str = Field(min_length=1, max_length=500)
+
+
+class RevocationRequest(StrictModel):
     reason: str = Field(min_length=1, max_length=500)

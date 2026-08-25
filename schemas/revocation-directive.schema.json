@@ -1,0 +1,61 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "id": {
+      "title": "Id",
+      "type": "string"
+    },
+    "capability_id": {
+      "title": "Capability Id",
+      "type": "string"
+    },
+    "reason": {
+      "maxLength": 500,
+      "minLength": 1,
+      "title": "Reason",
+      "type": "string"
+    },
+    "version": {
+      "minimum": 1,
+      "title": "Version",
+      "type": "integer"
+    },
+    "issued_by": {
+      "title": "Issued By",
+      "type": "string"
+    },
+    "issued_at": {
+      "format": "date-time",
+      "title": "Issued At",
+      "type": "string"
+    },
+    "key_id": {
+      "title": "Key Id",
+      "type": "string"
+    },
+    "algorithm": {
+      "const": "Ed25519",
+      "default": "Ed25519",
+      "title": "Algorithm",
+      "type": "string"
+    },
+    "signature": {
+      "title": "Signature",
+      "type": "string"
+    }
+  },
+  "required": [
+    "id",
+    "capability_id",
+    "reason",
+    "version",
+    "issued_by",
+    "issued_at",
+    "key_id",
+    "signature"
+  ],
+  "title": "RevocationDirective",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://noosfera.invalid/schemas/revocation-directive.schema.json"
+}

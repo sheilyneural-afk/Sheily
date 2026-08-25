@@ -1,5 +1,18 @@
 # Registro de cambios
 
+## 0.3.0
+
+- Separación real de Identity, Cognition, Agency, Governance, Execution y Audit en procesos con fronteras verificables.
+- Sustitución de secretos HMAC compartidos por firmas Ed25519 con separación de dominio y claves privadas limitadas a su autoridad propietaria.
+- Núcleo cognitivo determinista con observaciones, drives operativos, creencias con procedencia, metas, frontera de acciones, críticos, incertidumbre y abstención.
+- Planes atestados por Agency, consentimiento firmado por Identity y capacidades emitidas exclusivamente por Governance.
+- Capacidades ligadas a persona, misión, plan, parámetros, herramienta, recurso, operación, tiempo y presupuestos completos.
+- Ledger anti-replay, parada monotónica y revocación durables en PostgreSQL dentro del ejecutor Rust.
+- Registros append-only, cadenas de recibos y anclas Merkle firmadas por un custodio de auditoría independiente.
+- Migraciones, contratos JSON Schema/Protobuf/OpenAPI/AsyncAPI, Compose, Helm y telemetría actualizados para las nuevas autoridades.
+- Registro explícito de madurez de los 105 módulos para distinguir arquitectura declarada de implementación verificada.
+- Prueba E2E multiproceso desde cognición hasta ejecución firmada, revocación, parada y anclaje de auditoría.
+
 ## 0.2.0
 
 - Incorporación de Sheily como agente local-first funcional sobre el plano de control.

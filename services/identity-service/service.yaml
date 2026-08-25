@@ -1,6 +1,6 @@
 id: identity-service
 family: IDN
-version: 0.2.0
+version: 0.3.0
 runtime: python
 target_runtime: rust
 modules: [IDN-01, IDN-02, IDN-03, IDN-04, IDN-05]

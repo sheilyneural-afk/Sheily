@@ -1,4 +1,4 @@
-# Ejecutar Sheily 0.2 en local
+# Ejecutar Sheily 0.3 en local
 
 ## Requisitos
 
@@ -12,7 +12,7 @@
 cp .env.example .env
 ```
 
-Cambie como mínimo `NOOSFERA_LOCAL_PASSWORD`, `NOOSFERA_TOKEN_SECRET` y `NOOSFERA_CAPABILITY_SECRET` en `.env`. Los dos secretos deben tener 32 caracteres o más y el mismo secreto de capacidad debe llegar al orquestador Python y al ejecutor Rust.
+Cambie como mínimo `NOOSFERA_LOCAL_PASSWORD` y `NOOSFERA_INTERNAL_SERVICE_TOKEN`. Para un entorno que no sea de desarrollo genere cuatro pares Ed25519 distintos para Identity, Agency, Governance y Audit. Las claves privadas se inyectan únicamente en su servicio propietario; Experience y Rust reciben solo claves públicas.
 
 ```bash
 make local-up
@@ -63,3 +63,11 @@ make local-down
 ```
 
 Compose conserva los volúmenes de PostgreSQL, NATS, MinIO y Ollama. Borrarlos es una operación separada y destructiva que el proyecto no automatiza.
+
+## E2E sin descargar Ollama
+
+```bash
+make local-e2e
+```
+
+Esta prueba usa procesos reales para Identity, Cognition, Agency, Governance, OPA, PostgreSQL, NATS, Rust, Audit y Experience. El ejecutor de prueba entra por la red privada de Compose, por lo que las autoridades no necesitan exponer sus APIs al host. El único doble es la generación lingüística determinista, identificada expresamente como prueba.

@@ -1,6 +1,6 @@
 id: perception-service
 family: PER
-version: 0.2.0
+version: 0.3.0
 runtime: python
 modules: [PER-01, PER-02, PER-03, PER-04, PER-05]
 inbound_buses: [BUS-DAT, BUS-STA]

@@ -15,13 +15,17 @@ def local_test_settings() -> Settings:
     return Settings(
         storage_backend="memory",
         event_backend="disabled-test",
+        identity_backend="in-process-test",
+        cognition_backend="in-process-test",
+        agency_backend="in-process-test",
         governance_backend="deterministic-test",
         execution_backend="in-process-test",
         model_provider="deterministic",
         local_username="owner",
         local_password="correct-horse-battery-staple",  # noqa: S106 -- test credential
-        token_secret="test-token-secret-with-at-least-32-characters",  # noqa: S106
-        capability_secret="test-capability-secret-with-at-least-32-chars",  # noqa: S106
+        identity_private_key_b64="fECcWuqB0rjSdD2t6ADoVCOkG6Or8bG/mHeytU39bHs=",  # noqa: S106
+        agency_private_key_b64="hM6ZIQvpEOSkYUgaFeJu3u2cNil7rZXxyZsl9a72gqk=",  # noqa: S106
+        governance_private_key_b64="x3lPBPxt4rySiYr6hfnQpQborcN/7OcjVr+2qEuqiFQ=",  # noqa: S106
     )
 
 

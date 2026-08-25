@@ -16,3 +16,10 @@ contracts:
   - {id: policy-decision, schema: schemas/policy-decision.schema.json, proto: proto/noosfera/governance/v1/governance.proto, owner: governance-team}
   - {id: agent-mission, schema: schemas/agent-mission.schema.json, proto: proto/noosfera/mission/v1/mission.proto, owner: experience-team}
   - {id: mission-event, schema: schemas/mission-event.schema.json, proto: proto/noosfera/mission/v1/mission.proto, owner: audit-team}
+  - {id: cognitive-cycle, schema: schemas/cognitive-cycle.schema.json, proto: proto/noosfera/cognition/v1/cognition.proto, owner: cognition-team}
+  - {id: plan-attestation, schema: schemas/plan-attestation.schema.json, proto: proto/noosfera/agency/v1/agency.proto, owner: agency-team}
+  - {id: approval-receipt, schema: schemas/approval-receipt.schema.json, proto: proto/noosfera/identity/v1/identity.proto, owner: identity-team}
+  - {id: capability-grant, schema: schemas/capability-grant.schema.json, proto: proto/noosfera/capability/v1/capability.proto, owner: governance-team}
+  - {id: stop-directive, schema: schemas/stop-directive.schema.json, proto: proto/noosfera/governance/v1/governance.proto, owner: governance-team}
+  - {id: revocation-directive, schema: schemas/revocation-directive.schema.json, proto: proto/noosfera/governance/v1/governance.proto, owner: governance-team}
+  - {id: audit-anchor, schema: schemas/audit-anchor.schema.json, proto: proto/noosfera/audit/v1/audit.proto, owner: audit-team}

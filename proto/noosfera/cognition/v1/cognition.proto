@@ -1,0 +1,58 @@
+syntax = "proto3";
+
+package noosfera.cognition.v1;
+
+import "google/protobuf/timestamp.proto";
+
+message Belief {
+  string proposition = 1;
+  double confidence = 2;
+  repeated string provenance = 3;
+}
+
+message Goal {
+  string id = 1;
+  string description = 2;
+  double priority = 3;
+  string source = 4;
+}
+
+message CandidateAction {
+  string tool = 1;
+  double utility = 2;
+  double risk = 3;
+  double evidence_sufficiency = 4;
+  bool allowed = 5;
+  repeated string reasons = 6;
+}
+
+message CognitiveCycle {
+  string id = 1;
+  string mission_id = 2;
+  string user_id = 3;
+  bytes observation_hash = 4;
+  repeated Belief beliefs = 5;
+  repeated Goal goals = 6;
+  repeated CandidateAction frontier = 7;
+  string selected_tool = 8;
+  bytes canonical_plan = 9;
+  double uncertainty = 10;
+  repeated string explanation = 11;
+  google.protobuf.Timestamp created_at = 12;
+}
+
+message DeliberateRequest {
+  string mission_id = 1;
+  string user_id = 2;
+  string prompt = 3;
+  repeated string document_ids = 4;
+  bool remember = 5;
+}
+
+message DeliberateResponse {
+  CognitiveCycle cycle = 1;
+}
+
+service CognitionService {
+  rpc Deliberate(DeliberateRequest) returns (DeliberateResponse);
+}

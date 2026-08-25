@@ -24,6 +24,19 @@ message EvaluateResponse {
   PolicyDecision decision = 1;
 }
 
+message SignedDirective {
+  string id = 1;
+  string directive_type = 2;
+  string subject = 3;
+  string reason = 4;
+  int64 version = 5;
+  string issued_by = 6;
+  google.protobuf.Timestamp issued_at = 7;
+  string key_id = 8;
+  string algorithm = 9;
+  bytes signature = 10;
+}
+
 service GovernanceService {
   rpc Evaluate(EvaluateRequest) returns (EvaluateResponse);
 }

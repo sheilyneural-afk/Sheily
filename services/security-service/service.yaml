@@ -1,6 +1,6 @@
 id: security-service
 family: SEC
-version: 0.2.0
+version: 0.3.0
 runtime: python
 target_runtime: rust
 modules: [SEC-01, SEC-02, SEC-03, SEC-04, SEC-05, SEC-06, SEC-07, SEC-08]

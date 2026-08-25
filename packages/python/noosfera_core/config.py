@@ -23,8 +23,15 @@ class Settings(BaseSettings):
     signing_key_ref: str = Field(default="", repr=False)
     storage_backend: str = "postgres"
     event_backend: str = "nats"
-    governance_backend: str = "opa"
+    identity_backend: str = "remote"
+    cognition_backend: str = "remote"
+    agency_backend: str = "remote"
+    governance_backend: str = "remote"
     execution_backend: str = "rust"
+    identity_url: str = "http://localhost:8102"
+    cognition_url: str = "http://localhost:8105"
+    agency_url: str = "http://localhost:8106"
+    governance_url: str = "http://localhost:8107"
     execution_url: str = "http://localhost:8108"
     model_provider: str = "ollama"
     model_base_url: str = "http://localhost:11434"
@@ -39,8 +46,21 @@ class Settings(BaseSettings):
     capability_ttl_seconds: int = 300
     local_username: str = "sheily"
     local_password: str = Field(default="change-me-local", repr=False)
-    token_secret: str = Field(default="local-token-secret-change-me-32-characters", repr=False)
-    capability_secret: str = Field(default="local-capability-secret-change-me-32-chars", repr=False)
+    identity_key_id: str = "identity-local-v1"
+    identity_private_key_b64: str = Field(default="", repr=False)
+    identity_public_key_b64: str = "exnDIf2q8iXSzoTw0cuNx3YEmeVS7DNcVIIB7pPPcHg="
+    agency_key_id: str = "agency-local-v1"
+    agency_private_key_b64: str = Field(default="", repr=False)
+    agency_public_key_b64: str = "QGNyLWPX7BkNlh+cnFMvTRdT4MixG5cPhcRuBD0DUq0="
+    governance_key_id: str = "governance-local-v1"
+    governance_private_key_b64: str = Field(default="", repr=False)
+    governance_public_key_b64: str = "IrJbc2jDxJLC4UnngrXD4MAMz1PCOkfvSPAu064Vg3c="
+    audit_key_id: str = "audit-local-v1"
+    audit_private_key_b64: str = Field(default="", repr=False)
+    audit_public_key_b64: str = "TdIFu4tTVfVgNGcq5iU5XdNNOI+CZyeHNlQkUyviV2g="
+    internal_service_token: str = Field(
+        default="local-internal-service-token-change-me", repr=False
+    )
     token_ttl_seconds: int = 3600
     cors_origins: str = "http://localhost:3001,http://localhost:3002"
 
@@ -53,7 +73,27 @@ class Settings(BaseSettings):
             raise ValueError("production may not use the deterministic model")
         if self.env == "production" and self.local_password == "change-me-local":  # noqa: S105
             raise ValueError("production requires a non-default local password")
-        if self.env == "production" and "change-me" in self.token_secret:
-            raise ValueError("production requires a non-default token secret")
-        if self.env == "production" and "change-me" in self.capability_secret:
-            raise ValueError("production requires a non-default capability secret")
+        if self.env == "production" and "change-me" in self.internal_service_token:
+            raise ValueError("production requires a non-default internal service token")
+        if self.env == "production" and self.governance_backend != "remote":
+            raise ValueError("production experience service requires remote governance")
+        if self.env == "production" and self.agency_backend != "remote":
+            raise ValueError("production experience service requires remote agency")
+
+    def assert_identity_safe(self) -> None:
+        if not self.identity_private_key_b64:
+            raise ValueError("identity service requires NOOSFERA_IDENTITY_PRIVATE_KEY_B64")
+        if self.env == "production" and self.local_password == "change-me-local":  # noqa: S105
+            raise ValueError("production requires a non-default local password")
+
+    def assert_agency_safe(self) -> None:
+        if not self.agency_private_key_b64:
+            raise ValueError("agency service requires NOOSFERA_AGENCY_PRIVATE_KEY_B64")
+
+    def assert_governance_safe(self) -> None:
+        if not self.governance_private_key_b64:
+            raise ValueError("governance requires NOOSFERA_GOVERNANCE_PRIVATE_KEY_B64")
+
+    def assert_audit_safe(self) -> None:
+        if not self.audit_private_key_b64:
+            raise ValueError("audit service requires NOOSFERA_AUDIT_PRIVATE_KEY_B64")

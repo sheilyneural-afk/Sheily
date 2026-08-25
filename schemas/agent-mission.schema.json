@@ -28,13 +28,16 @@
             "steps": {"type": "array", "minItems": 1, "maxItems": 20, "items": {"type": "object", "additionalProperties": false, "required": ["index", "description"], "properties": {"index": {"type": "integer", "minimum": 1}, "description": {"type": "string", "minLength": 1, "maxLength": 500}}}},
             "success_criteria": {"type": "array", "minItems": 1, "maxItems": 10, "items": {"type": "string"}},
             "risk_factors": {"type": "array", "maxItems": 10, "items": {"type": "string"}},
-            "requires_documents": {"type": "boolean"}
+            "requires_documents": {"type": "boolean"},
+            "cognitive_cycle_id": {"type": ["string", "null"]}
           }
         }
       ],
       "default": null
     },
     "plan_hash": {"oneOf": [{"type": "null"}, {"$ref": "common.schema.json#/$defs/sha256"}]},
+    "plan_attestation": {"type": ["object", "null"]},
+    "cognitive_cycle_id": {"type": ["string", "null"]},
     "risk": {
       "oneOf": [
         {"type": "null"},
@@ -51,6 +54,7 @@
         }
       ]
     },
+    "approval_receipt": {"type": ["object", "null"]},
     "capability_id": {"type": ["string", "null"]},
     "result": {
       "oneOf": [
@@ -61,7 +65,8 @@
           "required": ["answer", "citations"],
           "properties": {
             "answer": {"type": "string", "minLength": 1, "maxLength": 100000},
-            "citations": {"type": "array", "maxItems": 100, "items": {"type": "object", "additionalProperties": false, "required": ["document_id", "label"], "properties": {"document_id": {"$ref": "common.schema.json#/$defs/urn"}, "label": {"type": "string"}}}}
+            "citations": {"type": "array", "maxItems": 100, "items": {"type": "object", "additionalProperties": false, "required": ["document_id", "label"], "properties": {"document_id": {"$ref": "common.schema.json#/$defs/urn"}, "label": {"type": "string"}}}},
+            "internal_state_claims": {"type": "array", "maxItems": 20, "items": {"type": "object"}}
           }
         }
       ]

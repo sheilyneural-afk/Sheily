@@ -32,6 +32,25 @@ message AppendResponse {
   AuditReceipt receipt = 1;
 }
 
+message AuditAnchor {
+  string id = 1;
+  string first_event = 2;
+  string last_event = 3;
+  uint64 event_count = 4;
+  bytes merkle_root = 5;
+  google.protobuf.Timestamp created_at = 6;
+  string key_id = 7;
+  string algorithm = 8;
+  bytes signature = 9;
+}
+
+message CreateAnchorRequest {}
+
+message CreateAnchorResponse {
+  AuditAnchor anchor = 1;
+}
+
 service AuditService {
   rpc Append(AppendRequest) returns (AppendResponse);
+  rpc CreateAnchor(CreateAnchorRequest) returns (CreateAnchorResponse);
 }

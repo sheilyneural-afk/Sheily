@@ -1,4 +1,4 @@
-# Perímetro de Noosfera 0.2
+# Perímetro de Noosfera 0.3
 
 ## Propósito
 
@@ -22,6 +22,11 @@ Definir una frontera cerrada contra la que pueda medirse «no falta nada». Sin 
 - Inferencia local mediante Ollama sin fallback silencioso a la nube.
 - Ingesta limitada de texto, Markdown, CSV y PDF.
 - Consolas funcionales para la persona y el operador, con eventos SSE y parada segura.
+- Núcleo cognitivo determinista anterior al LLM con creencias, metas, frontera, críticos y abstención.
+- Identity, Agency, Governance, Execution y Audit como procesos y autoridades separadas.
+- Planes, consentimientos, capacidades, paradas, revocaciones y anclas firmados con Ed25519.
+- Ledger anti-replay, parada y revocación persistentes en PostgreSQL.
+- Registro de madurez que clasifica por separado cada uno de los 105 módulos.
 
 ## Incluido como interfaz, no como capacidad completa
 
@@ -35,7 +40,7 @@ Definir una frontera cerrada contra la que pueda medirse «no falta nada». Sin 
 
 Estas áreas poseen contrato, adaptador, política y prueba de seguridad. El proveedor real se conecta después sin romper las fronteras.
 
-## Fuera de alcance en 0.2
+## Fuera de alcance en 0.3
 
 - Crear una inteligencia general o consciente.
 - Controlar infraestructura vital real.
@@ -49,7 +54,7 @@ Estas áreas poseen contrato, adaptador, política y prueba de seguridad. El pro
 
 ## Definición de completitud
 
-La versión `0.2.0` está estructuralmente completa y funcional en su recorrido vertical cuando:
+La versión `0.3.0` está estructuralmente completa y funcional en su recorrido vertical cuando:
 
 - Cada módulo de `registry/modules/*.yaml` tiene un propietario de servicio.
 - Cada servicio tiene manifiesto, README, configuración de despliegue, objetivos SLO y runbook.
@@ -59,8 +64,8 @@ La versión `0.2.0` está estructuralmente completa y funcional en su recorrido 
 - Cada archivo normativo está en `FILE_MANIFEST.yaml`.
 - No existen referencias internas rotas.
 - Las comprobaciones de `make verify` terminan correctamente.
-- El flujo conversación → plan → riesgo → consentimiento → capacidad → Rust → evidencia → auditoría supera pruebas automatizadas.
+- El flujo conversación → cognición → Agency → riesgo → consentimiento → capacidad → Rust → evidencia → auditoría supera pruebas automatizadas multiproceso.
 
 ## Definición de «real»
 
-En esta versión, «real» significa que la arquitectura puede desplegarse como plano de control y que el recorrido documental funciona con un LLM local real. Puede validar contratos, evaluar políticas OPA, emitir capacidades limitadas, ejecutar una allowlist en Rust, persistir estado, registrar decisiones y rechazar rutas prohibidas. No significa que los módulos científicos futuristas posean ya sus capacidades finales.
+En esta versión, «real» significa que existe código, estado y una ruta verificable para la propiedad indicada. La integración con Ollama está implementada, pero el E2E de seguridad usa deliberadamente un proveedor determinista; la validación de un modelo descargado es una evaluación separada. No significa que los módulos futuristas posean ya sus capacidades finales.

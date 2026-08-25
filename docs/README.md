@@ -7,3 +7,5 @@ Las vistas aquí explican el sistema sin redefinir contratos. Los registros, esq
 - `governance/`: constitución, derechos, conciencia incierta y cambios.
 - `privacy/`: memoria, retención y libertad cognitiva.
 - `adr/`: decisiones arquitectónicas irreversibles o costosas.
+
+La especificación ejecutable vigente es `architecture/agent-runtime-0.3.md`. La vista 0.2 se conserva como registro histórico de la evolución.

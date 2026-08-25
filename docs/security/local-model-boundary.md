@@ -14,7 +14,7 @@ El LLM es un componente no confiable que produce propuestas estructuradas. No po
 - La capacidad contiene exactamente un recurso, una operación, un uso, una caducidad y monitores obligatorios.
 - Rust mantiene una allowlist compilada independiente. Una inyección de prompt que solicite shell, red o exfiltración no crea esa herramienta.
 - La salida documental debe citar identificadores del conjunto autorizado.
-- El modelo no recibe contraseñas, token HMAC, secreto de capacidades ni conexión a PostgreSQL.
+- El modelo no recibe contraseñas, tokens, claves privadas, capacidades ni conexión a PostgreSQL.
 
 ## Cambio a un endpoint remoto
 

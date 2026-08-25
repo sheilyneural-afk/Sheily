@@ -1,6 +1,6 @@
 id: experience-service
 family: EXP
-version: 0.2.0
+version: 0.3.0
 runtime: python
 modules: [EXP-01, EXP-02, EXP-03, EXP-04, EXP-05, EXP-06]
 inbound_buses: [BUS-DAT]

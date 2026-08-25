@@ -1,0 +1,368 @@
+{
+  "$defs": {
+    "Belief": {
+      "additionalProperties": false,
+      "properties": {
+        "proposition": {
+          "title": "Proposition",
+          "type": "string"
+        },
+        "confidence": {
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Confidence",
+          "type": "number"
+        },
+        "provenance": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Provenance",
+          "type": "array"
+        }
+      },
+      "required": [
+        "proposition",
+        "confidence"
+      ],
+      "title": "Belief",
+      "type": "object"
+    },
+    "CandidateAction": {
+      "additionalProperties": false,
+      "properties": {
+        "tool": {
+          "enum": [
+            "conversation.answer",
+            "document.report",
+            "abstain"
+          ],
+          "title": "Tool",
+          "type": "string"
+        },
+        "utility": {
+          "maximum": 1,
+          "minimum": -1,
+          "title": "Utility",
+          "type": "number"
+        },
+        "risk": {
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Risk",
+          "type": "number"
+        },
+        "evidence_sufficiency": {
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Evidence Sufficiency",
+          "type": "number"
+        },
+        "allowed": {
+          "title": "Allowed",
+          "type": "boolean"
+        },
+        "reasons": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Reasons",
+          "type": "array"
+        }
+      },
+      "required": [
+        "tool",
+        "utility",
+        "risk",
+        "evidence_sufficiency",
+        "allowed",
+        "reasons"
+      ],
+      "title": "CandidateAction",
+      "type": "object"
+    },
+    "DriveState": {
+      "additionalProperties": false,
+      "properties": {
+        "safety": {
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Safety",
+          "type": "number"
+        },
+        "privacy": {
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Privacy",
+          "type": "number"
+        },
+        "epistemic_uncertainty": {
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Epistemic Uncertainty",
+          "type": "number"
+        },
+        "task_completion": {
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Task Completion",
+          "type": "number"
+        },
+        "resource_pressure": {
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Resource Pressure",
+          "type": "number"
+        }
+      },
+      "required": [
+        "safety",
+        "privacy",
+        "epistemic_uncertainty",
+        "task_completion",
+        "resource_pressure"
+      ],
+      "title": "DriveState",
+      "type": "object"
+    },
+    "Goal": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "description": {
+          "title": "Description",
+          "type": "string"
+        },
+        "priority": {
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Priority",
+          "type": "number"
+        },
+        "source": {
+          "enum": [
+            "user",
+            "homeostasis",
+            "constitutional"
+          ],
+          "title": "Source",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "description",
+        "priority",
+        "source"
+      ],
+      "title": "Goal",
+      "type": "object"
+    },
+    "MissionPlan": {
+      "additionalProperties": false,
+      "properties": {
+        "objective": {
+          "maxLength": 2000,
+          "minLength": 1,
+          "title": "Objective",
+          "type": "string"
+        },
+        "tool": {
+          "enum": [
+            "conversation.answer",
+            "document.report"
+          ],
+          "title": "Tool",
+          "type": "string"
+        },
+        "operation": {
+          "enum": [
+            "answer",
+            "generate"
+          ],
+          "title": "Operation",
+          "type": "string"
+        },
+        "resource": {
+          "enum": [
+            "urn:noosfera:tool:conversation-answer",
+            "urn:noosfera:tool:document-report"
+          ],
+          "title": "Resource",
+          "type": "string"
+        },
+        "steps": {
+          "items": {
+            "$ref": "#/$defs/PlanStep"
+          },
+          "maxItems": 20,
+          "minItems": 1,
+          "title": "Steps",
+          "type": "array"
+        },
+        "success_criteria": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 10,
+          "minItems": 1,
+          "title": "Success Criteria",
+          "type": "array"
+        },
+        "risk_factors": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 10,
+          "title": "Risk Factors",
+          "type": "array"
+        },
+        "requires_documents": {
+          "title": "Requires Documents",
+          "type": "boolean"
+        },
+        "cognitive_cycle_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Cognitive Cycle Id"
+        }
+      },
+      "required": [
+        "objective",
+        "tool",
+        "operation",
+        "resource",
+        "steps",
+        "success_criteria",
+        "requires_documents"
+      ],
+      "title": "MissionPlan",
+      "type": "object"
+    },
+    "PlanStep": {
+      "additionalProperties": false,
+      "properties": {
+        "index": {
+          "maximum": 20,
+          "minimum": 1,
+          "title": "Index",
+          "type": "integer"
+        },
+        "description": {
+          "maxLength": 500,
+          "minLength": 1,
+          "title": "Description",
+          "type": "string"
+        }
+      },
+      "required": [
+        "index",
+        "description"
+      ],
+      "title": "PlanStep",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "id": {
+      "title": "Id",
+      "type": "string"
+    },
+    "mission_id": {
+      "title": "Mission Id",
+      "type": "string"
+    },
+    "user_id": {
+      "title": "User Id",
+      "type": "string"
+    },
+    "observation_hash": {
+      "pattern": "^[a-f0-9]{64}$",
+      "title": "Observation Hash",
+      "type": "string"
+    },
+    "drives": {
+      "$ref": "#/$defs/DriveState"
+    },
+    "beliefs": {
+      "items": {
+        "$ref": "#/$defs/Belief"
+      },
+      "title": "Beliefs",
+      "type": "array"
+    },
+    "goals": {
+      "items": {
+        "$ref": "#/$defs/Goal"
+      },
+      "title": "Goals",
+      "type": "array"
+    },
+    "frontier": {
+      "items": {
+        "$ref": "#/$defs/CandidateAction"
+      },
+      "title": "Frontier",
+      "type": "array"
+    },
+    "selected_tool": {
+      "enum": [
+        "conversation.answer",
+        "document.report"
+      ],
+      "title": "Selected Tool",
+      "type": "string"
+    },
+    "plan": {
+      "$ref": "#/$defs/MissionPlan"
+    },
+    "uncertainty": {
+      "maximum": 1,
+      "minimum": 0,
+      "title": "Uncertainty",
+      "type": "number"
+    },
+    "explanation": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Explanation",
+      "type": "array"
+    },
+    "created_at": {
+      "format": "date-time",
+      "title": "Created At",
+      "type": "string"
+    }
+  },
+  "required": [
+    "id",
+    "mission_id",
+    "user_id",
+    "observation_hash",
+    "drives",
+    "beliefs",
+    "goals",
+    "frontier",
+    "selected_tool",
+    "plan",
+    "uncertainty",
+    "explanation",
+    "created_at"
+  ],
+  "title": "CognitiveCycle",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://noosfera.invalid/schemas/cognitive-cycle.schema.json"
+}

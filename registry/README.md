@@ -13,5 +13,6 @@ Esta carpeta es la fuente de verdad del inventario arquitectónico.
 - `risk-classes.yaml`: niveles de riesgo.
 - `actuator-classes.yaml`: clases de actuador.
 - `ownership.yaml`: responsables y revisores.
+- `module-maturity.yaml`: estado y evidencia de implementación para cada uno de los 105 módulos.
 
 Los identificadores son estables. Los nombres pueden evolucionar mediante un cambio versionado.

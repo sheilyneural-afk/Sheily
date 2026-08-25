@@ -1,0 +1,39 @@
+syntax = "proto3";
+
+package noosfera.agency.v1;
+
+import "google/protobuf/timestamp.proto";
+import "noosfera/common/v1/common.proto";
+
+message PlanAttestation {
+  string mission_id = 1;
+  string user_id = 2;
+  string agent_id = 3;
+  bytes prompt_hash = 4;
+  bytes context_hash = 5;
+  bytes canonical_plan = 6;
+  bytes plan_hash = 7;
+  map<string, noosfera.common.v1.ResourceLimit> budget = 8;
+  google.protobuf.Timestamp created_at = 9;
+  google.protobuf.Timestamp expiry = 10;
+  string key_id = 11;
+  string algorithm = 12;
+  bytes signature = 13;
+}
+
+message AttestRequest {
+  string mission_id = 1;
+  string user_id = 2;
+  bytes prompt_hash = 3;
+  bytes context_hash = 4;
+  bytes canonical_plan = 5;
+  map<string, noosfera.common.v1.ResourceLimit> budget = 6;
+}
+
+message AttestResponse {
+  PlanAttestation attestation = 1;
+}
+
+service AgencyService {
+  rpc Attest(AttestRequest) returns (AttestResponse);
+}

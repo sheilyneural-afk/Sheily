@@ -1,0 +1,562 @@
+version: 1
+states:
+- declared
+- hosted
+- implemented
+- integrated
+- verified
+- production-ready
+modules:
+- id: EXP-01
+  family: EXP
+  state: integrated
+  evidence:
+  - services/experience-service/service.yaml
+  - API de conversación y documentos
+- id: EXP-02
+  family: EXP
+  state: hosted
+  evidence:
+  - services/experience-service/service.yaml
+- id: EXP-03
+  family: EXP
+  state: hosted
+  evidence:
+  - services/experience-service/service.yaml
+- id: EXP-04
+  family: EXP
+  state: hosted
+  evidence:
+  - services/experience-service/service.yaml
+- id: EXP-05
+  family: EXP
+  state: integrated
+  evidence:
+  - services/experience-service/service.yaml
+  - consentimiento firmado ligado a misión/plan
+- id: EXP-06
+  family: EXP
+  state: hosted
+  evidence:
+  - services/experience-service/service.yaml
+- id: IDN-01
+  family: IDN
+  state: integrated
+  evidence:
+  - services/identity-service/service.yaml
+  - identidad local Ed25519 y tokens verificables
+- id: IDN-02
+  family: IDN
+  state: hosted
+  evidence:
+  - services/identity-service/service.yaml
+- id: IDN-03
+  family: IDN
+  state: hosted
+  evidence:
+  - services/identity-service/service.yaml
+- id: IDN-04
+  family: IDN
+  state: integrated
+  evidence:
+  - services/identity-service/service.yaml
+  - comprobante de voluntad actual firmado
+- id: IDN-05
+  family: IDN
+  state: hosted
+  evidence:
+  - services/identity-service/service.yaml
+- id: MEM-01
+  family: MEM
+  state: integrated
+  evidence:
+  - services/memory-service/service.yaml
+  - ciclo cognitivo como memoria de trabajo
+- id: MEM-02
+  family: MEM
+  state: integrated
+  evidence:
+  - services/memory-service/service.yaml
+  - memoria personal consentida con borrado
+- id: MEM-03
+  family: MEM
+  state: hosted
+  evidence:
+  - services/memory-service/service.yaml
+- id: MEM-04
+  family: MEM
+  state: integrated
+  evidence:
+  - services/memory-service/service.yaml
+  - creencias semánticas consolidadas por procedencia
+- id: MEM-05
+  family: MEM
+  state: integrated
+  evidence:
+  - services/memory-service/service.yaml
+  - hashes de contexto, evidencia y recibos
+- id: MEM-06
+  family: MEM
+  state: integrated
+  evidence:
+  - services/memory-service/service.yaml
+  - retención y borrado lógico consentido
+- id: MEM-07
+  family: MEM
+  state: hosted
+  evidence:
+  - services/memory-service/service.yaml
+- id: MEM-08
+  family: MEM
+  state: hosted
+  evidence:
+  - services/memory-service/service.yaml
+- id: PER-01
+  family: PER
+  state: hosted
+  evidence:
+  - services/perception-service/service.yaml
+- id: PER-02
+  family: PER
+  state: hosted
+  evidence:
+  - services/perception-service/service.yaml
+- id: PER-03
+  family: PER
+  state: hosted
+  evidence:
+  - services/perception-service/service.yaml
+- id: PER-04
+  family: PER
+  state: hosted
+  evidence:
+  - services/perception-service/service.yaml
+- id: PER-05
+  family: PER
+  state: hosted
+  evidence:
+  - services/perception-service/service.yaml
+- id: COG-01
+  family: COG
+  state: hosted
+  evidence:
+  - services/cognition-service/service.yaml
+- id: COG-02
+  family: COG
+  state: hosted
+  evidence:
+  - services/cognition-service/service.yaml
+- id: COG-03
+  family: COG
+  state: hosted
+  evidence:
+  - services/cognition-service/service.yaml
+- id: COG-04
+  family: COG
+  state: hosted
+  evidence:
+  - services/cognition-service/service.yaml
+- id: COG-05
+  family: COG
+  state: hosted
+  evidence:
+  - services/cognition-service/service.yaml
+- id: COG-06
+  family: COG
+  state: hosted
+  evidence:
+  - services/cognition-service/service.yaml
+- id: COG-07
+  family: COG
+  state: hosted
+  evidence:
+  - services/cognition-service/service.yaml
+- id: COG-08
+  family: COG
+  state: integrated
+  evidence:
+  - services/cognition-service/service.yaml
+  - frontera de acciones con crítico y abstención
+- id: COG-09
+  family: COG
+  state: hosted
+  evidence:
+  - services/cognition-service/service.yaml
+- id: COG-10
+  family: COG
+  state: integrated
+  evidence:
+  - services/cognition-service/service.yaml
+  - incertidumbre y suficiencia de evidencia explícitas
+- id: COG-11
+  family: COG
+  state: hosted
+  evidence:
+  - services/cognition-service/service.yaml
+- id: COG-12
+  family: COG
+  state: hosted
+  evidence:
+  - services/cognition-service/service.yaml
+- id: COG-13
+  family: COG
+  state: hosted
+  evidence:
+  - services/cognition-service/service.yaml
+- id: AGY-01
+  family: AGY
+  state: integrated
+  evidence:
+  - services/agency-service/service.yaml
+  - petición convertida en plan estructurado
+- id: AGY-02
+  family: AGY
+  state: hosted
+  evidence:
+  - services/agency-service/service.yaml
+- id: AGY-03
+  family: AGY
+  state: integrated
+  evidence:
+  - services/agency-service/service.yaml
+  - objetivo descompuesto en pasos y criterios
+- id: AGY-04
+  family: AGY
+  state: verified
+  evidence:
+  - services/agency-service/service.yaml
+  - plan causal generado fuera del LLM
+- id: AGY-05
+  family: AGY
+  state: hosted
+  evidence:
+  - services/agency-service/service.yaml
+- id: AGY-06
+  family: AGY
+  state: verified
+  evidence:
+  - services/agency-service/service.yaml
+  - máquina de estados de misión persistente
+- id: AGY-07
+  family: AGY
+  state: integrated
+  evidence:
+  - services/agency-service/service.yaml
+  - validación de dependencias, alcance y presupuestos
+- id: AGY-08
+  family: AGY
+  state: integrated
+  evidence:
+  - services/agency-service/service.yaml
+  - vinculación hash de objetivo, contexto y plan
+- id: GOV-01
+  family: GOV
+  state: integrated
+  evidence:
+  - services/governance-service/service.yaml
+  - políticas constitucionales OPA
+- id: GOV-02
+  family: GOV
+  state: hosted
+  evidence:
+  - services/governance-service/service.yaml
+- id: GOV-03
+  family: GOV
+  state: integrated
+  evidence:
+  - services/governance-service/service.yaml
+  - clasificación de riesgo OPA
+- id: GOV-04
+  family: GOV
+  state: hosted
+  evidence:
+  - services/governance-service/service.yaml
+- id: GOV-05
+  family: GOV
+  state: integrated
+  evidence:
+  - services/governance-service/service.yaml
+  - mandato ligado a identidad y consentimiento
+- id: GOV-06
+  family: GOV
+  state: verified
+  evidence:
+  - services/governance-service/service.yaml
+  - emisor independiente de capacidades Ed25519
+- id: GOV-07
+  family: GOV
+  state: hosted
+  evidence:
+  - services/governance-service/service.yaml
+- id: GOV-08
+  family: GOV
+  state: hosted
+  evidence:
+  - services/governance-service/service.yaml
+- id: GOV-09
+  family: GOV
+  state: hosted
+  evidence:
+  - services/governance-service/service.yaml
+- id: GOV-10
+  family: GOV
+  state: hosted
+  evidence:
+  - services/governance-service/service.yaml
+- id: GOV-11
+  family: GOV
+  state: verified
+  evidence:
+  - services/governance-service/service.yaml
+  - directivas de parada firmadas y monotónicas
+- id: GOV-12
+  family: GOV
+  state: hosted
+  evidence:
+  - services/governance-service/service.yaml
+- id: EXE-01
+  family: EXE
+  state: verified
+  evidence:
+  - services/execution-service/service.yaml
+  - unión plan-capacidad-argumentos en Rust
+- id: EXE-02
+  family: EXE
+  state: hosted
+  evidence:
+  - services/execution-service/service.yaml
+- id: EXE-03
+  family: EXE
+  state: verified
+  evidence:
+  - services/execution-service/service.yaml
+  - presupuestos validados por el ejecutor
+- id: EXE-04
+  family: EXE
+  state: hosted
+  evidence:
+  - services/execution-service/service.yaml
+- id: EXE-05
+  family: EXE
+  state: integrated
+  evidence:
+  - services/execution-service/service.yaml
+  - monitores internos fail-closed
+- id: EXE-06
+  family: EXE
+  state: hosted
+  evidence:
+  - services/execution-service/service.yaml
+- id: EXE-07
+  family: EXE
+  state: hosted
+  evidence:
+  - services/execution-service/service.yaml
+- id: EXE-08
+  family: EXE
+  state: verified
+  evidence:
+  - services/execution-service/service.yaml
+  - safe-stop durable verificado por clave pública
+- id: FED-01
+  family: FED
+  state: hosted
+  evidence:
+  - services/federation-service/service.yaml
+- id: FED-02
+  family: FED
+  state: hosted
+  evidence:
+  - services/federation-service/service.yaml
+- id: FED-03
+  family: FED
+  state: hosted
+  evidence:
+  - services/federation-service/service.yaml
+- id: FED-04
+  family: FED
+  state: hosted
+  evidence:
+  - services/federation-service/service.yaml
+- id: FED-05
+  family: FED
+  state: hosted
+  evidence:
+  - services/federation-service/service.yaml
+- id: FED-06
+  family: FED
+  state: hosted
+  evidence:
+  - services/federation-service/service.yaml
+- id: FED-07
+  family: FED
+  state: hosted
+  evidence:
+  - services/federation-service/service.yaml
+- id: FED-08
+  family: FED
+  state: hosted
+  evidence:
+  - services/federation-service/service.yaml
+- id: SEC-01
+  family: SEC
+  state: hosted
+  evidence:
+  - services/security-service/service.yaml
+- id: SEC-02
+  family: SEC
+  state: hosted
+  evidence:
+  - services/security-service/service.yaml
+- id: SEC-03
+  family: SEC
+  state: hosted
+  evidence:
+  - services/security-service/service.yaml
+- id: SEC-04
+  family: SEC
+  state: hosted
+  evidence:
+  - services/security-service/service.yaml
+- id: SEC-05
+  family: SEC
+  state: hosted
+  evidence:
+  - services/security-service/service.yaml
+- id: SEC-06
+  family: SEC
+  state: hosted
+  evidence:
+  - services/security-service/service.yaml
+- id: SEC-07
+  family: SEC
+  state: hosted
+  evidence:
+  - services/security-service/service.yaml
+- id: SEC-08
+  family: SEC
+  state: hosted
+  evidence:
+  - services/security-service/service.yaml
+- id: AUD-01
+  family: AUD
+  state: integrated
+  evidence:
+  - services/audit-service/service.yaml
+  - registro append-only, cadena y anclas Merkle firmadas
+- id: AUD-02
+  family: AUD
+  state: integrated
+  evidence:
+  - services/audit-service/service.yaml
+  - traza intención-plan-consentimiento-capacidad-ejecución
+- id: AUD-03
+  family: AUD
+  state: hosted
+  evidence:
+  - services/audit-service/service.yaml
+- id: AUD-04
+  family: AUD
+  state: hosted
+  evidence:
+  - services/audit-service/service.yaml
+- id: AUD-05
+  family: AUD
+  state: hosted
+  evidence:
+  - services/audit-service/service.yaml
+- id: AUD-06
+  family: AUD
+  state: hosted
+  evidence:
+  - services/audit-service/service.yaml
+- id: EVO-01
+  family: EVO
+  state: hosted
+  evidence:
+  - services/evolution-service/service.yaml
+- id: EVO-02
+  family: EVO
+  state: hosted
+  evidence:
+  - services/evolution-service/service.yaml
+- id: EVO-03
+  family: EVO
+  state: hosted
+  evidence:
+  - services/evolution-service/service.yaml
+- id: EVO-04
+  family: EVO
+  state: hosted
+  evidence:
+  - services/evolution-service/service.yaml
+- id: EVO-05
+  family: EVO
+  state: hosted
+  evidence:
+  - services/evolution-service/service.yaml
+- id: EVO-06
+  family: EVO
+  state: hosted
+  evidence:
+  - services/evolution-service/service.yaml
+- id: EVO-07
+  family: EVO
+  state: hosted
+  evidence:
+  - services/evolution-service/service.yaml
+- id: TMP-01
+  family: TMP
+  state: hosted
+  evidence:
+  - services/temporal-service/service.yaml
+- id: TMP-02
+  family: TMP
+  state: hosted
+  evidence:
+  - services/temporal-service/service.yaml
+- id: TMP-03
+  family: TMP
+  state: hosted
+  evidence:
+  - services/temporal-service/service.yaml
+- id: TMP-04
+  family: TMP
+  state: hosted
+  evidence:
+  - services/temporal-service/service.yaml
+- id: TMP-05
+  family: TMP
+  state: hosted
+  evidence:
+  - services/temporal-service/service.yaml
+- id: RES-01
+  family: RES
+  state: hosted
+  evidence:
+  - services/resource-service/service.yaml
+- id: RES-02
+  family: RES
+  state: hosted
+  evidence:
+  - services/resource-service/service.yaml
+- id: RES-03
+  family: RES
+  state: hosted
+  evidence:
+  - services/resource-service/service.yaml
+- id: RES-04
+  family: RES
+  state: hosted
+  evidence:
+  - services/resource-service/service.yaml
+- id: RES-05
+  family: RES
+  state: hosted
+  evidence:
+  - services/resource-service/service.yaml
+- id: RES-06
+  family: RES
+  state: hosted
+  evidence:
+  - services/resource-service/service.yaml

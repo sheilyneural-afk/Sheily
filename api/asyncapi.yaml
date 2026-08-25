@@ -1,5 +1,5 @@
 asyncapi: 3.0.0
-info: {title: Noosfera Event Circuits, version: 0.2.0}
+info: {title: Noosfera Event Circuits, version: 0.3.0}
 servers:
   local:
     host: nats:4222
@@ -14,6 +14,21 @@ channels:
   capability:
     address: authorization.capability.v1
     messages: {capability: {$ref: "#/components/messages/Capability"}}
+  cognitiveCycle:
+    address: cognition.cycle.v1
+    messages: {cognitiveCycle: {$ref: "#/components/messages/CognitiveCycle"}}
+  planAttestation:
+    address: agency.plan-attestation.v1
+    messages: {planAttestation: {$ref: "#/components/messages/PlanAttestation"}}
+  approval:
+    address: identity.approval.v1
+    messages: {approval: {$ref: "#/components/messages/Approval"}}
+  revocation:
+    address: authorization.revocation.v1
+    messages: {revocation: {$ref: "#/components/messages/Revocation"}}
+  auditAnchor:
+    address: audit.anchor.v1
+    messages: {auditAnchor: {$ref: "#/components/messages/AuditAnchor"}}
   actionCommand:
     address: action.command.v1
     messages: {actionCommand: {$ref: "#/components/messages/ActionCommand"}}
@@ -30,6 +45,11 @@ operations:
   publishIntent: {action: send, channel: {$ref: "#/channels/intentContract"}}
   publishEvidence: {action: send, channel: {$ref: "#/channels/evidenceBundle"}}
   publishCapability: {action: send, channel: {$ref: "#/channels/capability"}}
+  publishCognitiveCycle: {action: send, channel: {$ref: "#/channels/cognitiveCycle"}}
+  attestPlan: {action: send, channel: {$ref: "#/channels/planAttestation"}}
+  publishApproval: {action: send, channel: {$ref: "#/channels/approval"}}
+  revokeCapability: {action: send, channel: {$ref: "#/channels/revocation"}}
+  publishAuditAnchor: {action: send, channel: {$ref: "#/channels/auditAnchor"}}
   executeCommand: {action: send, channel: {$ref: "#/channels/actionCommand"}}
   requestStop: {action: send, channel: {$ref: "#/channels/stop"}}
   appendAudit: {action: send, channel: {$ref: "#/channels/audit"}}
@@ -39,6 +59,11 @@ components:
     IntentContract: {payload: {$ref: ../schemas/intent-contract.schema.json}}
     EvidenceBundle: {payload: {$ref: ../schemas/evidence-bundle.schema.json}}
     Capability: {payload: {$ref: ../schemas/capability.schema.json}}
+    CognitiveCycle: {payload: {$ref: ../schemas/cognitive-cycle.schema.json}}
+    PlanAttestation: {payload: {$ref: ../schemas/plan-attestation.schema.json}}
+    Approval: {payload: {$ref: ../schemas/approval-receipt.schema.json}}
+    Revocation: {payload: {$ref: ../schemas/revocation-directive.schema.json}}
+    AuditAnchor: {payload: {$ref: ../schemas/audit-anchor.schema.json}}
     AuditEvent: {payload: {$ref: ../schemas/audit-event.schema.json}}
     MissionEvent: {payload: {$ref: ../schemas/mission-event.schema.json}}
     ActionCommand:

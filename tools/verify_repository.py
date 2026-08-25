@@ -165,6 +165,24 @@ def verify_modules_and_services(check: Verification) -> None:
     )
     check.require(hosted == set(all_modules), "not every module is hosted")
 
+    maturity = load_yaml(ROOT / "registry/module-maturity.yaml")
+    allowed_states = set(maturity.get("states", []))
+    maturity_entries = maturity.get("modules", [])
+    maturity_ids = {item.get("id") for item in maturity_entries}
+    check.require(
+        maturity_ids == set(all_modules),
+        "module maturity registry must classify every logical module exactly once",
+    )
+    check.require(
+        len(maturity_ids) == len(maturity_entries), "module maturity registry has duplicates"
+    )
+    for item in maturity_entries:
+        check.require(
+            item.get("state") in allowed_states,
+            f"invalid maturity state for {item.get('id')}",
+        )
+        check.require(bool(item.get("evidence")), f"missing maturity evidence for {item.get('id')}")
+
 
 def verify_contracts_and_policies(check: Verification) -> None:
     for contract in load_yaml(ROOT / "registry/contracts.yaml")["contracts"]:

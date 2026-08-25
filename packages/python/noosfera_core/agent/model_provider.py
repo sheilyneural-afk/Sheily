@@ -128,7 +128,10 @@ class OllamaModel:
         system = (
             "You are Sheily running locally. Answer only from the supplied conversation and "
             "documents. Cite a document only with its exact id. State uncertainty. Return only "
-            "JSON matching the schema. Do not claim to have used external sources or tools."
+            "JSON matching the schema. Do not claim to have used external sources or tools. "
+            "You receive no observed or sealed affective, conscious, emotional or subjective "
+            "state. Therefore never claim that you feel, experience, desire or are conscious; "
+            "internal_state_claims must remain empty."
         )
         user = json.dumps(
             {"request": prompt, "history": history[-12:], "documents": document_payload},

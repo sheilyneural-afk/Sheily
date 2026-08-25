@@ -6,6 +6,11 @@ from typing import Any, Protocol
 
 import httpx
 
+from noosfera_core.agent.crypto import Ed25519Verifier
+from noosfera_core.agent.governance_authority import CAPABILITY_DOMAIN, STOP_DOMAIN
+from noosfera_core.agent.models import RevocationDirective, StopDirective
+from noosfera_core.hashing import canonical_hash
+
 
 class ExecutionRejected(RuntimeError):
     pass
@@ -18,7 +23,9 @@ class ExecutionGateway(Protocol):
 
     async def execute(self, request: dict[str, Any]) -> dict[str, Any]: ...
 
-    async def set_stop(self, active: bool, reason: str) -> None: ...
+    async def set_stop(self, directive: StopDirective) -> None: ...
+
+    async def revoke(self, directive: RevocationDirective) -> None: ...
 
 
 class RustExecutionClient:
@@ -50,15 +57,26 @@ class RustExecutionClient:
             raise ExecutionRejected("Rust execution kernel returned an invalid response")
         return value
 
-    async def set_stop(self, active: bool, reason: str) -> None:
+    async def set_stop(self, directive: StopDirective) -> None:
         try:
             async with httpx.AsyncClient(timeout=3.0) as client:
                 response = await client.post(
-                    f"{self.base_url}/v1/stop", json={"active": active, "reason": reason}
+                    f"{self.base_url}/v1/stop", json=directive.model_dump(mode="json")
                 )
                 response.raise_for_status()
         except httpx.HTTPError as exc:
             raise ExecutionRejected("cannot change Rust safe-stop state") from exc
+
+    async def revoke(self, directive: RevocationDirective) -> None:
+        try:
+            async with httpx.AsyncClient(timeout=3.0) as client:
+                response = await client.post(
+                    f"{self.base_url}/v1/revocations",
+                    json=directive.model_dump(mode="json"),
+                )
+                response.raise_for_status()
+        except httpx.HTTPError as exc:
+            raise ExecutionRejected("cannot apply Rust capability revocation") from exc
 
 
 class InProcessExecutionGateway:
@@ -66,9 +84,12 @@ class InProcessExecutionGateway:
 
     name = "in-process-test"
 
-    def __init__(self) -> None:
+    def __init__(self, *, governance_public_key_b64: str, governance_key_id: str) -> None:
         self.stop_active = False
+        self.stop_version = 0
         self.used: set[str] = set()
+        self.revoked: set[str] = set()
+        self.verifier = Ed25519Verifier(governance_public_key_b64, key_id=governance_key_id)
 
     async def health(self) -> bool:
         return True
@@ -80,8 +101,24 @@ class InProcessExecutionGateway:
             raise ExecutionRejected("stop channel is unhealthy")
         if capability_id in self.used:
             raise ExecutionRejected("capability is exhausted")
+        if capability_id in self.revoked:
+            raise ExecutionRejected("capability is revoked")
+        self.verifier.verify(
+            CAPABILITY_DOMAIN,
+            capability,
+            str(request["capability_signature"]),
+            str(request["capability_key_id"]),
+        )
         if capability["plan_hash"] != request["plan_hash"]:
             raise ExecutionRejected("plan hash mismatch")
+        if capability.get("mission_id") != request.get("mission_id"):
+            raise ExecutionRejected("mission binding mismatch")
+        if capability.get("user_id") != request.get("user_id"):
+            raise ExecutionRejected("user binding mismatch")
+        if canonical_hash(request["plan"]) != request["plan_hash"]:
+            raise ExecutionRejected("canonical plan hash mismatch")
+        if capability.get("arguments_hash") != canonical_hash(request["parameters"]):
+            raise ExecutionRejected("parameters are not bound to capability")
         if request["operation"] not in capability["permitted_operations"]:
             raise ExecutionRejected("operation not permitted")
         if request["resource"] != capability["resource"]:
@@ -94,6 +131,25 @@ class InProcessExecutionGateway:
             "output": request["parameters"],
         }
 
-    async def set_stop(self, active: bool, reason: str) -> None:
-        del reason
-        self.stop_active = active
+    async def set_stop(self, directive: StopDirective) -> None:
+        self.verifier.verify(
+            STOP_DOMAIN,
+            directive.model_dump(mode="json", exclude={"signature"}),
+            directive.signature,
+            directive.key_id,
+        )
+        if directive.version <= self.stop_version:
+            raise ExecutionRejected("stale safe-stop directive")
+        self.stop_active = directive.active
+        self.stop_version = directive.version
+
+    async def revoke(self, directive: RevocationDirective) -> None:
+        from noosfera_core.agent.governance_authority import REVOCATION_DOMAIN
+
+        self.verifier.verify(
+            REVOCATION_DOMAIN,
+            directive.model_dump(mode="json", exclude={"signature"}),
+            directive.signature,
+            directive.key_id,
+        )
+        self.revoked.add(directive.capability_id)

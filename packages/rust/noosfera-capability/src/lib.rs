@@ -15,9 +15,12 @@ pub struct Capability {
     pub id: String,
     pub issuer: String,
     pub holder: String,
+    pub mission_id: String,
+    pub user_id: String,
     pub resource: String,
     pub permitted_operations: BTreeSet<String>,
     pub plan_hash: String,
+    pub arguments_hash: String,
     pub bounds: BTreeMap<String, ResourceLimit>,
     pub preconditions: Vec<String>,
     pub mandatory_monitors: BTreeSet<String>,
@@ -28,6 +31,7 @@ pub struct Capability {
     pub expiry: OffsetDateTime,
     pub max_uses: u32,
     pub delegation: Delegation,
+    pub network_allowed: bool,
     pub quorum_proof: String,
 }
 
@@ -105,9 +109,12 @@ mod tests {
             id: "urn:noosfera:capability:test".into(),
             issuer: "urn:noosfera:authority:test".into(),
             holder: "urn:noosfera:gateway:test".into(),
+            mission_id: "urn:noosfera:mission:test".into(),
+            user_id: "urn:noosfera:identity:test".into(),
             resource: "urn:noosfera:actuator:test".into(),
             permitted_operations: BTreeSet::from(["set".into()]),
             plan_hash: "00".repeat(32),
+            arguments_hash: "11".repeat(32),
             bounds: BTreeMap::new(),
             preconditions: vec![],
             mandatory_monitors: BTreeSet::from(["monitor".into()]),
@@ -116,6 +123,7 @@ mod tests {
             expiry: now + Duration::minutes(1),
             max_uses: 1,
             delegation: Delegation::Forbidden,
+            network_allowed: false,
             quorum_proof: "urn:noosfera:quorum:test".into(),
         }
     }

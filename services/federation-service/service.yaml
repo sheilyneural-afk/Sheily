@@ -1,6 +1,6 @@
 id: federation-service
 family: FED
-version: 0.2.0
+version: 0.3.0
 runtime: python
 target_runtime: rust
 modules: [FED-01, FED-02, FED-03, FED-04, FED-05, FED-06, FED-07, FED-08]

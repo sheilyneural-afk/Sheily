@@ -2,28 +2,35 @@ name: noosfera-local
 
 x-noosfera-service: &noosfera-service
   restart: unless-stopped
-  env_file:
-    - ../../.env.example
-    - path: ../../.env
-      required: false
   depends_on:
     postgres: {condition: service_healthy}
     nats: {condition: service_started}
     opa: {condition: service_started}
   networks: [control, data]
-  environment:
+  environment: &noosfera-environment
     NOOSFERA_DATABASE_URL: postgresql://noosfera:noosfera@postgres:5432/noosfera
     NOOSFERA_NATS_URL: nats://nats:4222
     NOOSFERA_OBJECT_STORE_ENDPOINT: http://minio:9000
     NOOSFERA_OPA_URL: http://opa:8181
     NOOSFERA_OTLP_ENDPOINT: http://otel-collector:4317
     NOOSFERA_EXECUTION_URL: http://execution-service:8080
+    NOOSFERA_IDENTITY_URL: http://identity-service:8080
+    NOOSFERA_COGNITION_URL: http://cognition-service:8080
+    NOOSFERA_AGENCY_URL: http://agency-service:8080
+    NOOSFERA_GOVERNANCE_URL: http://governance-service:8080
+    NOOSFERA_IDENTITY_BACKEND: remote
+    NOOSFERA_COGNITION_BACKEND: remote
+    NOOSFERA_AGENCY_BACKEND: remote
+    NOOSFERA_GOVERNANCE_BACKEND: remote
     NOOSFERA_MODEL_BASE_URL: http://ollama:11434
     NOOSFERA_MODEL_PROVIDER: ${NOOSFERA_MODEL_PROVIDER:-ollama}
     NOOSFERA_MODEL_NAME: ${NOOSFERA_MODEL_NAME:-qwen3:8b}
     NOOSFERA_LOCAL_PASSWORD: ${NOOSFERA_LOCAL_PASSWORD:-change-me-local}
-    NOOSFERA_TOKEN_SECRET: ${NOOSFERA_TOKEN_SECRET:-local-token-secret-change-me-32-characters}
-    NOOSFERA_CAPABILITY_SECRET: ${NOOSFERA_CAPABILITY_SECRET:-local-capability-secret-change-me-32-chars}
+    NOOSFERA_INTERNAL_SERVICE_TOKEN: ${NOOSFERA_INTERNAL_SERVICE_TOKEN:-local-internal-service-token-change-me}
+    NOOSFERA_IDENTITY_PUBLIC_KEY_B64: ${NOOSFERA_IDENTITY_PUBLIC_KEY_B64:-exnDIf2q8iXSzoTw0cuNx3YEmeVS7DNcVIIB7pPPcHg=}
+    NOOSFERA_AGENCY_PUBLIC_KEY_B64: ${NOOSFERA_AGENCY_PUBLIC_KEY_B64:-QGNyLWPX7BkNlh+cnFMvTRdT4MixG5cPhcRuBD0DUq0=}
+    NOOSFERA_GOVERNANCE_PUBLIC_KEY_B64: ${NOOSFERA_GOVERNANCE_PUBLIC_KEY_B64:-IrJbc2jDxJLC4UnngrXD4MAMz1PCOkfvSPAu064Vg3c=}
+    NOOSFERA_AUDIT_PUBLIC_KEY_B64: ${NOOSFERA_AUDIT_PUBLIC_KEY_B64:-TdIFu4tTVfVgNGcq5iU5XdNNOI+CZyeHNlQkUyviV2g=}
   read_only: true
   tmpfs: [/tmp]
   security_opt: [no-new-privileges:true]
@@ -87,12 +94,19 @@ services:
       postgres: {condition: service_healthy}
       nats: {condition: service_started}
       opa: {condition: service_started}
+      identity-service: {condition: service_started}
+      cognition-service: {condition: service_started}
+      agency-service: {condition: service_started}
+      governance-service: {condition: service_started}
       execution-service: {condition: service_started}
     networks: [edge, control, data, model]
   identity-service:
     <<: *noosfera-service
     build: {context: ../.., dockerfile: deploy/images/reference-service.Containerfile, args: {SERVICE_DIR: identity-service}}
     ports: ["8102:8080"]
+    environment:
+      <<: *noosfera-environment
+      NOOSFERA_IDENTITY_PRIVATE_KEY_B64: ${NOOSFERA_IDENTITY_PRIVATE_KEY_B64:-fECcWuqB0rjSdD2t6ADoVCOkG6Or8bG/mHeytU39bHs=}
   memory-service:
     <<: *noosfera-service
     build: {context: ../.., dockerfile: deploy/images/reference-service.Containerfile, args: {SERVICE_DIR: memory-service}}
@@ -109,23 +123,29 @@ services:
     <<: *noosfera-service
     build: {context: ../.., dockerfile: deploy/images/reference-service.Containerfile, args: {SERVICE_DIR: agency-service}}
     ports: ["8106:8080"]
+    environment:
+      <<: *noosfera-environment
+      NOOSFERA_AGENCY_PRIVATE_KEY_B64: ${NOOSFERA_AGENCY_PRIVATE_KEY_B64:-hM6ZIQvpEOSkYUgaFeJu3u2cNil7rZXxyZsl9a72gqk=}
   governance-service:
     <<: *noosfera-service
     build: {context: ../.., dockerfile: deploy/images/reference-service.Containerfile, args: {SERVICE_DIR: governance-service}}
     ports: ["8107:8080"]
+    environment:
+      <<: *noosfera-environment
+      NOOSFERA_GOVERNANCE_PRIVATE_KEY_B64: ${NOOSFERA_GOVERNANCE_PRIVATE_KEY_B64:-x3lPBPxt4rySiYr6hfnQpQborcN/7OcjVr+2qEuqiFQ=}
   execution-service:
     build: {context: ../.., dockerfile: deploy/images/execution-service.Containerfile}
-    env_file:
-      - ../../.env.example
-      - path: ../../.env
-        required: false
     environment:
-      NOOSFERA_CAPABILITY_SECRET: ${NOOSFERA_CAPABILITY_SECRET:-local-capability-secret-change-me-32-chars}
+      NOOSFERA_DATABASE_URL: postgresql://noosfera:noosfera@postgres:5432/noosfera
+      NOOSFERA_GOVERNANCE_KEY_ID: ${NOOSFERA_GOVERNANCE_KEY_ID:-governance-local-v1}
+      NOOSFERA_GOVERNANCE_PUBLIC_KEY_B64: ${NOOSFERA_GOVERNANCE_PUBLIC_KEY_B64:-IrJbc2jDxJLC4UnngrXD4MAMz1PCOkfvSPAu064Vg3c=}
     restart: unless-stopped
     read_only: true
     tmpfs: [/tmp]
     security_opt: [no-new-privileges:true]
-    networks: [control, audit]
+    depends_on:
+      postgres: {condition: service_healthy}
+    networks: [control, data, audit]
     ports: ["8108:8080"]
   federation-service:
     <<: *noosfera-service
@@ -140,6 +160,9 @@ services:
     build: {context: ../.., dockerfile: deploy/images/reference-service.Containerfile, args: {SERVICE_DIR: audit-service}}
     ports: ["8111:8080"]
     networks: [audit, data]
+    environment:
+      <<: *noosfera-environment
+      NOOSFERA_AUDIT_PRIVATE_KEY_B64: ${NOOSFERA_AUDIT_PRIVATE_KEY_B64:-TT1KteJqMjx2lLLp70hZcnMKz5P0ypFdNfZ91v88S4g=}
   evolution-service:
     <<: *noosfera-service
     build: {context: ../.., dockerfile: deploy/images/reference-service.Containerfile, args: {SERVICE_DIR: evolution-service}}

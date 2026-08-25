@@ -1,6 +1,6 @@
 id: agency-service
 family: AGY
-version: 0.2.0
+version: 0.3.0
 runtime: python
 modules: [AGY-01, AGY-02, AGY-03, AGY-04, AGY-05, AGY-06, AGY-07, AGY-08]
 inbound_buses: [BUS-INT, BUS-EVI, BUS-AUT, BUS-STA]

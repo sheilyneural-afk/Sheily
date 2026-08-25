@@ -8,3 +8,24 @@ data:
   NOOSFERA_NODE_ID: {{ .Values.global.nodeId | quote }}
   NOOSFERA_OPA_URL: {{ .Values.global.opaUrl | quote }}
   NOOSFERA_OTLP_ENDPOINT: {{ .Values.global.otlpEndpoint | quote }}
+  NOOSFERA_NATS_URL: {{ .Values.global.natsUrl | quote }}
+  NOOSFERA_IDENTITY_URL: {{ .Values.global.identityUrl | quote }}
+  NOOSFERA_COGNITION_URL: {{ .Values.global.cognitionUrl | quote }}
+  NOOSFERA_AGENCY_URL: {{ .Values.global.agencyUrl | quote }}
+  NOOSFERA_GOVERNANCE_URL: {{ .Values.global.governanceUrl | quote }}
+  NOOSFERA_EXECUTION_URL: {{ .Values.global.executionUrl | quote }}
+  NOOSFERA_MODEL_BASE_URL: {{ .Values.global.modelBaseUrl | quote }}
+  NOOSFERA_MODEL_NAME: {{ .Values.global.modelName | quote }}
+  NOOSFERA_IDENTITY_BACKEND: "remote"
+  NOOSFERA_COGNITION_BACKEND: "remote"
+  NOOSFERA_AGENCY_BACKEND: "remote"
+  NOOSFERA_GOVERNANCE_BACKEND: "remote"
+  NOOSFERA_EXECUTION_BACKEND: "rust"
+  NOOSFERA_IDENTITY_KEY_ID: {{ .Values.global.identityKeyId | quote }}
+  NOOSFERA_IDENTITY_PUBLIC_KEY_B64: {{ .Values.global.identityPublicKeyB64 | quote }}
+  NOOSFERA_AGENCY_KEY_ID: {{ .Values.global.agencyKeyId | quote }}
+  NOOSFERA_AGENCY_PUBLIC_KEY_B64: {{ .Values.global.agencyPublicKeyB64 | quote }}
+  NOOSFERA_GOVERNANCE_KEY_ID: {{ .Values.global.governanceKeyId | quote }}
+  NOOSFERA_GOVERNANCE_PUBLIC_KEY_B64: {{ .Values.global.governancePublicKeyB64 | quote }}
+  NOOSFERA_AUDIT_KEY_ID: {{ .Values.global.auditKeyId | quote }}
+  NOOSFERA_AUDIT_PUBLIC_KEY_B64: {{ .Values.global.auditPublicKeyB64 | quote }}

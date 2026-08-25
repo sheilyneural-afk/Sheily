@@ -1,0 +1,34 @@
+{
+  "additionalProperties": false,
+  "description": "Capacidad y firma separadas para evitar ambigüedad canónica.",
+  "properties": {
+    "capability": {
+      "additionalProperties": true,
+      "title": "Capability",
+      "type": "object"
+    },
+    "key_id": {
+      "title": "Key Id",
+      "type": "string"
+    },
+    "algorithm": {
+      "const": "Ed25519",
+      "default": "Ed25519",
+      "title": "Algorithm",
+      "type": "string"
+    },
+    "signature": {
+      "title": "Signature",
+      "type": "string"
+    }
+  },
+  "required": [
+    "capability",
+    "key_id",
+    "signature"
+  ],
+  "title": "CapabilityGrant",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://noosfera.invalid/schemas/capability-grant.schema.json"
+}

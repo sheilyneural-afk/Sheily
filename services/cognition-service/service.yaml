@@ -1,6 +1,6 @@
 id: cognition-service
 family: COG
-version: 0.2.0
+version: 0.3.0
 runtime: python
 modules: [COG-01, COG-02, COG-03, COG-04, COG-05, COG-06, COG-07, COG-08, COG-09, COG-10, COG-11, COG-12, COG-13]
 inbound_buses: [BUS-DAT, BUS-INT, BUS-EVI]

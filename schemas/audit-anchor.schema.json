@@ -1,0 +1,60 @@
+{
+  "additionalProperties": false,
+  "properties": {
+    "id": {
+      "title": "Id",
+      "type": "string"
+    },
+    "first_event": {
+      "title": "First Event",
+      "type": "string"
+    },
+    "last_event": {
+      "title": "Last Event",
+      "type": "string"
+    },
+    "event_count": {
+      "minimum": 1,
+      "title": "Event Count",
+      "type": "integer"
+    },
+    "merkle_root": {
+      "pattern": "^[a-f0-9]{64}$",
+      "title": "Merkle Root",
+      "type": "string"
+    },
+    "created_at": {
+      "format": "date-time",
+      "title": "Created At",
+      "type": "string"
+    },
+    "key_id": {
+      "title": "Key Id",
+      "type": "string"
+    },
+    "algorithm": {
+      "const": "Ed25519",
+      "default": "Ed25519",
+      "title": "Algorithm",
+      "type": "string"
+    },
+    "signature": {
+      "title": "Signature",
+      "type": "string"
+    }
+  },
+  "required": [
+    "id",
+    "first_event",
+    "last_event",
+    "event_count",
+    "merkle_root",
+    "created_at",
+    "key_id",
+    "signature"
+  ],
+  "title": "AuditAnchor",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://noosfera.invalid/schemas/audit-anchor.schema.json"
+}

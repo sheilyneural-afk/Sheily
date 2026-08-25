@@ -23,6 +23,10 @@ message Capability {
   string quorum_proof = 15;
   string revocation_channel = 16;
   noosfera.common.v1.Signature signature = 17;
+  string mission_id = 18;
+  string user_id = 19;
+  bytes arguments_hash = 20;
+  bool network_allowed = 21;
 }
 
 message IssueRequest {

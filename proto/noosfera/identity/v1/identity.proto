@@ -34,6 +34,21 @@ message RecordContinuityResponse {
   ContinuityEvent event = 1;
 }
 
+message ApprovalReceipt {
+  string id = 1;
+  string user_id = 2;
+  string mission_id = 3;
+  bytes plan_hash = 4;
+  bool approved = 5;
+  bool remember_result = 6;
+  string reason = 7;
+  google.protobuf.Timestamp issued_at = 8;
+  google.protobuf.Timestamp expiry = 9;
+  string key_id = 10;
+  string algorithm = 11;
+  bytes signature = 12;
+}
+
 service IdentityService {
   rpc Verify(VerifyRequest) returns (VerifyResponse);
   rpc RecordContinuity(RecordContinuityRequest) returns (RecordContinuityResponse);

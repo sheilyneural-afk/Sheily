@@ -28,8 +28,30 @@ spec:
           ports: [{name: http, containerPort: 8080}]
           envFrom: [{configMapRef: {name: noosfera-global}}]
           env:
+            - name: NOOSFERA_DATABASE_URL
+              valueFrom: {secretKeyRef: {name: noosfera-signing-refs, key: database-url}}
+            - name: NOOSFERA_INTERNAL_SERVICE_TOKEN
+              valueFrom: {secretKeyRef: {name: noosfera-signing-refs, key: internal-service-token}}
             - name: NOOSFERA_SIGNING_KEY_REF
               valueFrom: {secretKeyRef: {name: noosfera-signing-refs, key: {{ .name }}}}
+            {{- if eq .name "identity-service" }}
+            - name: NOOSFERA_LOCAL_PASSWORD
+              valueFrom: {secretKeyRef: {name: noosfera-signing-refs, key: local-password}}
+            - name: NOOSFERA_IDENTITY_PRIVATE_KEY_B64
+              valueFrom: {secretKeyRef: {name: noosfera-signing-refs, key: identity-private-key-b64}}
+            {{- end }}
+            {{- if eq .name "agency-service" }}
+            - name: NOOSFERA_AGENCY_PRIVATE_KEY_B64
+              valueFrom: {secretKeyRef: {name: noosfera-signing-refs, key: agency-private-key-b64}}
+            {{- end }}
+            {{- if eq .name "governance-service" }}
+            - name: NOOSFERA_GOVERNANCE_PRIVATE_KEY_B64
+              valueFrom: {secretKeyRef: {name: noosfera-signing-refs, key: governance-private-key-b64}}
+            {{- end }}
+            {{- if eq .name "audit-service" }}
+            - name: NOOSFERA_AUDIT_PRIVATE_KEY_B64
+              valueFrom: {secretKeyRef: {name: noosfera-signing-refs, key: audit-private-key-b64}}
+            {{- end }}
           resources: {{ toYaml $.Values.resources | nindent 12 }}
           readinessProbe: {httpGet: {path: /health/ready, port: http}, periodSeconds: 5}
           livenessProbe: {httpGet: {path: /health/live, port: http}, periodSeconds: 10}

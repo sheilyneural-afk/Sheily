@@ -1,0 +1,277 @@
+{
+  "$defs": {
+    "MissionPlan": {
+      "additionalProperties": false,
+      "properties": {
+        "objective": {
+          "maxLength": 2000,
+          "minLength": 1,
+          "title": "Objective",
+          "type": "string"
+        },
+        "tool": {
+          "enum": [
+            "conversation.answer",
+            "document.report"
+          ],
+          "title": "Tool",
+          "type": "string"
+        },
+        "operation": {
+          "enum": [
+            "answer",
+            "generate"
+          ],
+          "title": "Operation",
+          "type": "string"
+        },
+        "resource": {
+          "enum": [
+            "urn:noosfera:tool:conversation-answer",
+            "urn:noosfera:tool:document-report"
+          ],
+          "title": "Resource",
+          "type": "string"
+        },
+        "steps": {
+          "items": {
+            "$ref": "#/$defs/PlanStep"
+          },
+          "maxItems": 20,
+          "minItems": 1,
+          "title": "Steps",
+          "type": "array"
+        },
+        "success_criteria": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 10,
+          "minItems": 1,
+          "title": "Success Criteria",
+          "type": "array"
+        },
+        "risk_factors": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 10,
+          "title": "Risk Factors",
+          "type": "array"
+        },
+        "requires_documents": {
+          "title": "Requires Documents",
+          "type": "boolean"
+        },
+        "cognitive_cycle_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Cognitive Cycle Id"
+        }
+      },
+      "required": [
+        "objective",
+        "tool",
+        "operation",
+        "resource",
+        "steps",
+        "success_criteria",
+        "requires_documents"
+      ],
+      "title": "MissionPlan",
+      "type": "object"
+    },
+    "PlanStep": {
+      "additionalProperties": false,
+      "properties": {
+        "index": {
+          "maximum": 20,
+          "minimum": 1,
+          "title": "Index",
+          "type": "integer"
+        },
+        "description": {
+          "maxLength": 500,
+          "minLength": 1,
+          "title": "Description",
+          "type": "string"
+        }
+      },
+      "required": [
+        "index",
+        "description"
+      ],
+      "title": "PlanStep",
+      "type": "object"
+    },
+    "ResourceBudget": {
+      "additionalProperties": false,
+      "description": "Límites duros que viajan desde Agency hasta el núcleo Rust.",
+      "properties": {
+        "wall_time_seconds": {
+          "default": 30,
+          "maximum": 300,
+          "minimum": 1,
+          "title": "Wall Time Seconds",
+          "type": "integer"
+        },
+        "cpu_time_ms": {
+          "default": 5000,
+          "maximum": 300000,
+          "minimum": 1,
+          "title": "Cpu Time Ms",
+          "type": "integer"
+        },
+        "memory_bytes": {
+          "default": 268435456,
+          "maximum": 4294967296,
+          "minimum": 1048576,
+          "title": "Memory Bytes",
+          "type": "integer"
+        },
+        "input_bytes": {
+          "default": 5000000,
+          "maximum": 100000000,
+          "minimum": 1,
+          "title": "Input Bytes",
+          "type": "integer"
+        },
+        "output_bytes": {
+          "default": 250000,
+          "maximum": 10000000,
+          "minimum": 1,
+          "title": "Output Bytes",
+          "type": "integer"
+        },
+        "model_input_tokens": {
+          "default": 32768,
+          "maximum": 1000000,
+          "minimum": 1,
+          "title": "Model Input Tokens",
+          "type": "integer"
+        },
+        "model_output_tokens": {
+          "default": 4096,
+          "maximum": 100000,
+          "minimum": 1,
+          "title": "Model Output Tokens",
+          "type": "integer"
+        },
+        "cost_microunits": {
+          "default": 0,
+          "maximum": 1000000000,
+          "minimum": 0,
+          "title": "Cost Microunits",
+          "type": "integer"
+        },
+        "max_tool_calls": {
+          "default": 1,
+          "maximum": 100,
+          "minimum": 1,
+          "title": "Max Tool Calls",
+          "type": "integer"
+        },
+        "max_child_processes": {
+          "default": 0,
+          "maximum": 16,
+          "minimum": 0,
+          "title": "Max Child Processes",
+          "type": "integer"
+        },
+        "network_allowed": {
+          "default": false,
+          "title": "Network Allowed",
+          "type": "boolean"
+        }
+      },
+      "title": "ResourceBudget",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "Plan causal validado y firmado exclusivamente por Agency.",
+  "properties": {
+    "mission_id": {
+      "title": "Mission Id",
+      "type": "string"
+    },
+    "user_id": {
+      "title": "User Id",
+      "type": "string"
+    },
+    "agent_id": {
+      "title": "Agent Id",
+      "type": "string"
+    },
+    "prompt_hash": {
+      "pattern": "^[a-f0-9]{64}$",
+      "title": "Prompt Hash",
+      "type": "string"
+    },
+    "context_hash": {
+      "pattern": "^[a-f0-9]{64}$",
+      "title": "Context Hash",
+      "type": "string"
+    },
+    "plan": {
+      "$ref": "#/$defs/MissionPlan"
+    },
+    "plan_hash": {
+      "pattern": "^[a-f0-9]{64}$",
+      "title": "Plan Hash",
+      "type": "string"
+    },
+    "budget": {
+      "$ref": "#/$defs/ResourceBudget"
+    },
+    "created_at": {
+      "format": "date-time",
+      "title": "Created At",
+      "type": "string"
+    },
+    "expiry": {
+      "format": "date-time",
+      "title": "Expiry",
+      "type": "string"
+    },
+    "key_id": {
+      "title": "Key Id",
+      "type": "string"
+    },
+    "algorithm": {
+      "const": "Ed25519",
+      "default": "Ed25519",
+      "title": "Algorithm",
+      "type": "string"
+    },
+    "signature": {
+      "title": "Signature",
+      "type": "string"
+    }
+  },
+  "required": [
+    "mission_id",
+    "user_id",
+    "agent_id",
+    "prompt_hash",
+    "context_hash",
+    "plan",
+    "plan_hash",
+    "budget",
+    "created_at",
+    "expiry",
+    "key_id",
+    "signature"
+  ],
+  "title": "PlanAttestation",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://noosfera.invalid/schemas/plan-attestation.schema.json"
+}
