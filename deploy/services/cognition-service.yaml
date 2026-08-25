@@ -1,0 +1,5 @@
+service: cognition-service
+port: 8105
+replicas: 2
+network_profile: no-actuator-egress
+resource_profile: accelerator-heavy

@@ -1,0 +1,14 @@
+id: audit-service
+family: AUD
+version: 0.1.0
+runtime: python
+target_runtime: rust
+modules: [AUD-01, AUD-02, AUD-03, AUD-04, AUD-05, AUD-06]
+inbound_buses: [BUS-AUD]
+outbound_buses: [BUS-DAT, BUS-EVI]
+data_stores: [append-only-audit-ledger, sealed-incident-store]
+health: {liveness: /health/live, readiness: /health/ready}
+slo: ops/slos/audit-service.yaml
+runbook: ops/runbooks/audit-service.md
+owner: audit-team
+deny_by_default: true

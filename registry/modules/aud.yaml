@@ -1,0 +1,10 @@
+family: AUD
+service: audit-service
+default_owner: audit-team
+modules:
+  - {id: AUD-01, name: Registro Inmutable Segmentado, responsibility: Conservar eventos encadenados por privacidad., inputs: [audit-event], outputs: [audit-receipt], buses: [BUS-AUD]}
+  - {id: AUD-02, name: Constructor de Trazas Causales, responsibility: Relacionar intención evidencia permiso comando y efecto., inputs: [audit-receipt-set], outputs: [causal-trace], buses: [BUS-AUD]}
+  - {id: AUD-03, name: Generador de Explicaciones, responsibility: Producir vistas adaptadas enlazadas a evidencia., inputs: [causal-trace, audience-profile], outputs: [explanation], buses: [BUS-DAT]}
+  - {id: AUD-04, name: Verificador de Cumplimiento, responsibility: Certificar propiedades con revelación mínima., inputs: [causal-trace, policy-set], outputs: [compliance-proof], buses: [BUS-EVI, BUS-AUD]}
+  - {id: AUD-05, name: Investigador de Incidentes, responsibility: Reconstruir fallos y conservar cadena de custodia., inputs: [incident-record, audit-receipt-set], outputs: [incident-report], buses: [BUS-EVI]}
+  - {id: AUD-06, name: Registro de Disenso, responsibility: Preservar objeciones y condiciones de revisión., inputs: [dissent-record], outputs: [dissent-receipt], buses: [BUS-AUD]}

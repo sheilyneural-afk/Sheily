@@ -1,0 +1,56 @@
+openapi: 3.1.0
+info:
+  title: Noosfera Control Plane
+  version: 0.1.0
+  description: API de referencia; no conecta actuadores reales.
+servers:
+  - url: https://node.example.invalid
+security: [{mutualTLS: []}]
+paths:
+  /health/live:
+    get:
+      operationId: liveness
+      security: []
+      responses: {"200": {description: Proceso vivo}}
+  /health/ready:
+    get:
+      operationId: readiness
+      security: []
+      responses: {"200": {description: Dependencias y políticas preparadas}, "503": {description: Denegación segura}}
+  /v1/intent/compile:
+    post:
+      operationId: compileIntent
+      x-noosfera-owner: agency-service
+      requestBody: {required: true, content: {application/json: {schema: {$ref: ../schemas/intent-contract.schema.json}}}}
+      responses: {"200": {description: Contrato compilado}, "422": {description: Requiere aclaración}}
+  /v1/governance/evaluate:
+    post:
+      operationId: evaluatePolicy
+      x-noosfera-owner: governance-service
+      requestBody: {required: true, content: {application/json: {schema: {type: object}}}}
+      responses:
+        "200": {description: Decisión, content: {application/json: {schema: {$ref: ../schemas/policy-decision.schema.json}}}}
+        "403": {description: Rechazado}
+  /v1/capabilities:
+    post:
+      operationId: issueCapability
+      x-noosfera-owner: governance-service
+      responses:
+        "201": {description: Capacidad emitida, content: {application/json: {schema: {$ref: ../schemas/capability.schema.json}}}}
+        "403": {description: Falta legitimidad o cuórum}
+  /v1/executions:
+    post:
+      operationId: requestExecution
+      x-noosfera-owner: execution-service
+      security: [{mutualTLS: [], capabilityToken: []}]
+      responses: {"202": {description: Ejecución limitada aceptada}, "403": {description: Plan o capacidad rechazados}}
+  /v1/executions/{executionId}/stop:
+    post:
+      operationId: safeStop
+      x-noosfera-owner: execution-service
+      parameters: [{name: executionId, in: path, required: true, schema: {type: string}}]
+      responses: {"202": {description: Parada prioritaria aceptada}}
+components:
+  securitySchemes:
+    mutualTLS: {type: mutualTLS}
+    capabilityToken: {type: http, scheme: bearer, bearerFormat: Noosfera-Capability}

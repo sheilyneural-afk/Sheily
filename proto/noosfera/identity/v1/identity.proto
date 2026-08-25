@@ -1,0 +1,40 @@
+syntax = "proto3";
+
+package noosfera.identity.v1;
+
+import "google/protobuf/timestamp.proto";
+
+message ContinuityEvent {
+  string id = 1;
+  string event_type = 2;
+  repeated string predecessors = 3;
+  repeated string successors = 4;
+  google.protobuf.Timestamp occurred_at = 5;
+  repeated string evidence = 6;
+  string status = 7;
+}
+
+message VerifyRequest {
+  string identity = 1;
+  bytes proof = 2;
+  string purpose = 3;
+}
+
+message VerifyResponse {
+  bool verified = 1;
+  string assurance_level = 2;
+  repeated string limitations = 3;
+}
+
+message RecordContinuityRequest {
+  ContinuityEvent event = 1;
+}
+
+message RecordContinuityResponse {
+  ContinuityEvent event = 1;
+}
+
+service IdentityService {
+  rpc Verify(VerifyRequest) returns (VerifyResponse);
+  rpc RecordContinuity(RecordContinuityRequest) returns (RecordContinuityResponse);
+}

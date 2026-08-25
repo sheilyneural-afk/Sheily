@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://noosfera.invalid/schemas/intent-contract.schema.json",
+  "title": "IntentContract",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["id", "requester", "objective", "scope", "constraints", "evidence_threshold", "reversibility_requirement", "stop_conditions", "expiry"],
+  "properties": {
+    "id": {"$ref": "common.schema.json#/$defs/urn"},
+    "requester": {"$ref": "common.schema.json#/$defs/urn"},
+    "represented_parties": {"type": "array", "items": {"$ref": "common.schema.json#/$defs/urn"}, "uniqueItems": true},
+    "objective": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["desired_state", "success_metrics"],
+      "properties": {
+        "desired_state": {"type": "string", "minLength": 1},
+        "success_metrics": {"type": "array", "items": {"type": "string"}, "minItems": 1},
+        "forbidden_proxies": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "beneficiaries": {"type": "array", "items": {"$ref": "common.schema.json#/$defs/urn"}},
+    "affected_parties": {"type": "array", "items": {"$ref": "common.schema.json#/$defs/urn"}},
+    "scope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["spatial", "temporal", "systems"],
+      "properties": {
+        "spatial": {"type": "string", "minLength": 1},
+        "temporal": {"type": "string", "minLength": 1},
+        "systems": {"type": "array", "items": {"type": "string"}, "minItems": 1}
+      }
+    },
+    "constraints": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["rights", "prohibited_actions", "resource_limits"],
+      "properties": {
+        "rights": {"type": "array", "items": {"type": "string"}},
+        "prohibited_actions": {"type": "array", "items": {"type": "string"}},
+        "resource_limits": {"type": "object", "additionalProperties": {"$ref": "common.schema.json#/$defs/resourceLimit"}}
+      }
+    },
+    "evidence_threshold": {"enum": ["low", "medium", "high", "civilizational"]},
+    "reversibility_requirement": {"enum": ["none", "preferred", "required", "staged", "preserve-options"]},
+    "stop_conditions": {"type": "array", "items": {"type": "string"}, "minItems": 1},
+    "escalation_conditions": {"type": "array", "items": {"type": "string"}},
+    "authorization_basis": {"type": "array", "items": {"$ref": "common.schema.json#/$defs/urn"}},
+    "expiry": {"$ref": "common.schema.json#/$defs/timestamp"},
+    "ambiguity_register": {"type": "array", "items": {"type": "string"}},
+    "signatures": {"type": "array", "items": {"$ref": "common.schema.json#/$defs/signature"}}
+  }
+}

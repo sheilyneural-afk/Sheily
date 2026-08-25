@@ -1,0 +1,7 @@
+output:
+  - spdx-json=artifacts/sbom.spdx.json
+  - cyclonedx-json=artifacts/sbom.cdx.json
+scope: all-layers
+exclude:
+  - "**/.git/**"
+  - "**/tests/fixtures/**"

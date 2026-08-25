@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://noosfera.invalid/schemas/capability.schema.json",
+  "title": "Capability",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["id", "issuer", "holder", "resource", "permitted_operations", "plan_hash", "bounds", "preconditions", "mandatory_monitors", "stop_conditions", "not_before", "expiry", "max_uses", "delegation", "quorum_proof", "signature"],
+  "properties": {
+    "id": {"$ref": "common.schema.json#/$defs/urn"},
+    "issuer": {"$ref": "common.schema.json#/$defs/urn"},
+    "holder": {"$ref": "common.schema.json#/$defs/urn"},
+    "resource": {"$ref": "common.schema.json#/$defs/urn"},
+    "permitted_operations": {"type": "array", "items": {"type": "string"}, "minItems": 1, "uniqueItems": true},
+    "plan_hash": {"$ref": "common.schema.json#/$defs/sha256"},
+    "bounds": {"type": "object", "additionalProperties": {"$ref": "common.schema.json#/$defs/resourceLimit"}, "minProperties": 1},
+    "preconditions": {"type": "array", "items": {"type": "string"}},
+    "mandatory_monitors": {"type": "array", "items": {"$ref": "common.schema.json#/$defs/urn"}, "minItems": 1},
+    "stop_conditions": {"type": "array", "items": {"type": "string"}, "minItems": 1},
+    "not_before": {"$ref": "common.schema.json#/$defs/timestamp"},
+    "expiry": {"$ref": "common.schema.json#/$defs/timestamp"},
+    "max_uses": {"type": "integer", "minimum": 1, "maximum": 1000},
+    "delegation": {"enum": ["forbidden", "bounded"]},
+    "quorum_proof": {"$ref": "common.schema.json#/$defs/urn"},
+    "revocation_channel": {"type": "string", "minLength": 1},
+    "signature": {"$ref": "common.schema.json#/$defs/signature"}
+  }
+}

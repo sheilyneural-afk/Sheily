@@ -1,0 +1,14 @@
+id: execution-service
+family: EXE
+version: 0.1.0
+runtime: python
+target_runtime: rust
+modules: [EXE-01, EXE-02, EXE-03, EXE-04, EXE-05, EXE-06, EXE-07, EXE-08]
+inbound_buses: [BUS-INT, BUS-AUT, BUS-STA, BUS-STP]
+outbound_buses: [BUS-ACT, BUS-STA, BUS-STP, BUS-AUD]
+data_stores: [postgres-execution-metadata, local-interlock-state]
+health: {liveness: /health/live, readiness: /health/ready}
+slo: ops/slos/execution-service.yaml
+runbook: ops/runbooks/execution-service.md
+owner: execution-team
+deny_by_default: true

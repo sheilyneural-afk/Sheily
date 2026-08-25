@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://noosfera.invalid/schemas/common.schema.json",
+  "title": "Tipos comunes de Noosfera",
+  "$defs": {
+    "urn": {"type": "string", "pattern": "^urn:noosfera:[a-z0-9][a-z0-9:._-]+$"},
+    "sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "timestamp": {"type": "string", "format": "date-time"},
+    "signature": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["signer", "algorithm", "value"],
+      "properties": {
+        "signer": {"$ref": "#/$defs/urn"},
+        "algorithm": {"type": "string", "minLength": 1},
+        "value": {"type": "string", "minLength": 1}
+      }
+    },
+    "resourceLimit": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["unit", "maximum"],
+      "properties": {
+        "unit": {"type": "string", "minLength": 1},
+        "maximum": {"type": "number", "minimum": 0}
+      }
+    }
+  }
+}

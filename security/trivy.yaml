@@ -1,0 +1,6 @@
+scan:
+  scanners: [vuln, secret, misconfig, license]
+  skip-dirs: [.git, node_modules, target, dist]
+severity: [HIGH, CRITICAL]
+exit-code: 1
+ignore-unfixed: false

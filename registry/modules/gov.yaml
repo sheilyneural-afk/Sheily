@@ -1,0 +1,16 @@
+family: GOV
+service: governance-service
+default_owner: governance-team
+modules:
+  - {id: GOV-01, name: Motor Constitucional, responsibility: Evaluar planes contra derechos y prohibiciones., inputs: [intent-contract, plan, evidence-bundle], outputs: [constitutional-decision], buses: [BUS-EVI, BUS-AUT]}
+  - {id: GOV-02, name: Resolutor de Jurisdicción, responsibility: Determinar constituciones tratados y mandatos aplicables., inputs: [jurisdiction-context], outputs: [applicable-law-set], buses: [BUS-EVI]}
+  - {id: GOV-03, name: Clasificador de Riesgo, responsibility: Clasificar impacto reversibilidad e incertidumbre., inputs: [plan, evidence-bundle], outputs: [risk-assessment], buses: [BUS-EVI]}
+  - {id: GOV-04, name: Gestor de Derechos, responsibility: Identificar titulares derechos excepciones y recursos., inputs: [affected-parties, applicable-law-set], outputs: [rights-assessment], buses: [BUS-EVI]}
+  - {id: GOV-05, name: Gestor de Mandatos, responsibility: Verificar autoridad del solicitante y representación., inputs: [mandate-claim, identity-proof], outputs: [mandate-verification], buses: [BUS-EVI]}
+  - {id: GOV-06, name: Emisor de Capacidades, responsibility: Emitir permisos limitados vinculados a un plan., inputs: [authorization-decision, quorum-proof], outputs: [capability, capability-revocation], buses: [BUS-AUT, BUS-AUD]}
+  - {id: GOV-07, name: Gestor de Cuórum, responsibility: Reunir aprobaciones realmente independientes., inputs: [approval-set, diversity-proof], outputs: [quorum-proof], buses: [BUS-EVI, BUS-AUT]}
+  - {id: GOV-08, name: Cámara de Apelación, responsibility: Tramitar impugnaciones y moratorias., inputs: [appeal, decision-trace], outputs: [appeal-decision, moratorium], buses: [BUS-AUT, BUS-STP]}
+  - {id: GOV-09, name: Representante de Generaciones Futuras, responsibility: Evaluar pérdida de opciones y obligaciones largas., inputs: [plan, long-horizon-simulation], outputs: [future-generations-assessment], buses: [BUS-EVI]}
+  - {id: GOV-10, name: Protocolo de Conciencia Incierta, responsibility: Aplicar precaución a entidades posiblemente conscientes., inputs: [entity-assessment, proposed-treatment], outputs: [consciousness-precaution], buses: [BUS-EVI, BUS-AUT]}
+  - {id: GOV-11, name: Gestor de Emergencias, responsibility: Emitir mandatos mínimos temporales y no autorrenovables., inputs: [emergency-evidence, local-mandate], outputs: [emergency-capability], buses: [BUS-AUT, BUS-STP, BUS-AUD]}
+  - {id: GOV-12, name: Contable de Poder, responsibility: Medir acumulación de recursos permisos copias e influencia., inputs: [authority-events, resource-state], outputs: [power-concentration-report], buses: [BUS-EVI, BUS-AUD]}

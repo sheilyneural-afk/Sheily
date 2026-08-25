@@ -1,0 +1,5 @@
+service: experience-service
+port: 8101
+replicas: 2
+network_profile: interaction
+resource_profile: medium

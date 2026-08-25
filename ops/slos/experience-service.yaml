@@ -1,0 +1,6 @@
+service: experience-service
+window: 30d
+availability: 99.9
+p95_latency_ms: 250
+consent_receipt_loss: 0
+fallback: accessible-local-interface

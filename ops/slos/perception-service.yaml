@@ -1,0 +1,6 @@
+service: perception-service
+window: 30d
+availability: 99.99
+p95_latency_ms: 100
+critical_sensor_freshness_ms: 500
+fallback: conservative-state-estimate

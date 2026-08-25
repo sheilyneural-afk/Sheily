@@ -1,0 +1,13 @@
+id: perception-service
+family: PER
+version: 0.1.0
+runtime: python
+modules: [PER-01, PER-02, PER-03, PER-04, PER-05]
+inbound_buses: [BUS-DAT, BUS-STA]
+outbound_buses: [BUS-DAT, BUS-EVI, BUS-STA, BUS-STP, BUS-AUD]
+data_stores: [timeseries-observations, object-store-sensor-evidence]
+health: {liveness: /health/live, readiness: /health/ready}
+slo: ops/slos/perception-service.yaml
+runbook: ops/runbooks/perception-service.md
+owner: perception-team
+deny_by_default: true

@@ -1,0 +1,6 @@
+service: memory-service
+window: 30d
+availability: 99.95
+p95_latency_ms: 300
+unauthorized_disclosure: 0
+fallback: deny-read-preserve-owner-access

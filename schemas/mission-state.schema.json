@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://noosfera.invalid/schemas/mission-state.schema.json",
+  "title": "MissionState",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["mission_id", "intent_contract_id", "state", "version", "updated_at", "last_event_id"],
+  "properties": {
+    "mission_id": {"$ref": "common.schema.json#/$defs/urn"},
+    "intent_contract_id": {"$ref": "common.schema.json#/$defs/urn"},
+    "state": {"enum": ["received", "clarification", "compiled", "analysis", "deliberation", "review", "authorization", "preparation", "execution", "paused", "reversion", "final-verification", "closed", "rejected", "appeal"]},
+    "version": {"type": "integer", "minimum": 1},
+    "updated_at": {"$ref": "common.schema.json#/$defs/timestamp"},
+    "last_event_id": {"$ref": "common.schema.json#/$defs/urn"},
+    "active_capability_ids": {"type": "array", "items": {"$ref": "common.schema.json#/$defs/urn"}, "uniqueItems": true}
+  }
+}

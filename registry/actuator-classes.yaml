@@ -1,0 +1,10 @@
+version: 1
+classes:
+  - {id: digital-read, maximum_risk: R1, physical_interlock: false}
+  - {id: digital-write, maximum_risk: R2, physical_interlock: false}
+  - {id: personal-device, maximum_risk: R2, physical_interlock: true}
+  - {id: laboratory, maximum_risk: R4, physical_interlock: true}
+  - {id: habitat, maximum_risk: R3, physical_interlock: true}
+  - {id: biofabrication, maximum_risk: R4, physical_interlock: true}
+  - {id: planetary, maximum_risk: R5, physical_interlock: true}
+  - {id: cognitive-interface, maximum_risk: R4, physical_interlock: true}

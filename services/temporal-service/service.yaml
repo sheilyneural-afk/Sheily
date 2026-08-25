@@ -1,0 +1,14 @@
+id: temporal-service
+family: TMP
+version: 0.1.0
+runtime: python
+target_runtime: rust
+modules: [TMP-01, TMP-02, TMP-03, TMP-04, TMP-05]
+inbound_buses: [BUS-DAT, BUS-FED, BUS-AUT]
+outbound_buses: [BUS-DAT, BUS-FED, BUS-AUT, BUS-AUD]
+data_stores: [logical-clock-store, intergenerational-commitment-store]
+health: {liveness: /health/live, readiness: /health/ready}
+slo: ops/slos/temporal-service.yaml
+runbook: ops/runbooks/temporal-service.md
+owner: temporal-team
+deny_by_default: true

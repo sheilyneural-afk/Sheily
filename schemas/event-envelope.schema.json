@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://noosfera.invalid/schemas/event-envelope.schema.json",
+  "title": "EventEnvelope",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["protocol_version", "event_id", "trace_id", "sender", "recipient", "purpose", "classification", "epistemic_status", "schema", "payload_hash", "logical_time", "signature"],
+  "properties": {
+    "protocol_version": {"const": "N2300-EV/1"},
+    "event_id": {"$ref": "common.schema.json#/$defs/urn"},
+    "trace_id": {"$ref": "common.schema.json#/$defs/urn"},
+    "parent_event_ids": {"type": "array", "items": {"$ref": "common.schema.json#/$defs/urn"}, "uniqueItems": true},
+    "sender": {"$ref": "common.schema.json#/$defs/urn"},
+    "recipient": {"$ref": "common.schema.json#/$defs/urn"},
+    "purpose": {"type": "string", "minLength": 1},
+    "classification": {"enum": ["public", "community", "protected", "intimate", "cognitive", "existential"]},
+    "epistemic_status": {"enum": ["observed", "communicated", "remembered", "inferred", "hypothetical", "simulated", "predicted", "formally-verified", "experimentally-reproduced", "disputed", "refuted", "unknown"]},
+    "schema": {"type": "string", "minLength": 1},
+    "payload_hash": {"$ref": "common.schema.json#/$defs/sha256"},
+    "payload_location": {"type": "string"},
+    "logical_time": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["node", "counter"],
+      "properties": {
+        "node": {"$ref": "common.schema.json#/$defs/urn"},
+        "counter": {"type": "integer", "minimum": 0},
+        "not_before": {"$ref": "common.schema.json#/$defs/timestamp"},
+        "not_after": {"$ref": "common.schema.json#/$defs/timestamp"}
+      }
+    },
+    "retention_policy": {"type": "string"},
+    "authorization_reference": {"$ref": "common.schema.json#/$defs/urn"},
+    "signature": {"$ref": "common.schema.json#/$defs/signature"}
+  }
+}

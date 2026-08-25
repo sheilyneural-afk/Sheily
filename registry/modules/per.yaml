@@ -1,0 +1,34 @@
+family: PER
+service: perception-service
+default_owner: perception-team
+modules:
+  - id: PER-01
+    name: Fusión Sensorial
+    responsibility: Combinar observaciones sin borrar discrepancias.
+    inputs: [sensor-observation]
+    outputs: [fused-observation]
+    buses: [BUS-DAT, BUS-STA]
+  - id: PER-02
+    name: Validador de Sensores
+    responsibility: Detectar deriva, suplantación y observaciones incompatibles.
+    inputs: [sensor-observation, sensor-manifest]
+    outputs: [sensor-assessment]
+    buses: [BUS-EVI, BUS-STA]
+  - id: PER-03
+    name: Separador Epistémico
+    responsibility: Etiquetar observación, comunicación, inferencia, memoria o simulación.
+    inputs: [information-item]
+    outputs: [epistemic-item]
+    buses: [BUS-DAT]
+  - id: PER-04
+    name: Estimador de Estado
+    responsibility: Estimar estado probabilístico y vigencia temporal.
+    inputs: [fused-observation, prior-state]
+    outputs: [state-estimate]
+    buses: [BUS-DAT, BUS-STA]
+  - id: PER-05
+    name: Detector de Novedad
+    responsibility: Identificar condiciones fuera de distribución.
+    inputs: [state-estimate, baseline-model]
+    outputs: [novelty-alert]
+    buses: [BUS-EVI, BUS-STP]

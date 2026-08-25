@@ -1,0 +1,16 @@
+{
+  "protocol_version": "N2300-EV/1",
+  "event_id": "urn:noosfera:event:test",
+  "trace_id": "urn:noosfera:trace:test",
+  "parent_event_ids": [],
+  "sender": "urn:noosfera:module:agy-01",
+  "recipient": "urn:noosfera:module:cog-01",
+  "purpose": "reference-test",
+  "classification": "protected",
+  "epistemic_status": "communicated",
+  "schema": "intent-contract.v1",
+  "payload_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+  "logical_time": {"node": "urn:noosfera:node:test", "counter": 1},
+  "retention_policy": "test-only",
+  "signature": {"signer": "urn:noosfera:module:agy-01", "algorithm": "ed25519", "value": "test-signature"}
+}

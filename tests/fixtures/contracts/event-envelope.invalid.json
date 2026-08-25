@@ -1,0 +1,14 @@
+{
+  "protocol_version": "unknown",
+  "event_id": "bad",
+  "trace_id": "bad",
+  "sender": "bad",
+  "recipient": "bad",
+  "purpose": "",
+  "classification": "secret-ish",
+  "epistemic_status": "certain",
+  "schema": "",
+  "payload_hash": "bad",
+  "logical_time": {"node": "bad", "counter": -1},
+  "signature": {}
+}

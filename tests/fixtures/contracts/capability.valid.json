@@ -1,0 +1,19 @@
+{
+  "id": "urn:noosfera:capability:test",
+  "issuer": "urn:noosfera:authority:test",
+  "holder": "urn:noosfera:gateway:test",
+  "resource": "urn:noosfera:actuator:test",
+  "permitted_operations": ["set-light"],
+  "plan_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+  "bounds": {"energy": {"unit": "joule", "maximum": 100}},
+  "preconditions": ["room-occupied"],
+  "mandatory_monitors": ["urn:noosfera:monitor:test"],
+  "stop_conditions": ["sensor-deviation"],
+  "not_before": "2026-01-01T00:00:00Z",
+  "expiry": "2027-01-01T00:00:00Z",
+  "max_uses": 1,
+  "delegation": "forbidden",
+  "quorum_proof": "urn:noosfera:quorum:test",
+  "revocation_channel": "authorization.revocation.v1",
+  "signature": {"signer": "urn:noosfera:authority:test", "algorithm": "ed25519", "value": "test-signature"}
+}

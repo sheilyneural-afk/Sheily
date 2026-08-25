@@ -1,0 +1,40 @@
+syntax = "proto3";
+
+package noosfera.evidence.v1;
+
+import "google/protobuf/timestamp.proto";
+import "noosfera/common/v1/common.proto";
+
+message Uncertainty {
+  double empirical = 1;
+  double model = 2;
+  string structural = 3;
+}
+
+message EvidenceBundle {
+  string id = 1;
+  string claim = 2;
+  string status = 3;
+  repeated string observations = 4;
+  repeated string inferences = 5;
+  repeated string simulations = 6;
+  repeated string counterevidence = 7;
+  repeated string assumptions = 8;
+  Uncertainty uncertainty = 9;
+  repeated string dissent = 10;
+  google.protobuf.Timestamp valid_until = 11;
+  repeated noosfera.common.v1.Signature verifier_signatures = 12;
+}
+
+message EvaluateRequest {
+  string intent_contract_id = 1;
+  bytes plan = 2;
+}
+
+message EvaluateResponse {
+  EvidenceBundle evidence = 1;
+}
+
+service EvidenceService {
+  rpc Evaluate(EvaluateRequest) returns (EvaluateResponse);
+}

@@ -1,0 +1,6 @@
+service: audit-service
+window: 30d
+availability: 99.999
+p95_latency_ms: 150
+receipt_chain_gap: 0
+fallback: witness-buffer-and-limit-actions

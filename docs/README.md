@@ -1,0 +1,9 @@
+# Documentación
+
+Las vistas aquí explican el sistema sin redefinir contratos. Los registros, esquemas y políticas siguen siendo normativos.
+
+- `architecture/`: contexto, dominios, cableado, datos y despliegue.
+- `security/`: amenazas, confianza, claves, contención y cadena de suministro.
+- `governance/`: constitución, derechos, conciencia incierta y cambios.
+- `privacy/`: memoria, retención y libertad cognitiva.
+- `adr/`: decisiones arquitectónicas irreversibles o costosas.

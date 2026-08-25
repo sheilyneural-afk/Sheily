@@ -1,0 +1,24 @@
+version: 1
+teams:
+  architecture-council: {scope: architecture, reviewers: [security-council, contract-team]}
+  constitution-council: {scope: fundamental-rights, reviewers: [privacy-team, safety-council]}
+  safety-council: {scope: emergency-and-stop, reviewers: [security-council, constitution-council]}
+  security-council: {scope: trust-boundaries, reviewers: [architecture-council]}
+  evolution-council: {scope: updates, reviewers: [security-council, constitution-council]}
+  contract-team: {scope: schemas-and-protocols, reviewers: [architecture-council]}
+  experience-team: {scope: EXP, reviewers: [privacy-team]}
+  identity-team: {scope: IDN, reviewers: [security-council, privacy-team]}
+  memory-team: {scope: MEM, reviewers: [privacy-team]}
+  perception-team: {scope: PER, reviewers: [safety-council]}
+  cognition-team: {scope: COG, reviewers: [safety-council]}
+  agency-team: {scope: AGY, reviewers: [governance-team]}
+  governance-team: {scope: GOV, reviewers: [constitution-council]}
+  execution-team: {scope: EXE, reviewers: [safety-council, security-council]}
+  federation-team: {scope: FED, reviewers: [security-council]}
+  security-team: {scope: SEC, reviewers: [security-council]}
+  audit-team: {scope: AUD, reviewers: [privacy-team]}
+  evolution-team: {scope: EVO, reviewers: [evolution-council]}
+  temporal-team: {scope: TMP, reviewers: [constitution-council]}
+  resource-team: {scope: RES, reviewers: [safety-council]}
+  privacy-team: {scope: data-rights, reviewers: [constitution-council]}
+  risk-team: {scope: risk-model, reviewers: [safety-council]}

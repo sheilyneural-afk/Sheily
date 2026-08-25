@@ -1,0 +1,11 @@
+version: 1
+policies:
+  - {id: constitutional-core, path: policies/constitution/core.rego, owner: constitution-council}
+  - {id: fundamental-rights, path: policies/constitution/rights.rego, owner: constitution-council}
+  - {id: capability-issuance, path: policies/authorization/capability.rego, owner: governance-team}
+  - {id: quorum, path: policies/authorization/quorum.rego, owner: governance-team}
+  - {id: memory-read, path: policies/privacy/memory_read.rego, owner: privacy-team}
+  - {id: memory-write, path: policies/privacy/memory_write.rego, owner: privacy-team}
+  - {id: risk-classification, path: policies/risk/classification.rego, owner: risk-team}
+  - {id: emergency, path: policies/emergency/activation.rego, owner: safety-council}
+  - {id: evolution, path: policies/evolution/deployment.rego, owner: evolution-council}

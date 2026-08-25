@@ -1,0 +1,12 @@
+version: 1
+buses:
+  - {id: BUS-DAT, purpose: datos y conocimiento etiquetado, privilege: none, ordering: causal-when-required}
+  - {id: BUS-INT, purpose: intenciones contratos y planes, privilege: none, ordering: per-mission}
+  - {id: BUS-EVI, purpose: evidencia disenso e incertidumbre, privilege: none, ordering: append-only}
+  - {id: BUS-AUT, purpose: capacidades revocaciones y moratorias, privilege: authorization, ordering: strict-local}
+  - {id: BUS-ACT, purpose: comandos deterministas, privilege: physical-change, ordering: strict}
+  - {id: BUS-STA, purpose: estado consumo y alarmas, privilege: none, ordering: monotonic-per-source}
+  - {id: BUS-AUD, purpose: recibos y pruebas, privilege: append-only, ordering: hash-chained}
+  - {id: BUS-FED, purpose: paquetes entre nodos, privilege: none-local, ordering: delay-tolerant}
+  - {id: BUS-EVO, purpose: candidatos y evaluaciones, privilege: isolated-only, ordering: versioned}
+  - {id: BUS-STP, purpose: pausa parada y estado seguro, privilege: stop-only, ordering: priority}

@@ -1,0 +1,18 @@
+{
+  "id": "not-an-urn",
+  "issuer": "urn:noosfera:authority:test",
+  "holder": "urn:noosfera:gateway:test",
+  "resource": "urn:noosfera:actuator:test",
+  "permitted_operations": [],
+  "plan_hash": "short",
+  "bounds": {},
+  "preconditions": [],
+  "mandatory_monitors": [],
+  "stop_conditions": [],
+  "not_before": "invalid",
+  "expiry": "invalid",
+  "max_uses": 0,
+  "delegation": "unlimited",
+  "quorum_proof": "none",
+  "signature": {}
+}

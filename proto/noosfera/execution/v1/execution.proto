@@ -1,0 +1,54 @@
+syntax = "proto3";
+
+package noosfera.execution.v1;
+
+import "noosfera/capability/v1/capability.proto";
+import "noosfera/common/v1/common.proto";
+
+message ActuatorManifest {
+  string identity = 1;
+  string actuator_class = 2;
+  repeated string operations = 3;
+  map<string, noosfera.common.v1.ResourceLimit> physical_limits = 4;
+  repeated string safe_states = 5;
+  uint64 stop_latency_ms = 6;
+  repeated string rollback_modes = 7;
+  repeated string required_sensors = 8;
+  string maintenance_owner = 9;
+  string firmware_attestation = 10;
+  string manual_control = 11;
+}
+
+message ExecuteRequest {
+  string mission_id = 1;
+  bytes plan = 2;
+  bytes plan_hash = 3;
+  noosfera.capability.v1.Capability capability = 4;
+  string resource_budget_id = 5;
+}
+
+message ExecutionStatus {
+  string execution_id = 1;
+  string state = 2;
+  repeated string deviations = 3;
+  bool stop_channel_healthy = 4;
+}
+
+message ExecuteResponse {
+  ExecutionStatus status = 1;
+}
+
+message StopRequest {
+  string execution_id = 1;
+  string reason = 2;
+  string target_safe_state = 3;
+}
+
+message StopResponse {
+  ExecutionStatus status = 1;
+}
+
+service ExecutionService {
+  rpc Execute(ExecuteRequest) returns (ExecuteResponse);
+  rpc Stop(StopRequest) returns (StopResponse);
+}

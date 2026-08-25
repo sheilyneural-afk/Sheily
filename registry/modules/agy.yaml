@@ -1,0 +1,12 @@
+family: AGY
+service: agency-service
+default_owner: agency-team
+modules:
+  - {id: AGY-01, name: Compilador de Intenciones, responsibility: Convertir peticiones en contratos estructurados., inputs: [experience-event, mandate-view], outputs: [intent-contract], buses: [BUS-INT, BUS-AUD]}
+  - {id: AGY-02, name: Resolutor de Ambigüedad, responsibility: Localizar vaguedad conflicto y autoridad ausente., inputs: [intent-contract], outputs: [ambiguity-report, clarification-request], buses: [BUS-INT]}
+  - {id: AGY-03, name: Descomponedor de Objetivos, responsibility: Dividir objetivos en resultados y condiciones de parada., inputs: [intent-contract], outputs: [goal-graph], buses: [BUS-INT]}
+  - {id: AGY-04, name: Generador de Planes, responsibility: Producir rutas alternativas incluida no acción., inputs: [goal-graph, evidence-bundle], outputs: [plan-set], buses: [BUS-INT]}
+  - {id: AGY-05, name: Orquestador de Deliberación, responsibility: Convocar modelos críticos y representantes., inputs: [deliberation-request], outputs: [deliberation-record], buses: [BUS-INT, BUS-EVI]}
+  - {id: AGY-06, name: Máquina de Estado de Misión, responsibility: Aplicar transiciones y condiciones de cierre., inputs: [mission-command, policy-decision], outputs: [mission-state], buses: [BUS-INT, BUS-AUD]}
+  - {id: AGY-07, name: Gestor de Dependencias, responsibility: Controlar precondiciones vigencia y compatibilidad., inputs: [plan, dependency-status], outputs: [dependency-assessment], buses: [BUS-EVI]}
+  - {id: AGY-08, name: Guardián de Objetivos, responsibility: Detectar deriva de objetivo y expansión de alcance., inputs: [intent-contract, mission-state, execution-status], outputs: [goal-drift-alert], buses: [BUS-EVI, BUS-STP]}

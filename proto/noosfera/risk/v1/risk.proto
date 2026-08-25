@@ -1,0 +1,32 @@
+syntax = "proto3";
+
+package noosfera.risk.v1;
+
+import "google/protobuf/timestamp.proto";
+
+message RiskAssessment {
+  string id = 1;
+  bytes plan_hash = 2;
+  string risk_class = 3;
+  double impact = 4;
+  double reversibility = 5;
+  double uncertainty = 6;
+  double power_concentration = 7;
+  repeated string affected_rights = 8;
+  uint32 required_quorum = 9;
+  google.protobuf.Timestamp valid_until = 10;
+}
+
+message AssessRequest {
+  bytes plan = 1;
+  string evidence_bundle_id = 2;
+  repeated string affected_parties = 3;
+}
+
+message AssessResponse {
+  RiskAssessment assessment = 1;
+}
+
+service RiskService {
+  rpc Assess(AssessRequest) returns (AssessResponse);
+}

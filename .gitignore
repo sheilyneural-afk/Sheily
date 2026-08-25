@@ -1,0 +1,16 @@
+.env
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+target/
+node_modules/
+dist/
+coverage/
+.coverage
+*.log
+*.tmp
+.DS_Store
+artifacts/runtime/

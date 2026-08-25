@@ -1,0 +1,6 @@
+service: security-service
+window: 30d
+availability: 99.999
+p95_latency_ms: 100
+critical_alert_loss: 0
+fallback: isolate-and-conserve

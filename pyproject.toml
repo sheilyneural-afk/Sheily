@@ -1,0 +1,51 @@
+[build-system]
+requires = ["hatchling>=1.25"]
+build-backend = "hatchling.build"
+
+[project]
+name = "noosfera"
+version = "0.1.0"
+description = "Plano de control y contratos de referencia para Noosfera"
+requires-python = ">=3.12"
+dependencies = [
+  "fastapi>=0.115,<1",
+  "httpx>=0.27,<1",
+  "jsonschema>=4.23,<5",
+  "nats-py>=2.9,<3",
+  "opentelemetry-api>=1.27,<2",
+  "opentelemetry-sdk>=1.27,<2",
+  "pydantic>=2.9,<3",
+  "pydantic-settings>=2.5,<3",
+  "referencing>=0.35,<1",
+  "pyyaml>=6.0,<7",
+  "structlog>=24.4,<26",
+  "uvicorn>=0.30,<1",
+]
+
+[project.optional-dependencies]
+dev = [
+  "mypy>=1.11,<2",
+  "pytest>=8.3,<9",
+  "pytest-asyncio>=0.24,<1",
+  "ruff>=0.9,<1",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["packages/python/noosfera_core"]
+
+[tool.pytest.ini_options]
+pythonpath = [".", "packages/python"]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "S"]
+ignore = ["S101"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true

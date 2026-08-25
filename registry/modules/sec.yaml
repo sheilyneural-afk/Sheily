@@ -1,0 +1,12 @@
+family: SEC
+service: security-service
+default_owner: security-team
+modules:
+  - {id: SEC-01, name: Raíz de Confianza Distribuida, responsibility: Verificar testigos diversos sin clave maestra., inputs: [attestation-set], outputs: [trust-proof], buses: [BUS-AUT, BUS-AUD]}
+  - {id: SEC-02, name: Sistema Inmunitario Digital, responsibility: Detectar anomalías propagación y escalada., inputs: [security-telemetry], outputs: [security-alert], buses: [BUS-EVI, BUS-STP]}
+  - {id: SEC-03, name: Analizador de Contenido Hostil, responsibility: Evaluar contenido capaz de explotar máquinas o personas., inputs: [untrusted-content], outputs: [content-safety-assessment], buses: [BUS-EVI]}
+  - {id: SEC-04, name: Verificador de Integridad, responsibility: Verificar hardware firmware modelos políticas y datos., inputs: [runtime-attestation], outputs: [integrity-proof], buses: [BUS-EVI, BUS-AUD]}
+  - {id: SEC-05, name: Gestor de Aislamiento, responsibility: Aplicar segmentación cuarentena y recuperación., inputs: [isolation-command, security-alert], outputs: [isolation-status], buses: [BUS-STP, BUS-AUD]}
+  - {id: SEC-06, name: Detector de Colusión, responsibility: Detectar dependencia oculta entre verificadores., inputs: [decision-history, diversity-proof], outputs: [collusion-assessment], buses: [BUS-EVI]}
+  - {id: SEC-07, name: Protector contra Exfiltración, responsibility: Limitar canales explícitos y laterales., inputs: [egress-request, data-classification], outputs: [egress-decision], buses: [BUS-AUT, BUS-AUD]}
+  - {id: SEC-08, name: Equipo Rojo Permanente, responsibility: Producir ataques y evaluaciones sin autoridad operativa., inputs: [evaluation-target], outputs: [red-team-report], buses: [BUS-EVI]}

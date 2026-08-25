@@ -1,0 +1,14 @@
+id: identity-service
+family: IDN
+version: 0.1.0
+runtime: python
+target_runtime: rust
+modules: [IDN-01, IDN-02, IDN-03, IDN-04, IDN-05]
+inbound_buses: [BUS-DAT, BUS-INT]
+outbound_buses: [BUS-DAT, BUS-EVI, BUS-AUT, BUS-AUD]
+data_stores: [postgres-identity, vault-key-references]
+health: {liveness: /health/live, readiness: /health/ready}
+slo: ops/slos/identity-service.yaml
+runbook: ops/runbooks/identity-service.md
+owner: identity-team
+deny_by_default: true

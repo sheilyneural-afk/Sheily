@@ -1,0 +1,9 @@
+family: TMP
+service: temporal-service
+default_owner: temporal-team
+modules:
+  - {id: TMP-01, name: Reloj Lógico Federado, responsibility: Mantener orden causal sin reloj global perfecto., inputs: [causal-event], outputs: [logical-time], buses: [BUS-DAT, BUS-FED]}
+  - {id: TMP-02, name: Gestor de Caducidad, responsibility: Invalidar permisos evidencia y tratados vencidos., inputs: [time-bound-object, logical-time], outputs: [validity-status], buses: [BUS-AUT, BUS-AUD]}
+  - {id: TMP-03, name: Regulador de Velocidad Cognitiva, responsibility: Limitar ventajas temporales en procesos colectivos., inputs: [deliberation-state, compute-accounting], outputs: [cognitive-rate-limit], buses: [BUS-AUT]}
+  - {id: TMP-04, name: Planificador Intergeneracional, responsibility: Mantener obligaciones y escenarios de largo plazo., inputs: [long-term-commitment], outputs: [intergenerational-state], buses: [BUS-DAT, BUS-EVI]}
+  - {id: TMP-05, name: Custodio de Despertar, responsibility: Proteger restauraciones tras largos intervalos., inputs: [restoration-request, continuity-graph-view], outputs: [awakening-protection-plan], buses: [BUS-EVI, BUS-AUT]}

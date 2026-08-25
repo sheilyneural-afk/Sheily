@@ -1,0 +1,12 @@
+family: FED
+service: federation-service
+default_owner: federation-team
+modules:
+  - {id: FED-01, name: Descubridor de Nodos, responsibility: Descubrir capacidades sin revelar topología privada., inputs: [node-advertisement], outputs: [node-catalog-view], buses: [BUS-FED]}
+  - {id: FED-02, name: Negociador de Protocolos, responsibility: Acordar versiones esquemas y criptografía., inputs: [protocol-offer], outputs: [protocol-agreement], buses: [BUS-FED]}
+  - {id: FED-03, name: Transporte Tolerante a Demoras, responsibility: Almacenar reenviar deduplicar y caducar paquetes., inputs: [federation-package], outputs: [delivery-receipt], buses: [BUS-FED]}
+  - {id: FED-04, name: Reconciliador de Estado, responsibility: Resolver divergencias sin sobrescritura automática., inputs: [state-history-set], outputs: [reconciliation-proposal], buses: [BUS-FED, BUS-EVI]}
+  - {id: FED-05, name: Traductor Constitucional, responsibility: Comparar conceptos derechos y conflictos entre constituciones., inputs: [constitution-set], outputs: [constitutional-translation], buses: [BUS-FED, BUS-EVI]}
+  - {id: FED-06, name: Gestor de Tratados, responsibility: Versionar compromisos vigencia retirada y conflicto., inputs: [treaty-command], outputs: [treaty-state], buses: [BUS-FED, BUS-AUD]}
+  - {id: FED-07, name: Mensajero de Conocimiento, responsibility: Intercambiar evidencia sin ejecutar código recibido., inputs: [knowledge-package], outputs: [quarantined-knowledge], buses: [BUS-FED, BUS-DAT]}
+  - {id: FED-08, name: Cortafuegos Civilizatorio, responsibility: Contener contenido externo hasta evaluación., inputs: [external-package], outputs: [quarantine-decision], buses: [BUS-FED, BUS-STP]}

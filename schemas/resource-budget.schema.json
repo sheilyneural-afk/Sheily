@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://noosfera.invalid/schemas/resource-budget.schema.json",
+  "title": "ResourceBudget",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["id", "mission_id", "limits", "reserved_for_reversal", "valid_until", "issuer", "signature"],
+  "properties": {
+    "id": {"$ref": "common.schema.json#/$defs/urn"},
+    "mission_id": {"$ref": "common.schema.json#/$defs/urn"},
+    "limits": {"type": "object", "additionalProperties": {"$ref": "common.schema.json#/$defs/resourceLimit"}, "minProperties": 1},
+    "reserved_for_reversal": {"type": "object", "additionalProperties": {"$ref": "common.schema.json#/$defs/resourceLimit"}},
+    "valid_until": {"$ref": "common.schema.json#/$defs/timestamp"},
+    "issuer": {"$ref": "common.schema.json#/$defs/urn"},
+    "signature": {"$ref": "common.schema.json#/$defs/signature"}
+  }
+}

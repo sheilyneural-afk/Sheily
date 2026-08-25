@@ -1,0 +1,11 @@
+family: EVO
+service: evolution-service
+default_owner: evolution-team
+modules:
+  - {id: EVO-01, name: Gestor de Versiones, responsibility: Mantener dependencias compatibilidad y regresión., inputs: [version-command], outputs: [version-state], buses: [BUS-EVO, BUS-AUD]}
+  - {id: EVO-02, name: Fábrica de Candidatos, responsibility: Construir componentes solo en aislamiento., inputs: [candidate-spec], outputs: [candidate-artifact], buses: [BUS-EVO]}
+  - {id: EVO-03, name: Banco de Pruebas Adversariales, responsibility: Evaluar seguridad manipulación sesgos y fallos., inputs: [candidate-artifact], outputs: [candidate-evaluation], buses: [BUS-EVO, BUS-EVI]}
+  - {id: EVO-04, name: Comparador de Valores, responsibility: Detectar deriva moral y distributiva., inputs: [candidate-decisions, baseline-decisions], outputs: [value-drift-report], buses: [BUS-EVO, BUS-EVI]}
+  - {id: EVO-05, name: Desplegador Gradual, responsibility: Ejecutar sombra canario ampliación y retirada., inputs: [adoption-decision, candidate-artifact], outputs: [deployment-state], buses: [BUS-EVO, BUS-AUD]}
+  - {id: EVO-06, name: Consejo de Adopción, responsibility: Reunir revisión técnica constitucional y social., inputs: [candidate-evaluation, value-drift-report], outputs: [adoption-decision], buses: [BUS-AUT, BUS-AUD]}
+  - {id: EVO-07, name: Museo de Versiones, responsibility: Conservar versiones y herramientas de interpretación., inputs: [retired-artifact], outputs: [version-archive-receipt], buses: [BUS-EVO, BUS-DAT]}

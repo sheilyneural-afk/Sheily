@@ -1,0 +1,47 @@
+syntax = "proto3";
+
+package noosfera.memory.v1;
+
+import "google/protobuf/timestamp.proto";
+
+message MemoryRecord {
+  string id = 1;
+  string owner = 2;
+  string kind = 3;
+  string classification = 4;
+  string epistemic_status = 5;
+  string purpose = 6;
+  bytes content_hash = 7;
+  string content_location = 8;
+  google.protobuf.Timestamp created_at = 9;
+  string retention_policy = 10;
+  repeated string provenance = 11;
+}
+
+message ReadRequest {
+  string record_id = 1;
+  string requester = 2;
+  string purpose = 3;
+  string consent_receipt = 4;
+  string requested_view = 5;
+}
+
+message ReadResponse {
+  string record_id = 1;
+  bytes disclosed_content = 2;
+  string disclosure_proof = 3;
+  string expires_at = 4;
+}
+
+message ProposeWriteRequest {
+  MemoryRecord record = 1;
+}
+
+message ProposeWriteResponse {
+  MemoryRecord record = 1;
+}
+
+service MemoryService {
+  rpc Read(ReadRequest) returns (ReadResponse);
+  rpc ProposeWrite(ProposeWriteRequest) returns (ProposeWriteResponse);
+}

@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://noosfera.invalid/schemas/actuator-manifest.schema.json",
+  "title": "ActuatorManifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["identity", "class", "operations", "physical_limits", "safe_states", "stop_latency_ms", "required_sensors", "firmware_attestation", "manual_control"],
+  "properties": {
+    "identity": {"$ref": "common.schema.json#/$defs/urn"},
+    "class": {"enum": ["digital-read", "digital-write", "personal-device", "laboratory", "habitat", "biofabrication", "planetary", "cognitive-interface"]},
+    "operations": {"type": "array", "items": {"type": "string"}, "minItems": 1, "uniqueItems": true},
+    "physical_limits": {"type": "object", "additionalProperties": {"$ref": "common.schema.json#/$defs/resourceLimit"}},
+    "safe_states": {"type": "array", "items": {"type": "string"}, "minItems": 1},
+    "stop_latency_ms": {"type": "integer", "minimum": 0},
+    "rollback_modes": {"type": "array", "items": {"type": "string"}},
+    "required_sensors": {"type": "array", "items": {"$ref": "common.schema.json#/$defs/urn"}, "minItems": 1},
+    "maintenance_owner": {"type": "string"},
+    "firmware_attestation": {"type": "string", "minLength": 1},
+    "manual_control": {"enum": ["required", "available-local", "not-applicable"]}
+  }
+}

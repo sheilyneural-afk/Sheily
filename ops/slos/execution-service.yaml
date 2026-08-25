@@ -1,0 +1,6 @@
+service: execution-service
+window: 30d
+availability: 99.999
+p95_latency_ms: 50
+plan_capability_mismatch_acceptance: 0
+fallback: safe-stop

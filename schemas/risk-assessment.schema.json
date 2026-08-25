@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://noosfera.invalid/schemas/risk-assessment.schema.json",
+  "title": "RiskAssessment",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["id", "plan_hash", "class", "impact", "reversibility", "uncertainty", "power_concentration", "affected_rights", "required_quorum", "valid_until"],
+  "properties": {
+    "id": {"$ref": "common.schema.json#/$defs/urn"},
+    "plan_hash": {"$ref": "common.schema.json#/$defs/sha256"},
+    "class": {"enum": ["R0", "R1", "R2", "R3", "R4", "R5"]},
+    "impact": {"type": "number", "minimum": 0, "maximum": 1},
+    "reversibility": {"type": "number", "minimum": 0, "maximum": 1},
+    "uncertainty": {"type": "number", "minimum": 0, "maximum": 1},
+    "power_concentration": {"type": "number", "minimum": 0, "maximum": 1},
+    "affected_rights": {"type": "array", "items": {"type": "string"}},
+    "required_quorum": {"type": "integer", "minimum": 0},
+    "valid_until": {"$ref": "common.schema.json#/$defs/timestamp"}
+  }
+}

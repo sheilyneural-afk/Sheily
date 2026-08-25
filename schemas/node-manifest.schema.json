@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://noosfera.invalid/schemas/node-manifest.schema.json",
+  "title": "NodeManifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["id", "type", "constitution_version", "services", "trust_witnesses", "operating_modes"],
+  "properties": {
+    "id": {"$ref": "common.schema.json#/$defs/urn"},
+    "type": {"type": "string", "minLength": 1},
+    "constitution_version": {"type": "string", "minLength": 1},
+    "services": {"type": "array", "items": {"type": "string"}, "minItems": 1},
+    "trust_witnesses": {"type": "array", "items": {"$ref": "common.schema.json#/$defs/urn"}},
+    "operating_modes": {"type": "array", "items": {"enum": ["normal", "conservative", "isolated", "essential", "safe", "manual"]}, "minItems": 1}
+  }
+}

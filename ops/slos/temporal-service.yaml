@@ -1,0 +1,6 @@
+service: temporal-service
+window: 30d
+availability: 99.99
+p95_latency_ms: 100
+expired_capability_marked_valid: 0
+fallback: expire-uncertain-authority

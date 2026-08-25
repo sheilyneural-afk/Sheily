@@ -1,0 +1,20 @@
+version: 1
+source: registry/modules/*.yaml
+closure_rule: every value in module.inputs and module.outputs is a registered logical port type
+naming_rule: ^[a-z][a-z0-9-]+$
+boundary_contracts:
+  event-envelope: schemas/event-envelope.schema.json
+  intent-contract: schemas/intent-contract.schema.json
+  evidence-bundle: schemas/evidence-bundle.schema.json
+  capability: schemas/capability.schema.json
+  audit-event: schemas/audit-event.schema.json
+  actuator-manifest: schemas/actuator-manifest.schema.json
+  mission-state: schemas/mission-state.schema.json
+  continuity-event: schemas/identity-continuity.schema.json
+  memory-record: schemas/memory-record.schema.json
+  risk-assessment: schemas/risk-assessment.schema.json
+  federation-package: schemas/federation-package.schema.json
+  candidate-artifact: schemas/update-candidate.schema.json
+  resource-budget: schemas/resource-budget.schema.json
+  policy-decision: schemas/policy-decision.schema.json
+logical_type_rule: internal port types are closed by their producer and consumer declarations; crossing a process boundary requires one of the boundary contracts above

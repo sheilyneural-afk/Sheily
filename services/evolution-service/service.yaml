@@ -1,0 +1,13 @@
+id: evolution-service
+family: EVO
+version: 0.1.0
+runtime: python
+modules: [EVO-01, EVO-02, EVO-03, EVO-04, EVO-05, EVO-06, EVO-07]
+inbound_buses: [BUS-EVO, BUS-EVI, BUS-AUT]
+outbound_buses: [BUS-EVO, BUS-EVI, BUS-AUD]
+data_stores: [artifact-store, evaluation-store, version-archive]
+health: {liveness: /health/live, readiness: /health/ready}
+slo: ops/slos/evolution-service.yaml
+runbook: ops/runbooks/evolution-service.md
+owner: evolution-team
+deny_by_default: true

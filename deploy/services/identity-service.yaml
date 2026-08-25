@@ -1,0 +1,5 @@
+service: identity-service
+port: 8102
+replicas: 3
+network_profile: identity-critical
+resource_profile: small-critical

@@ -1,0 +1,58 @@
+syntax = "proto3";
+
+package noosfera.intent.v1;
+
+import "google/protobuf/timestamp.proto";
+import "noosfera/common/v1/common.proto";
+
+message Objective {
+  string desired_state = 1;
+  repeated string success_metrics = 2;
+  repeated string forbidden_proxies = 3;
+}
+
+message Scope {
+  string spatial = 1;
+  string temporal = 2;
+  repeated string systems = 3;
+}
+
+message Constraints {
+  repeated string rights = 1;
+  repeated string prohibited_actions = 2;
+  map<string, noosfera.common.v1.ResourceLimit> resource_limits = 3;
+}
+
+message IntentContract {
+  string id = 1;
+  string requester = 2;
+  repeated string represented_parties = 3;
+  Objective objective = 4;
+  repeated string beneficiaries = 5;
+  repeated string affected_parties = 6;
+  Scope scope = 7;
+  Constraints constraints = 8;
+  string evidence_threshold = 9;
+  string reversibility_requirement = 10;
+  repeated string stop_conditions = 11;
+  repeated string escalation_conditions = 12;
+  repeated string authorization_basis = 13;
+  google.protobuf.Timestamp expiry = 14;
+  repeated string ambiguity_register = 15;
+  repeated noosfera.common.v1.Signature signatures = 16;
+}
+
+message CompileRequest {
+  string requester = 1;
+  string natural_language_request = 2;
+  repeated string context_references = 3;
+}
+
+message CompileResponse {
+  IntentContract contract = 1;
+  repeated string clarification_questions = 2;
+}
+
+service IntentService {
+  rpc Compile(CompileRequest) returns (CompileResponse);
+}

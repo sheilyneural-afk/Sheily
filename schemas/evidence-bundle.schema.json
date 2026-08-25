@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://noosfera.invalid/schemas/evidence-bundle.schema.json",
+  "title": "EvidenceBundle",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["id", "claim", "status", "observations", "inferences", "simulations", "counterevidence", "assumptions", "uncertainty", "valid_until"],
+  "properties": {
+    "id": {"$ref": "common.schema.json#/$defs/urn"},
+    "claim": {"type": "string", "minLength": 1},
+    "status": {"enum": ["unsupported", "supported", "supported-with-open-objections", "disputed", "refuted"]},
+    "observations": {"type": "array", "items": {"$ref": "common.schema.json#/$defs/urn"}},
+    "inferences": {"type": "array", "items": {"$ref": "common.schema.json#/$defs/urn"}},
+    "simulations": {"type": "array", "items": {"$ref": "common.schema.json#/$defs/urn"}},
+    "counterevidence": {"type": "array", "items": {"$ref": "common.schema.json#/$defs/urn"}},
+    "assumptions": {"type": "array", "items": {"type": "string"}},
+    "uncertainty": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["empirical", "model", "structural"],
+      "properties": {
+        "empirical": {"type": "number", "minimum": 0, "maximum": 1},
+        "model": {"type": "number", "minimum": 0, "maximum": 1},
+        "structural": {"enum": ["low", "material", "high", "unknown"]}
+      }
+    },
+    "dissent": {"type": "array", "items": {"$ref": "common.schema.json#/$defs/urn"}},
+    "valid_until": {"$ref": "common.schema.json#/$defs/timestamp"},
+    "verifier_signatures": {"type": "array", "items": {"$ref": "common.schema.json#/$defs/signature"}}
+  }
+}

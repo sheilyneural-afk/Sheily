@@ -1,0 +1,6 @@
+service: evolution-service
+window: 30d
+availability: 99.5
+p95_latency_ms: 10000
+unreviewed_production_deployment: 0
+fallback: freeze-deployments

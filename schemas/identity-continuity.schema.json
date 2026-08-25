@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://noosfera.invalid/schemas/identity-continuity.schema.json",
+  "title": "IdentityContinuityEvent",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["id", "event_type", "predecessors", "successors", "occurred_at", "evidence", "status"],
+  "properties": {
+    "id": {"$ref": "common.schema.json#/$defs/urn"},
+    "event_type": {"enum": ["birth", "fork", "merge", "migration", "restoration", "suspension", "death", "dispute"]},
+    "predecessors": {"type": "array", "items": {"$ref": "common.schema.json#/$defs/urn"}},
+    "successors": {"type": "array", "items": {"$ref": "common.schema.json#/$defs/urn"}},
+    "occurred_at": {"$ref": "common.schema.json#/$defs/timestamp"},
+    "evidence": {"type": "array", "items": {"$ref": "common.schema.json#/$defs/urn"}},
+    "status": {"enum": ["claimed", "verified", "disputed", "revoked"]}
+  }
+}

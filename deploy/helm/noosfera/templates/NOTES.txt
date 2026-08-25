@@ -1,0 +1,2 @@
+Noosfera {{ .Chart.AppVersion }} desplegada en {{ .Release.Namespace }}.
+Verifique políticas de red específicas antes de conectar cualquier actuador.

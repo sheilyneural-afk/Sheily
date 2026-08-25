@@ -1,0 +1,5 @@
+service: governance-service
+port: 8107
+replicas: 5
+network_profile: authorization-critical
+resource_profile: small-critical

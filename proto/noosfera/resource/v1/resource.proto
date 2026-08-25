@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+package noosfera.resource.v1;
+
+import "google/protobuf/timestamp.proto";
+import "noosfera/common/v1/common.proto";
+
+message ResourceBudget {
+  string id = 1;
+  string mission_id = 2;
+  map<string, noosfera.common.v1.ResourceLimit> limits = 3;
+  map<string, noosfera.common.v1.ResourceLimit> reserved_for_reversal = 4;
+  google.protobuf.Timestamp valid_until = 5;
+  string issuer = 6;
+  noosfera.common.v1.Signature signature = 7;
+}
+
+message ReserveRequest {
+  string mission_id = 1;
+  map<string, noosfera.common.v1.ResourceLimit> requested = 2;
+  map<string, noosfera.common.v1.ResourceLimit> reversal = 3;
+}
+
+message ReserveResponse {
+  ResourceBudget budget = 1;
+}
+
+service ResourceService {
+  rpc Reserve(ReserveRequest) returns (ReserveResponse);
+}

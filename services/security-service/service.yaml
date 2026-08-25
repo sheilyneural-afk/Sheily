@@ -1,0 +1,14 @@
+id: security-service
+family: SEC
+version: 0.1.0
+runtime: python
+target_runtime: rust
+modules: [SEC-01, SEC-02, SEC-03, SEC-04, SEC-05, SEC-06, SEC-07, SEC-08]
+inbound_buses: [BUS-DAT, BUS-EVI, BUS-STA, BUS-FED, BUS-EVO]
+outbound_buses: [BUS-EVI, BUS-AUT, BUS-STP, BUS-AUD]
+data_stores: [security-event-store, attestation-store, quarantine-object-store]
+health: {liveness: /health/live, readiness: /health/ready}
+slo: ops/slos/security-service.yaml
+runbook: ops/runbooks/security-service.md
+owner: security-team
+deny_by_default: true

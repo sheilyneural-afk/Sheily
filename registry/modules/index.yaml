@@ -1,0 +1,17 @@
+version: 1
+expected_module_count: 105
+families:
+  EXP: registry/modules/exp.yaml
+  IDN: registry/modules/idn.yaml
+  MEM: registry/modules/mem.yaml
+  PER: registry/modules/per.yaml
+  COG: registry/modules/cog.yaml
+  AGY: registry/modules/agy.yaml
+  GOV: registry/modules/gov.yaml
+  EXE: registry/modules/exe.yaml
+  FED: registry/modules/fed.yaml
+  SEC: registry/modules/sec.yaml
+  AUD: registry/modules/aud.yaml
+  EVO: registry/modules/evo.yaml
+  TMP: registry/modules/tmp.yaml
+  RES: registry/modules/res.yaml

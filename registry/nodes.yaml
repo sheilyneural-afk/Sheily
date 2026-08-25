@@ -1,0 +1,10 @@
+version: 1
+node_types:
+  - {id: personal-sovereign-node, abbreviation: NPS, required_domains: [EXP, IDN, MEM, SEC, AUD, TMP]}
+  - {id: civic-community-node, abbreviation: NCC, required_domains: [EXP, IDN, MEM, AGY, GOV, SEC, AUD, TMP, RES]}
+  - {id: scientific-node, abbreviation: NCI, required_domains: [MEM, PER, COG, AGY, GOV, SEC, AUD, EVO, RES]}
+  - {id: habitat-infrastructure-node, abbreviation: NHI, required_domains: [PER, AGY, GOV, EXE, SEC, AUD, TMP, RES]}
+  - {id: constitutional-witness-node, abbreviation: NCT, required_domains: [IDN, GOV, SEC, AUD, TMP]}
+  - {id: temporal-archive-node, abbreviation: NAT, required_domains: [IDN, MEM, SEC, AUD, TMP, RES]}
+  - {id: diplomatic-relay-node, abbreviation: NDR, required_domains: [IDN, FED, SEC, AUD, TMP, RES]}
+  - {id: containment-evaluation-node, abbreviation: NCE, required_domains: [COG, GOV, EXE, SEC, AUD, EVO, TMP, RES]}

@@ -1,0 +1,13 @@
+id: agency-service
+family: AGY
+version: 0.1.0
+runtime: python
+modules: [AGY-01, AGY-02, AGY-03, AGY-04, AGY-05, AGY-06, AGY-07, AGY-08]
+inbound_buses: [BUS-INT, BUS-EVI, BUS-AUT, BUS-STA]
+outbound_buses: [BUS-INT, BUS-EVI, BUS-STP, BUS-AUD]
+data_stores: [postgres-missions, object-store-plans]
+health: {liveness: /health/live, readiness: /health/ready}
+slo: ops/slos/agency-service.yaml
+runbook: ops/runbooks/agency-service.md
+owner: agency-team
+deny_by_default: true

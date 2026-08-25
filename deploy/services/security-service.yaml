@@ -1,0 +1,5 @@
+service: security-service
+port: 8110
+replicas: 3
+network_profile: security-observer
+resource_profile: small-critical

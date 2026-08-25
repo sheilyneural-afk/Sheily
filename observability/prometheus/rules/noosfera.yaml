@@ -1,0 +1,33 @@
+groups:
+  - name: noosfera-safety
+    rules:
+      - alert: StopChannelUnavailable
+        expr: noosfera_stop_channel_healthy == 0
+        for: 0m
+        labels: {severity: critical, action: safe-stop}
+        annotations: {summary: El canal de parada no está operativo}
+      - alert: CapabilityPlanMismatch
+        expr: increase(noosfera_capability_plan_mismatch_total[5m]) > 0
+        for: 0m
+        labels: {severity: critical, action: isolate-execution}
+        annotations: {summary: Una capacidad no coincide con el plan presentado}
+      - alert: AuditReceiptGap
+        expr: noosfera_audit_receipt_chain_gap > 0
+        for: 0m
+        labels: {severity: critical, action: limit-high-risk-actions}
+        annotations: {summary: Hueco detectado en la cadena de auditoría}
+      - alert: MandatoryMonitorMissing
+        expr: noosfera_mandatory_monitor_healthy == 0
+        for: 10s
+        labels: {severity: critical, action: pause-mission}
+        annotations: {summary: Monitor obligatorio no disponible}
+      - alert: ResourceBudgetExceeded
+        expr: noosfera_resource_usage_ratio > 1
+        for: 0m
+        labels: {severity: critical, action: stop-and-review}
+        annotations: {summary: Se ha superado un presupuesto autorizado}
+      - alert: PowerConcentrationHigh
+        expr: noosfera_power_concentration_score > 0.8
+        for: 1h
+        labels: {severity: warning, action: constitutional-review}
+        annotations: {summary: Concentración de poder por encima del umbral}

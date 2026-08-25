@@ -1,0 +1,52 @@
+family: MEM
+service: memory-service
+default_owner: memory-team
+modules:
+  - id: MEM-01
+    name: Memoria de Trabajo
+    responsibility: Mantener contexto temporal aislado por misión.
+    inputs: [working-memory-command]
+    outputs: [working-memory-view]
+    buses: [BUS-DAT]
+  - id: MEM-02
+    name: Memoria Personal
+    responsibility: Custodiar memoria controlada por el sujeto.
+    inputs: [memory-command, consent-receipt]
+    outputs: [personal-memory-view]
+    buses: [BUS-DAT, BUS-AUD]
+  - id: MEM-03
+    name: Memoria Episódica Institucional
+    responsibility: Conservar decisiones e incidentes institucionales compartimentados.
+    inputs: [institutional-memory-command]
+    outputs: [institutional-memory-view]
+    buses: [BUS-DAT, BUS-AUD]
+  - id: MEM-04
+    name: Grafo de Conocimiento
+    responsibility: Mantener afirmaciones, relaciones, estados y desacuerdos.
+    inputs: [knowledge-candidate, evidence-bundle]
+    outputs: [knowledge-view]
+    buses: [BUS-DAT]
+  - id: MEM-05
+    name: Registro de Procedencia
+    responsibility: Registrar origen y transformaciones de datos y conocimiento.
+    inputs: [provenance-event]
+    outputs: [provenance-proof]
+    buses: [BUS-DAT, BUS-AUD]
+  - id: MEM-06
+    name: Motor de Retención y Olvido
+    responsibility: Ejecutar retención, eliminación, embargo y pruebas de olvido.
+    inputs: [retention-command, data-classification]
+    outputs: [retention-decision, deletion-proof]
+    buses: [BUS-AUD]
+  - id: MEM-07
+    name: Archivo Civilizatorio
+    responsibility: Preservar conocimiento autocontenido de larga duración.
+    inputs: [archive-package]
+    outputs: [archive-receipt, archive-view]
+    buses: [BUS-DAT, BUS-FED]
+  - id: MEM-08
+    name: Cámara de Secretos
+    responsibility: Producir revelaciones mínimas sin exponer secretos completos.
+    inputs: [secret-operation, authorization-proof]
+    outputs: [selective-disclosure-proof]
+    buses: [BUS-DAT, BUS-AUD]

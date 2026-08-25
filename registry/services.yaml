@@ -1,0 +1,16 @@
+version: 1
+services:
+  - {id: experience-service, family: EXP, runtime: python, risk: medium, port: 8101}
+  - {id: identity-service, family: IDN, runtime: python, target_runtime: rust, risk: critical, port: 8102}
+  - {id: memory-service, family: MEM, runtime: python, risk: high, port: 8103}
+  - {id: perception-service, family: PER, runtime: python, risk: high, port: 8104}
+  - {id: cognition-service, family: COG, runtime: python, risk: high, port: 8105}
+  - {id: agency-service, family: AGY, runtime: python, risk: high, port: 8106}
+  - {id: governance-service, family: GOV, runtime: python, target_runtime: rust, risk: critical, port: 8107}
+  - {id: execution-service, family: EXE, runtime: python, target_runtime: rust, risk: critical, port: 8108}
+  - {id: federation-service, family: FED, runtime: python, target_runtime: rust, risk: critical, port: 8109}
+  - {id: security-service, family: SEC, runtime: python, target_runtime: rust, risk: critical, port: 8110}
+  - {id: audit-service, family: AUD, runtime: python, target_runtime: rust, risk: critical, port: 8111}
+  - {id: evolution-service, family: EVO, runtime: python, risk: high, port: 8112}
+  - {id: temporal-service, family: TMP, runtime: python, target_runtime: rust, risk: critical, port: 8113}
+  - {id: resource-service, family: RES, runtime: python, target_runtime: rust, risk: critical, port: 8114}

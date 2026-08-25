@@ -1,0 +1,14 @@
+id: resource-service
+family: RES
+version: 0.1.0
+runtime: python
+target_runtime: rust
+modules: [RES-01, RES-02, RES-03, RES-04, RES-05, RES-06]
+inbound_buses: [BUS-STA, BUS-EVI]
+outbound_buses: [BUS-STA, BUS-EVI, BUS-AUT, BUS-AUD]
+data_stores: [timeseries-resources, postgres-resource-reservations]
+health: {liveness: /health/live, readiness: /health/ready}
+slo: ops/slos/resource-service.yaml
+runbook: ops/runbooks/resource-service.md
+owner: resource-team
+deny_by_default: true

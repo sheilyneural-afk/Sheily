@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://noosfera.invalid/schemas/update-candidate.schema.json",
+  "title": "UpdateCandidate",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["id", "component", "from_version", "to_version", "artifact_hash", "declared_changes", "new_capabilities", "new_risks", "rollback_artifact_hash", "stage", "signatures"],
+  "properties": {
+    "id": {"$ref": "common.schema.json#/$defs/urn"},
+    "component": {"type": "string", "minLength": 1},
+    "from_version": {"type": "string", "minLength": 1},
+    "to_version": {"type": "string", "minLength": 1},
+    "artifact_hash": {"$ref": "common.schema.json#/$defs/sha256"},
+    "declared_changes": {"type": "array", "items": {"type": "string"}, "minItems": 1},
+    "new_capabilities": {"type": "array", "items": {"type": "string"}},
+    "new_risks": {"type": "array", "items": {"type": "string"}},
+    "rollback_artifact_hash": {"$ref": "common.schema.json#/$defs/sha256"},
+    "stage": {"enum": ["candidate", "test", "shadow", "canary", "regional", "general", "rejected", "retired"]},
+    "signatures": {"type": "array", "items": {"$ref": "common.schema.json#/$defs/signature"}, "minItems": 1}
+  }
+}

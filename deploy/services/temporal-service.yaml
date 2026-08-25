@@ -1,0 +1,5 @@
+service: temporal-service
+port: 8113
+replicas: 3
+network_profile: time-critical
+resource_profile: small-critical

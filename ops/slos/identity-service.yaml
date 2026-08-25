@@ -1,0 +1,6 @@
+service: identity-service
+window: 30d
+availability: 99.99
+p95_latency_ms: 150
+incorrect_identity_acceptance: 0
+fallback: freeze-new-delegations

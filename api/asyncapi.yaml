@@ -1,0 +1,57 @@
+asyncapi: 3.0.0
+info: {title: Noosfera Event Circuits, version: 0.1.0}
+servers:
+  local:
+    host: nats:4222
+    protocol: nats
+channels:
+  intentContract:
+    address: intent.contract.v1
+    messages: {intentContract: {$ref: "#/components/messages/IntentContract"}}
+  evidenceBundle:
+    address: evidence.bundle.v1
+    messages: {evidenceBundle: {$ref: "#/components/messages/EvidenceBundle"}}
+  capability:
+    address: authorization.capability.v1
+    messages: {capability: {$ref: "#/components/messages/Capability"}}
+  actionCommand:
+    address: action.command.v1
+    messages: {actionCommand: {$ref: "#/components/messages/ActionCommand"}}
+  stop:
+    address: safety.stop.v1
+    messages: {stop: {$ref: "#/components/messages/Stop"}}
+  audit:
+    address: audit.event.v1
+    messages: {audit: {$ref: "#/components/messages/AuditEvent"}}
+operations:
+  publishIntent: {action: send, channel: {$ref: "#/channels/intentContract"}}
+  publishEvidence: {action: send, channel: {$ref: "#/channels/evidenceBundle"}}
+  publishCapability: {action: send, channel: {$ref: "#/channels/capability"}}
+  executeCommand: {action: send, channel: {$ref: "#/channels/actionCommand"}}
+  requestStop: {action: send, channel: {$ref: "#/channels/stop"}}
+  appendAudit: {action: send, channel: {$ref: "#/channels/audit"}}
+components:
+  messages:
+    IntentContract: {payload: {$ref: ../schemas/intent-contract.schema.json}}
+    EvidenceBundle: {payload: {$ref: ../schemas/evidence-bundle.schema.json}}
+    Capability: {payload: {$ref: ../schemas/capability.schema.json}}
+    AuditEvent: {payload: {$ref: ../schemas/audit-event.schema.json}}
+    ActionCommand:
+      payload:
+        type: object
+        additionalProperties: false
+        required: [execution_id, actuator, operation, parameters_hash]
+        properties:
+          execution_id: {type: string}
+          actuator: {type: string}
+          operation: {type: string}
+          parameters_hash: {type: string}
+    Stop:
+      payload:
+        type: object
+        additionalProperties: false
+        required: [execution_id, reason, safe_state]
+        properties:
+          execution_id: {type: string}
+          reason: {type: string}
+          safe_state: {type: string}

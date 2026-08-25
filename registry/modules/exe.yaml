@@ -1,0 +1,12 @@
+family: EXE
+service: execution-service
+default_owner: execution-team
+modules:
+  - {id: EXE-01, name: Pasarela Universal de Actuación, responsibility: Unir plan y capacidad sin ampliar alcance., inputs: [plan, capability, execution-preconditions], outputs: [authorized-command-set], buses: [BUS-INT, BUS-AUT, BUS-ACT]}
+  - {id: EXE-02, name: Traductor de Comandos, responsibility: Convertir operaciones abstractas en comandos deterministas., inputs: [authorized-command-set, actuator-manifest], outputs: [actuator-command], buses: [BUS-ACT]}
+  - {id: EXE-03, name: Controlador de Presupuestos, responsibility: Imponer límites de recursos durante ejecución., inputs: [resource-budget, execution-status], outputs: [budget-status], buses: [BUS-ACT, BUS-STA]}
+  - {id: EXE-04, name: Interbloqueo Físico, responsibility: Impedir estados peligrosos con independencia superior., inputs: [sensor-observation, stop-command], outputs: [interlock-state], buses: [BUS-STA, BUS-STP]}
+  - {id: EXE-05, name: Monitor de Ejecución, responsibility: Comparar estado observado con plan y límites., inputs: [execution-status, state-estimate], outputs: [execution-deviation], buses: [BUS-STA, BUS-STP]}
+  - {id: EXE-06, name: Gestor de Reversión, responsibility: Mantener y ejecutar restauración o compensación., inputs: [rollback-plan, capability], outputs: [rollback-status], buses: [BUS-ACT, BUS-STA]}
+  - {id: EXE-07, name: Control Manual Local, responsibility: Admitir control local autenticado e independiente de federación., inputs: [local-control-command, local-presence-proof], outputs: [manual-control-status], buses: [BUS-ACT, BUS-AUD]}
+  - {id: EXE-08, name: Terminador Seguro, responsibility: Llevar una misión a estado estable de parada., inputs: [stop-command, actuator-manifest], outputs: [safe-stop-status], buses: [BUS-STP, BUS-AUD]}

@@ -1,0 +1,51 @@
+syntax = "proto3";
+
+package noosfera.common.v1;
+
+import "google/protobuf/timestamp.proto";
+
+message Signature {
+  string signer = 1;
+  string algorithm = 2;
+  bytes value = 3;
+}
+
+message LogicalTime {
+  string node = 1;
+  uint64 counter = 2;
+  google.protobuf.Timestamp not_before = 3;
+  google.protobuf.Timestamp not_after = 4;
+}
+
+message ResourceLimit {
+  string unit = 1;
+  double maximum = 2;
+}
+
+message EventEnvelope {
+  string protocol_version = 1;
+  string event_id = 2;
+  string trace_id = 3;
+  repeated string parent_event_ids = 4;
+  string sender = 5;
+  string recipient = 6;
+  string purpose = 7;
+  string classification = 8;
+  string epistemic_status = 9;
+  string schema = 10;
+  bytes payload_hash = 11;
+  string payload_location = 12;
+  LogicalTime logical_time = 13;
+  string retention_policy = 14;
+  string authorization_reference = 15;
+  Signature signature = 16;
+}
+
+message HealthRequest {}
+
+message HealthResponse {
+  string service_id = 1;
+  string version = 2;
+  string status = 3;
+  repeated string active_modules = 4;
+}

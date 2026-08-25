@@ -1,0 +1,13 @@
+id: experience-service
+family: EXP
+version: 0.1.0
+runtime: python
+modules: [EXP-01, EXP-02, EXP-03, EXP-04, EXP-05, EXP-06]
+inbound_buses: [BUS-DAT]
+outbound_buses: [BUS-DAT, BUS-INT, BUS-EVI, BUS-AUD]
+data_stores: [postgres-consent-metadata]
+health: {liveness: /health/live, readiness: /health/ready}
+slo: ops/slos/experience-service.yaml
+runbook: ops/runbooks/experience-service.md
+owner: experience-team
+deny_by_default: true

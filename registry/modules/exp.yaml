@@ -1,0 +1,40 @@
+family: EXP
+service: experience-service
+default_owner: experience-team
+modules:
+  - id: EXP-01
+    name: Portal Multimodal
+    responsibility: Normalizar entradas y presentaciones multimodales.
+    inputs: [external-signal, presentation-spec]
+    outputs: [experience-event]
+    buses: [BUS-INT, BUS-AUD]
+  - id: EXP-02
+    name: Declarador de Realidad
+    responsibility: Publicar la naturaleza física, virtual o híbrida del entorno.
+    inputs: [environment-manifest]
+    outputs: [reality-declaration]
+    buses: [BUS-DAT, BUS-AUD]
+  - id: EXP-03
+    name: Traductor Intersubjetivo
+    responsibility: Traducir lenguaje, cultura y arquitectura cognitiva conservando pérdidas.
+    inputs: [experience-event, subject-profile-view]
+    outputs: [translated-experience, translation-loss]
+    buses: [BUS-DAT, BUS-INT]
+  - id: EXP-04
+    name: Guardián de Influencia
+    responsibility: Clasificar y limitar persuasión o modulación emocional.
+    inputs: [presentation-spec, intent-contract]
+    outputs: [influence-assessment]
+    buses: [BUS-EVI, BUS-AUD]
+  - id: EXP-05
+    name: Gestor de Consentimiento
+    responsibility: Emitir y revocar consentimientos específicos por finalidad.
+    inputs: [consent-request, identity-proof]
+    outputs: [consent-receipt, consent-revocation]
+    buses: [BUS-INT, BUS-AUD]
+  - id: EXP-06
+    name: Adaptador de Accesibilidad
+    responsibility: Adaptar modalidad sin alterar el significado material.
+    inputs: [presentation-spec, accessibility-profile-view]
+    outputs: [accessible-presentation]
+    buses: [BUS-DAT]

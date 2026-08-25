@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: noosfera-global
+  namespace: {{ .Release.Namespace }}
+data:
+  NOOSFERA_ENV: {{ .Values.global.environment | quote }}
+  NOOSFERA_NODE_ID: {{ .Values.global.nodeId | quote }}
+  NOOSFERA_OPA_URL: {{ .Values.global.opaUrl | quote }}
+  NOOSFERA_OTLP_ENDPOINT: {{ .Values.global.otlpEndpoint | quote }}

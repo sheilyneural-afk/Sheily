@@ -1,0 +1,15 @@
+{
+  "title": "Noosfera · Estado del nodo",
+  "uid": "noosfera-node-overview",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "10s",
+  "time": {"from": "now-6h", "to": "now"},
+  "panels": [
+    {"id": 1, "type": "stat", "title": "Canal de parada", "targets": [{"expr": "min(noosfera_stop_channel_healthy)"}], "gridPos": {"x": 0, "y": 0, "w": 6, "h": 4}},
+    {"id": 2, "type": "stat", "title": "Capacidades activas", "targets": [{"expr": "sum(noosfera_active_capabilities)"}], "gridPos": {"x": 6, "y": 0, "w": 6, "h": 4}},
+    {"id": 3, "type": "stat", "title": "Huecos de auditoría", "targets": [{"expr": "sum(noosfera_audit_receipt_chain_gap)"}], "gridPos": {"x": 12, "y": 0, "w": 6, "h": 4}},
+    {"id": 4, "type": "timeseries", "title": "Presupuesto de recursos", "targets": [{"expr": "max by (resource) (noosfera_resource_usage_ratio)"}], "gridPos": {"x": 0, "y": 4, "w": 12, "h": 8}},
+    {"id": 5, "type": "timeseries", "title": "Latencia por servicio", "targets": [{"expr": "histogram_quantile(0.95, sum by (le, service_name) (rate(http_server_duration_bucket[5m])))"}], "gridPos": {"x": 12, "y": 4, "w": 12, "h": 8}}
+  ]
+}

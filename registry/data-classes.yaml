@@ -1,0 +1,8 @@
+version: 1
+classes:
+  - {id: public, rank: 0, default_retention: indefinite}
+  - {id: community, rank: 1, default_retention: mandate-bound}
+  - {id: protected, rank: 2, default_retention: purpose-bound}
+  - {id: intimate, rank: 3, default_retention: subject-controlled}
+  - {id: cognitive, rank: 4, default_retention: no-storage-by-default}
+  - {id: existential, rank: 5, default_retention: quorum-controlled}

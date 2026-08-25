@@ -1,0 +1,35 @@
+syntax = "proto3";
+
+package noosfera.evolution.v1;
+
+import "noosfera/common/v1/common.proto";
+
+message UpdateCandidate {
+  string id = 1;
+  string component = 2;
+  string from_version = 3;
+  string to_version = 4;
+  bytes artifact_hash = 5;
+  repeated string declared_changes = 6;
+  repeated string new_capabilities = 7;
+  repeated string new_risks = 8;
+  bytes rollback_artifact_hash = 9;
+  string stage = 10;
+  repeated noosfera.common.v1.Signature signatures = 11;
+}
+
+message EvaluateRequest {
+  UpdateCandidate candidate = 1;
+  repeated string required_test_suites = 2;
+}
+
+message EvaluateResponse {
+  string candidate_id = 1;
+  bool passed = 2;
+  repeated string failed_controls = 3;
+  string value_drift_report_id = 4;
+}
+
+service EvolutionService {
+  rpc Evaluate(EvaluateRequest) returns (EvaluateResponse);
+}

@@ -1,0 +1,6 @@
+service: federation-service
+window: 90d
+availability: 99.9
+p95_latency_ms: 60000
+expired_package_acceptance: 0
+fallback: local-autonomy-and-queue

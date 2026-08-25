@@ -1,0 +1,16 @@
+version: 1
+contracts:
+  - {id: event-envelope, schema: schemas/event-envelope.schema.json, proto: proto/noosfera/common/v1/common.proto, owner: contract-team}
+  - {id: intent-contract, schema: schemas/intent-contract.schema.json, proto: proto/noosfera/intent/v1/intent.proto, owner: agency-team}
+  - {id: evidence-bundle, schema: schemas/evidence-bundle.schema.json, proto: proto/noosfera/evidence/v1/evidence.proto, owner: cognition-team}
+  - {id: capability, schema: schemas/capability.schema.json, proto: proto/noosfera/capability/v1/capability.proto, owner: governance-team}
+  - {id: audit-event, schema: schemas/audit-event.schema.json, proto: proto/noosfera/audit/v1/audit.proto, owner: audit-team}
+  - {id: actuator-manifest, schema: schemas/actuator-manifest.schema.json, proto: proto/noosfera/execution/v1/execution.proto, owner: execution-team}
+  - {id: mission-state, schema: schemas/mission-state.schema.json, proto: proto/noosfera/mission/v1/mission.proto, owner: agency-team}
+  - {id: identity-continuity, schema: schemas/identity-continuity.schema.json, proto: proto/noosfera/identity/v1/identity.proto, owner: identity-team}
+  - {id: memory-record, schema: schemas/memory-record.schema.json, proto: proto/noosfera/memory/v1/memory.proto, owner: memory-team}
+  - {id: risk-assessment, schema: schemas/risk-assessment.schema.json, proto: proto/noosfera/risk/v1/risk.proto, owner: governance-team}
+  - {id: federation-package, schema: schemas/federation-package.schema.json, proto: proto/noosfera/federation/v1/federation.proto, owner: federation-team}
+  - {id: update-candidate, schema: schemas/update-candidate.schema.json, proto: proto/noosfera/evolution/v1/evolution.proto, owner: evolution-team}
+  - {id: resource-budget, schema: schemas/resource-budget.schema.json, proto: proto/noosfera/resource/v1/resource.proto, owner: resource-team}
+  - {id: policy-decision, schema: schemas/policy-decision.schema.json, proto: proto/noosfera/governance/v1/governance.proto, owner: governance-team}

@@ -1,0 +1,34 @@
+family: IDN
+service: identity-service
+default_owner: identity-team
+modules:
+  - id: IDN-01
+    name: Registro de Identidad Soberana
+    responsibility: Gestionar identificadores, credenciales y recuperación soberana.
+    inputs: [identity-command, identity-proof]
+    outputs: [identity-record, credential-status]
+    buses: [BUS-DAT, BUS-AUD]
+  - id: IDN-02
+    name: Grafo de Continuidad
+    responsibility: Registrar bifurcaciones, fusiones, restauraciones y continuidad.
+    inputs: [continuity-event]
+    outputs: [continuity-graph-view]
+    buses: [BUS-DAT, BUS-AUD]
+  - id: IDN-03
+    name: Gestor de Delegación
+    responsibility: Administrar delegaciones limitadas, revocables y temporales.
+    inputs: [delegation-request, identity-proof]
+    outputs: [delegation-grant, delegation-revocation]
+    buses: [BUS-AUT, BUS-AUD]
+  - id: IDN-04
+    name: Verificador de Presencia y Voluntad
+    responsibility: Distinguir voluntad actual, preferencia histórica y representación.
+    inputs: [will-claim, presence-evidence]
+    outputs: [will-verification]
+    buses: [BUS-EVI]
+  - id: IDN-05
+    name: Protector de Coerción
+    responsibility: Detectar indicios de coacción, incapacidad o conflicto de interés.
+    inputs: [consent-context, protected-signal-view]
+    outputs: [coercion-assessment]
+    buses: [BUS-EVI, BUS-AUD]

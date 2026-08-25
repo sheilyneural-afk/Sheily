@@ -1,0 +1,5 @@
+service: evolution-service
+port: 8112
+replicas: 2
+network_profile: isolated-build
+resource_profile: accelerator-heavy

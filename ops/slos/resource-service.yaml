@@ -1,0 +1,6 @@
+service: resource-service
+window: 30d
+availability: 99.99
+p95_latency_ms: 100
+budget_overrun_without_stop: 0
+fallback: reserve-life-and-reversal

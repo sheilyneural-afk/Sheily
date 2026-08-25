@@ -1,0 +1,17 @@
+family: COG
+service: cognition-service
+default_owner: cognition-team
+modules:
+  - {id: COG-01, name: Ensamblador de Modelos, responsibility: Seleccionar modelos diversos por dominio y riesgo., inputs: [reasoning-request, model-catalog], outputs: [model-assembly], buses: [BUS-DAT]}
+  - {id: COG-02, name: Razonador Neural, responsibility: Generar patrones e hipótesis candidatas., inputs: [reasoning-context], outputs: [candidate-inference], buses: [BUS-EVI]}
+  - {id: COG-03, name: Razonador Simbólico, responsibility: Aplicar reglas y demostraciones explícitas., inputs: [symbolic-problem], outputs: [symbolic-proof], buses: [BUS-EVI]}
+  - {id: COG-04, name: Motor Causal, responsibility: Comparar asociaciones e intervenciones causales., inputs: [causal-query, observations], outputs: [causal-model], buses: [BUS-EVI]}
+  - {id: COG-05, name: Motor Matemático, responsibility: Verificar cálculos unidades cotas y pruebas., inputs: [mathematical-claim], outputs: [mathematical-proof], buses: [BUS-EVI]}
+  - {id: COG-06, name: Simulador Multiescala, responsibility: Ejecutar simulaciones con sensibilidad a supuestos., inputs: [simulation-request, model-assembly], outputs: [simulation-result], buses: [BUS-EVI]}
+  - {id: COG-07, name: Generador de Hipótesis, responsibility: Producir hipótesis refutables y experimentos., inputs: [research-question, evidence-bundle], outputs: [hypothesis-set], buses: [BUS-EVI]}
+  - {id: COG-08, name: Crítico Adversarial, responsibility: Buscar fallos omisiones ataques y efectos indirectos., inputs: [plan, evidence-bundle], outputs: [critique-report], buses: [BUS-EVI]}
+  - {id: COG-09, name: Sintetizador de Desacuerdo, responsibility: Localizar supuestos datos o valores en conflicto., inputs: [reasoning-results], outputs: [disagreement-map], buses: [BUS-EVI]}
+  - {id: COG-10, name: Calibrador de Incertidumbre, responsibility: Estimar incertidumbre empírica epistémica y estructural., inputs: [claims, calibration-history], outputs: [uncertainty-report], buses: [BUS-EVI]}
+  - {id: COG-11, name: Laboratorio Científico Autónomo, responsibility: Diseñar experimentos autorizables y reproducibles., inputs: [hypothesis-set, lab-capabilities], outputs: [experiment-plan], buses: [BUS-INT, BUS-EVI]}
+  - {id: COG-12, name: Modelo de Sí Mismo, responsibility: Inventariar capacidades versiones dependencias y fallos., inputs: [runtime-attestation, evaluation-result], outputs: [self-model], buses: [BUS-DAT, BUS-AUD]}
+  - {id: COG-13, name: Intérprete de Perspectivas, responsibility: Representar impactos sobre sujetos distintos., inputs: [plan, affected-parties], outputs: [perspective-report], buses: [BUS-EVI]}

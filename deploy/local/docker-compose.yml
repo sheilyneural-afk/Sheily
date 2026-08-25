@@ -1,0 +1,122 @@
+name: noosfera-local
+
+x-noosfera-service: &noosfera-service
+  restart: unless-stopped
+  env_file: ../../.env.example
+  depends_on:
+    postgres: {condition: service_healthy}
+    nats: {condition: service_started}
+    opa: {condition: service_started}
+  networks: [control, data]
+  read_only: true
+  tmpfs: [/tmp]
+  security_opt: [no-new-privileges:true]
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: noosfera
+      POSTGRES_USER: noosfera
+      POSTGRES_PASSWORD: noosfera
+    healthcheck: {test: [CMD-SHELL, "pg_isready -U noosfera"], interval: 5s, timeout: 3s, retries: 20}
+    volumes: [postgres-data:/var/lib/postgresql/data]
+    networks: [data]
+
+  nats:
+    image: nats:2.10-alpine
+    command: ["--jetstream", "--store_dir", "/data"]
+    volumes: [nats-data:/data]
+    ports: ["4222:4222", "8222:8222"]
+    networks: [control, data, audit]
+
+  minio:
+    image: minio/minio:RELEASE.2025-01-20T14-49-07Z
+    command: server /data --console-address :9001
+    environment: {MINIO_ROOT_USER: noosfera, MINIO_ROOT_PASSWORD: noosfera-local-only}
+    volumes: [object-data:/data]
+    ports: ["9000:9000", "9001:9001"]
+    networks: [data]
+
+  opa:
+    image: openpolicyagent/opa:1.1.0-static
+    command: ["run", "--server", "--addr=0.0.0.0:8181", "/policies"]
+    volumes: ["../../policies:/policies:ro"]
+    ports: ["8181:8181"]
+    networks: [control]
+    read_only: true
+
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:0.119.0
+    command: ["--config=/etc/otel/config.yaml"]
+    volumes: ["../../observability/otel/collector.yaml:/etc/otel/config.yaml:ro"]
+    ports: ["4317:4317", "4318:4318", "8889:8889"]
+    networks: [control, audit]
+
+  experience-service:
+    <<: *noosfera-service
+    build: {context: ../.., dockerfile: deploy/images/reference-service.Containerfile, args: {SERVICE_DIR: experience-service}}
+    ports: ["8101:8080"]
+  identity-service:
+    <<: *noosfera-service
+    build: {context: ../.., dockerfile: deploy/images/reference-service.Containerfile, args: {SERVICE_DIR: identity-service}}
+    ports: ["8102:8080"]
+  memory-service:
+    <<: *noosfera-service
+    build: {context: ../.., dockerfile: deploy/images/reference-service.Containerfile, args: {SERVICE_DIR: memory-service}}
+    ports: ["8103:8080"]
+  perception-service:
+    <<: *noosfera-service
+    build: {context: ../.., dockerfile: deploy/images/reference-service.Containerfile, args: {SERVICE_DIR: perception-service}}
+    ports: ["8104:8080"]
+  cognition-service:
+    <<: *noosfera-service
+    build: {context: ../.., dockerfile: deploy/images/reference-service.Containerfile, args: {SERVICE_DIR: cognition-service}}
+    ports: ["8105:8080"]
+  agency-service:
+    <<: *noosfera-service
+    build: {context: ../.., dockerfile: deploy/images/reference-service.Containerfile, args: {SERVICE_DIR: agency-service}}
+    ports: ["8106:8080"]
+  governance-service:
+    <<: *noosfera-service
+    build: {context: ../.., dockerfile: deploy/images/reference-service.Containerfile, args: {SERVICE_DIR: governance-service}}
+    ports: ["8107:8080"]
+  execution-service:
+    <<: *noosfera-service
+    build: {context: ../.., dockerfile: deploy/images/reference-service.Containerfile, args: {SERVICE_DIR: execution-service}}
+    ports: ["8108:8080"]
+  federation-service:
+    <<: *noosfera-service
+    build: {context: ../.., dockerfile: deploy/images/reference-service.Containerfile, args: {SERVICE_DIR: federation-service}}
+    ports: ["8109:8080"]
+  security-service:
+    <<: *noosfera-service
+    build: {context: ../.., dockerfile: deploy/images/reference-service.Containerfile, args: {SERVICE_DIR: security-service}}
+    ports: ["8110:8080"]
+  audit-service:
+    <<: *noosfera-service
+    build: {context: ../.., dockerfile: deploy/images/reference-service.Containerfile, args: {SERVICE_DIR: audit-service}}
+    ports: ["8111:8080"]
+    networks: [audit, data]
+  evolution-service:
+    <<: *noosfera-service
+    build: {context: ../.., dockerfile: deploy/images/reference-service.Containerfile, args: {SERVICE_DIR: evolution-service}}
+    ports: ["8112:8080"]
+  temporal-service:
+    <<: *noosfera-service
+    build: {context: ../.., dockerfile: deploy/images/reference-service.Containerfile, args: {SERVICE_DIR: temporal-service}}
+    ports: ["8113:8080"]
+  resource-service:
+    <<: *noosfera-service
+    build: {context: ../.., dockerfile: deploy/images/reference-service.Containerfile, args: {SERVICE_DIR: resource-service}}
+    ports: ["8114:8080"]
+
+networks:
+  control: {internal: true}
+  data: {internal: true}
+  audit: {internal: true}
+
+volumes:
+  postgres-data: {}
+  nats-data: {}
+  object-data: {}

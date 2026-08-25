@@ -1,0 +1,13 @@
+id: cognition-service
+family: COG
+version: 0.1.0
+runtime: python
+modules: [COG-01, COG-02, COG-03, COG-04, COG-05, COG-06, COG-07, COG-08, COG-09, COG-10, COG-11, COG-12, COG-13]
+inbound_buses: [BUS-DAT, BUS-INT, BUS-EVI]
+outbound_buses: [BUS-EVI, BUS-INT, BUS-AUD]
+data_stores: [object-store-models, object-store-evidence, postgres-evaluation-metadata]
+health: {liveness: /health/live, readiness: /health/ready}
+slo: ops/slos/cognition-service.yaml
+runbook: ops/runbooks/cognition-service.md
+owner: cognition-team
+deny_by_default: true

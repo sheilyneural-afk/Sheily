@@ -1,0 +1,5 @@
+service: federation-service
+port: 8109
+replicas: 3
+network_profile: quarantined-external
+resource_profile: queue-heavy

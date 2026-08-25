@@ -1,0 +1,6 @@
+service: governance-service
+window: 30d
+availability: 99.99
+p95_latency_ms: 200
+unauthorized_capability_issuance: 0
+fallback: deny-new-capabilities

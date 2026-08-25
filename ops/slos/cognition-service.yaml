@@ -1,0 +1,6 @@
+service: cognition-service
+window: 30d
+availability: 99.5
+p95_latency_ms: 5000
+uncertainty_omission: 0
+fallback: no-new-high-risk-recommendation

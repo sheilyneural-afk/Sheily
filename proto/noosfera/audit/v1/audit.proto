@@ -1,0 +1,37 @@
+syntax = "proto3";
+
+package noosfera.audit.v1;
+
+import "google/protobuf/timestamp.proto";
+import "noosfera/common/v1/common.proto";
+
+message AuditEvent {
+  string id = 1;
+  string trace_id = 2;
+  string event_type = 3;
+  string actor = 4;
+  bytes object_hash = 5;
+  google.protobuf.Timestamp occurred_at = 6;
+  string classification = 7;
+  bytes previous_receipt_hash = 8;
+  noosfera.common.v1.Signature signature = 9;
+}
+
+message AuditReceipt {
+  string event_id = 1;
+  bytes receipt_hash = 2;
+  google.protobuf.Timestamp accepted_at = 3;
+  noosfera.common.v1.Signature witness_signature = 4;
+}
+
+message AppendRequest {
+  AuditEvent event = 1;
+}
+
+message AppendResponse {
+  AuditReceipt receipt = 1;
+}
+
+service AuditService {
+  rpc Append(AppendRequest) returns (AppendResponse);
+}

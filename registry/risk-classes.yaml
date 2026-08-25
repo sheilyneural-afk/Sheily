@@ -1,0 +1,8 @@
+version: 1
+classes:
+  - {id: R0, description: información sin acción, minimum_quorum: 0, reversibility: not-applicable}
+  - {id: R1, description: acción personal reversible, minimum_quorum: 1, reversibility: required}
+  - {id: R2, description: efecto comunitario limitado, minimum_quorum: 2, reversibility: required}
+  - {id: R3, description: infraestructura crítica, minimum_quorum: 3, reversibility: demonstrated}
+  - {id: R4, description: biología identidad o conciencia, minimum_quorum: 4, reversibility: staged}
+  - {id: R5, description: planetario o civilizatorio, minimum_quorum: 5, reversibility: preserve-options}

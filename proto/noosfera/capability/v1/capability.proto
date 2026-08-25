@@ -1,0 +1,50 @@
+syntax = "proto3";
+
+package noosfera.capability.v1;
+
+import "google/protobuf/timestamp.proto";
+import "noosfera/common/v1/common.proto";
+
+message Capability {
+  string id = 1;
+  string issuer = 2;
+  string holder = 3;
+  string resource = 4;
+  repeated string permitted_operations = 5;
+  bytes plan_hash = 6;
+  map<string, noosfera.common.v1.ResourceLimit> bounds = 7;
+  repeated string preconditions = 8;
+  repeated string mandatory_monitors = 9;
+  repeated string stop_conditions = 10;
+  google.protobuf.Timestamp not_before = 11;
+  google.protobuf.Timestamp expiry = 12;
+  uint32 max_uses = 13;
+  string delegation = 14;
+  string quorum_proof = 15;
+  string revocation_channel = 16;
+  noosfera.common.v1.Signature signature = 17;
+}
+
+message IssueRequest {
+  string authorization_decision_id = 1;
+  string quorum_proof_id = 2;
+  bytes plan_hash = 3;
+}
+
+message IssueResponse {
+  Capability capability = 1;
+}
+
+message RevokeRequest {
+  string capability_id = 1;
+  string reason = 2;
+}
+
+message RevokeResponse {
+  Capability capability = 1;
+}
+
+service CapabilityService {
+  rpc Issue(IssueRequest) returns (IssueResponse);
+  rpc Revoke(RevokeRequest) returns (RevokeResponse);
+}

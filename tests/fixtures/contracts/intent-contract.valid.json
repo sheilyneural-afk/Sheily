@@ -1,0 +1,26 @@
+{
+  "id": "urn:noosfera:intent:test",
+  "requester": "urn:noosfera:subject:test",
+  "represented_parties": [],
+  "objective": {
+    "desired_state": "Iluminación dentro del rango solicitado",
+    "success_metrics": ["intensity-equals-20"],
+    "forbidden_proxies": ["engagement"]
+  },
+  "beneficiaries": ["urn:noosfera:subject:test"],
+  "affected_parties": ["urn:noosfera:subject:test"],
+  "scope": {"spatial": "room-1", "temporal": "one-minute", "systems": ["light-1"]},
+  "constraints": {
+    "rights": ["meaningful-consent"],
+    "prohibited_actions": ["change-other-devices"],
+    "resource_limits": {"energy": {"unit": "joule", "maximum": 100}}
+  },
+  "evidence_threshold": "low",
+  "reversibility_requirement": "required",
+  "stop_conditions": ["user-revokes"],
+  "escalation_conditions": ["device-unavailable"],
+  "authorization_basis": ["urn:noosfera:mandate:test"],
+  "expiry": "2027-01-01T00:00:00Z",
+  "ambiguity_register": [],
+  "signatures": []
+}

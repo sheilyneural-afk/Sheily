@@ -1,0 +1,11 @@
+{
+  "id": "urn:noosfera:intent:test",
+  "requester": "urn:noosfera:subject:test",
+  "objective": {"desired_state": "Haz todo", "success_metrics": []},
+  "scope": {"spatial": "universe", "temporal": "forever", "systems": []},
+  "constraints": {"rights": [], "prohibited_actions": [], "resource_limits": {}},
+  "evidence_threshold": "none",
+  "reversibility_requirement": "ignore",
+  "stop_conditions": [],
+  "expiry": "never"
+}

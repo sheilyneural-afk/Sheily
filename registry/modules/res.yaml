@@ -1,0 +1,10 @@
+family: RES
+service: resource-service
+default_owner: resource-team
+modules:
+  - {id: RES-01, name: Contabilidad de Energía, responsibility: Medir consumo reservas fuentes y externalidades., inputs: [energy-observation], outputs: [energy-budget-state], buses: [BUS-STA, BUS-EVI]}
+  - {id: RES-02, name: Contabilidad de Materia, responsibility: Registrar transformación propiedad toxicidad y recuperación., inputs: [matter-observation], outputs: [matter-budget-state], buses: [BUS-STA, BUS-EVI]}
+  - {id: RES-03, name: Contabilidad de Cómputo, responsibility: Limitar procesamiento copias y velocidad., inputs: [compute-observation], outputs: [compute-budget-state], buses: [BUS-STA, BUS-AUT]}
+  - {id: RES-04, name: Contabilidad de Atención, responsibility: Proteger atención de sujetos frente a optimización abusiva., inputs: [attention-event], outputs: [attention-budget-state], buses: [BUS-EVI, BUS-AUT]}
+  - {id: RES-05, name: Gestor de Capacidad de Carga, responsibility: Evaluar límites ecológicos y del hábitat., inputs: [resource-state, population-state], outputs: [carrying-capacity-assessment], buses: [BUS-EVI]}
+  - {id: RES-06, name: Detector de Concentración, responsibility: Alertar por acumulación excesiva de recursos o autoridad., inputs: [resource-state, power-concentration-report], outputs: [concentration-alert], buses: [BUS-EVI, BUS-AUD]}

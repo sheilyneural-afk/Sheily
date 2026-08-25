@@ -1,0 +1,31 @@
+syntax = "proto3";
+
+package noosfera.mission.v1;
+
+import "google/protobuf/timestamp.proto";
+
+message MissionState {
+  string mission_id = 1;
+  string intent_contract_id = 2;
+  string state = 3;
+  uint64 version = 4;
+  google.protobuf.Timestamp updated_at = 5;
+  string last_event_id = 6;
+  repeated string active_capability_ids = 7;
+}
+
+message TransitionRequest {
+  string mission_id = 1;
+  string expected_state = 2;
+  string requested_state = 3;
+  string reason = 4;
+  string policy_decision_id = 5;
+}
+
+message TransitionResponse {
+  MissionState state = 1;
+}
+
+service MissionService {
+  rpc Transition(TransitionRequest) returns (TransitionResponse);
+}

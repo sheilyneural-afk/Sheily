@@ -1,0 +1,13 @@
+id: memory-service
+family: MEM
+version: 0.1.0
+runtime: python
+modules: [MEM-01, MEM-02, MEM-03, MEM-04, MEM-05, MEM-06, MEM-07, MEM-08]
+inbound_buses: [BUS-DAT, BUS-INT, BUS-AUT]
+outbound_buses: [BUS-DAT, BUS-AUD, BUS-FED]
+data_stores: [postgres-memory-metadata, object-store-encrypted, append-only-provenance]
+health: {liveness: /health/live, readiness: /health/ready}
+slo: ops/slos/memory-service.yaml
+runbook: ops/runbooks/memory-service.md
+owner: memory-team
+deny_by_default: true

@@ -1,0 +1,14 @@
+id: federation-service
+family: FED
+version: 0.1.0
+runtime: python
+target_runtime: rust
+modules: [FED-01, FED-02, FED-03, FED-04, FED-05, FED-06, FED-07, FED-08]
+inbound_buses: [BUS-FED, BUS-DAT, BUS-EVI]
+outbound_buses: [BUS-FED, BUS-DAT, BUS-EVI, BUS-STP, BUS-AUD]
+data_stores: [delay-tolerant-queue, postgres-treaties, quarantine-object-store]
+health: {liveness: /health/live, readiness: /health/ready}
+slo: ops/slos/federation-service.yaml
+runbook: ops/runbooks/federation-service.md
+owner: federation-team
+deny_by_default: true

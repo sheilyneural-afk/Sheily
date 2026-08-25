@@ -1,0 +1,6 @@
+service: agency-service
+window: 30d
+availability: 99.95
+p95_latency_ms: 500
+invalid_state_transition: 0
+fallback: pause-missions
