@@ -6,8 +6,8 @@ Definir una frontera cerrada contra la que pueda medirse «no falta nada». Sin 
 
 ## Incluido
 
-- Los 105 módulos lógicos descritos por Noosfera 2300.
-- Agrupación de esos módulos en 14 dominios de servicio.
+- El catálogo de módulos lógicos descrito por Noosfera 2300, descubierto sin techo numérico.
+- Agrupación versionada de esos módulos en dominios de servicio extensibles.
 - Contratos canónicos para intención, evidencia, capacidad, auditoría, identidad, memoria, misión, riesgo, recursos, federación y actualización.
 - Políticas ejecutables para derechos mínimos, autorización, privacidad, riesgo, emergencia y evolución.
 - Rutas de datos, intención, evidencia, autorización, acción y auditoría.
@@ -26,7 +26,8 @@ Definir una frontera cerrada contra la que pueda medirse «no falta nada». Sin 
 - Identity, Agency, Governance, Execution y Audit como procesos y autoridades separadas.
 - Planes, consentimientos, capacidades, paradas, revocaciones y anclas firmados con Ed25519.
 - Ledger anti-replay, parada y revocación persistentes en PostgreSQL.
-- Registro de madurez que clasifica por separado cada uno de los 105 módulos.
+- Registro de madurez generado desde cada módulo y proveedor descubierto.
+- Registro runtime que solo anuncia proveedores cuyas rutas están cargadas.
 
 ## Incluido como interfaz, no como capacidad completa
 
@@ -57,6 +58,7 @@ Estas áreas poseen contrato, adaptador, política y prueba de seguridad. El pro
 La versión `0.3.0` está estructuralmente completa y funcional en su recorrido vertical cuando:
 
 - Cada módulo de `registry/modules/*.yaml` tiene un propietario de servicio.
+- Cada proveedor anunciado corresponde a una ruta y método presentes en el proceso.
 - Cada servicio tiene manifiesto, README, configuración de despliegue, objetivos SLO y runbook.
 - Cada mensaje intercambiado pertenece a un contrato registrado.
 - Cada ruta a un actuador exige plan y capacidad coincidentes.

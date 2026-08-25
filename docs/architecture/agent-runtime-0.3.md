@@ -203,8 +203,8 @@ No existe fallback silencioso a nube, HMAC compartido ni autorización local den
 - Python prueba flujo de API, cognición, firmas, alteraciones, consentimiento, memoria, parada y auditoría.
 - Rust prueba hash del plan, firma Ed25519, argumentos, uso único, parada y revocación.
 - `governed-e2e` levanta PostgreSQL, NATS, OPA, Identity, Cognition, Agency, Governance, Rust, Audit y Experience en procesos separados.
-- El E2E usa el proveedor determinista para que la seguridad no dependa de descargar un modelo; las evaluaciones de Ollama se ejecutan por separado.
+- El E2E de CI usa el proveedor determinista para que la seguridad no dependa de descargar un modelo. `make local-e2e-ollama` repite el mismo recorrido con el modelo local real, y `make model-eval` comprueba los contratos estructurados y casos adversariales del adaptador.
 
 ## Límite honesto de completitud
 
-Los 105 módulos siguen siendo la arquitectura total. `registry/module-maturity.yaml` clasifica cada uno como `declared`, `hosted`, `implemented`, `integrated`, `verified` o `production-ready`. Un servicio arrancable no convierte automáticamente todos sus módulos en capacidades científicas reales.
+El catálogo conceptual actual se descubre desde `registry/modules/*.yaml`; su tamaño presente no es una constante ni un máximo. `registry/module-maturity.yaml` deriva los estados `declared`, `implemented`, `integrated`, `verified` y `production-ready` desde proveedores explícitos. El endpoint runtime `/v1/modules` es la fuente autoritativa para saber qué rutas están cargadas e invocables. Un servicio arrancable no convierte automáticamente sus declaraciones en capacidades reales.

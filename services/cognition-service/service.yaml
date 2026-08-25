@@ -3,6 +3,28 @@ family: COG
 version: 0.3.0
 runtime: python
 modules: [COG-01, COG-02, COG-03, COG-04, COG-05, COG-06, COG-07, COG-08, COG-09, COG-10, COG-11, COG-12, COG-13]
+providers:
+  - id: cognition.causal-cycle
+    modules: [MEM-01, COG-08, COG-10, AGY-01, AGY-03]
+    endpoint: /v1/cycles
+    methods: [POST]
+    maturity: integrated
+    capabilities: [working-context, adversarial-critique, uncertainty, intent-compilation, goal-decomposition]
+    evidence: [tests/agent/test_cognitive_kernel.py, tools/run_local_e2e.py]
+  - id: cognition.plan-generation
+    modules: [AGY-04]
+    endpoint: /v1/cycles
+    methods: [POST]
+    maturity: verified
+    capabilities: [deterministic-plan-generation, abstention]
+    evidence: [tests/agent/test_cognitive_kernel.py, tests/security/test_local_model_boundary.py]
+  - id: cognition.belief-store
+    modules: [MEM-04]
+    endpoint: /v1/beliefs/{user_id}
+    methods: [GET]
+    maturity: integrated
+    capabilities: [provenance-bearing-belief-read]
+    evidence: [tests/agent/test_cognitive_kernel.py]
 inbound_buses: [BUS-DAT, BUS-INT, BUS-EVI]
 outbound_buses: [BUS-EVI, BUS-INT, BUS-AUD]
 data_stores: [object-store-models, object-store-evidence, postgres-evaluation-metadata]

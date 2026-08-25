@@ -1,5 +1,17 @@
 # Registro de cambios
 
+## Próxima versión
+
+- Eliminado el techo hardcodeado de módulos y servicios; ambos inventarios se descubren y cuentan dinámicamente.
+- Separada la propiedad conceptual de la disponibilidad runtime mediante proveedores explícitos.
+- Añadido `/v1/modules`, que falla al arrancar si un proveedor anuncia una ruta o método inexistente.
+- Sustituido el estado ambiguo `hosted`: los módulos sin proveedor quedan como `declared`.
+- Añadida una sonda de procesos vivos y validación E2E de módulos realmente cargados.
+- Verificado el recorrido completo con Ollama `qwen3:8b`, manteniendo al LLM fuera de la frontera de autoridad.
+- Corregido el aprovisionamiento temporal del modelo para restaurar red privada y alias DNS tras la descarga.
+- Hechos configurables los puertos públicos de las consolas y Ollama, sin alterar sus direcciones privadas.
+- Endurecido el contrato de planes para impedir combinaciones incoherentes de herramienta, operación, recurso y documentos.
+
 ## 0.3.0
 
 - Separación real de Identity, Cognition, Agency, Governance, Execution y Audit en procesos con fronteras verificables.

@@ -23,6 +23,7 @@ from noosfera_core.agent.models import (
 )
 from noosfera_core.config import Settings
 from noosfera_core.manifest import load_service_manifest
+from noosfera_core.module_registry import install_runtime_module_registry
 from noosfera_core.policy import OpaClient
 
 
@@ -179,4 +180,4 @@ def create_governance_app(
         except (GovernanceRejected, ValueError) as exc:
             raise HTTPException(status_code=403, detail=str(exc)) from exc
 
-    return app
+    return install_runtime_module_registry(app, manifest)

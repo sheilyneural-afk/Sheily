@@ -6,8 +6,9 @@ Esta matriz cierra Noosfera `0.3.0`. Una celda «definida» significa que existe
 |---|---|---|
 | Perímetro | Cerrado | `SCOPE.md` |
 | Arquitectura | Definida | `ARCHITECTURE.md`, `docs/architecture/` |
-| 105 módulos | Registrados y clasificados por madurez | `registry/modules/`, `registry/module-maturity.yaml` |
-| 14 servicios | Desplegables en referencia | `services/`, `deploy/services/` |
+| Módulos descubiertos | Conteo derivado y clasificación por madurez | `registry/modules/`, `registry/module-maturity.yaml` |
+| Servicios descubiertos | Manifiestos y despliegues sin cantidad fija | `services/`, `registry/services.yaml` |
+| Proveedores runtime | Solo rutas cargadas se anuncian como invocables | `/v1/modules`, `module_registry.py` |
 | Tipos de puerto | Cerrados por productor/consumidor | `registry/port-types.yaml` |
 | Contratos | Versionados | `schemas/`, `proto/`, `api/` |
 | Constitución | Texto y política | `docs/governance/`, `policies/constitution/` |
@@ -40,7 +41,7 @@ Esta matriz cierra Noosfera `0.3.0`. Una celda «definida» significa que existe
 | Anti-replay | Durable y compartido | `execution_capability_ledger`, ejecutor Rust |
 | Parada operacional | Firmada, monotónica y durable | ejecutor Rust, `tests/agent/test_api_flow.py` |
 | Revocación | Firmada y durable | `execution_revocations`, ejecutor Rust |
-| E2E multiproceso | Automatizado | `.github/workflows/e2e.yml`, `tools/run_local_e2e.py` |
+| E2E multiproceso | Automatizado con doble determinista y ejecutable con Ollama real | `.github/workflows/e2e.yml`, `make local-e2e`, `make local-e2e-ollama` |
 
 ## No implementado deliberadamente
 

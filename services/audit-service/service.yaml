@@ -4,6 +4,14 @@ version: 0.3.0
 runtime: python
 target_runtime: rust
 modules: [AUD-01, AUD-02, AUD-03, AUD-04, AUD-05, AUD-06]
+providers:
+  - id: audit.immutable-ledger
+    modules: [AUD-01, AUD-02]
+    endpoint: /v1/anchors
+    methods: [POST]
+    maturity: integrated
+    capabilities: [receipt-chain-validation, signed-merkle-anchor]
+    evidence: [tests/security/test_audit_anchor.py, tools/run_local_e2e.py]
 inbound_buses: [BUS-AUD]
 outbound_buses: [BUS-DAT, BUS-EVI]
 data_stores: [append-only-audit-ledger, sealed-incident-store]

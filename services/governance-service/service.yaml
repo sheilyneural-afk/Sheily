@@ -4,6 +4,35 @@ version: 0.3.0
 runtime: python
 target_runtime: rust
 modules: [GOV-01, GOV-02, GOV-03, GOV-04, GOV-05, GOV-06, GOV-07, GOV-08, GOV-09, GOV-10, GOV-11, GOV-12]
+providers:
+  - id: governance.constitutional-risk
+    modules: [GOV-01, GOV-03]
+    endpoint: /v1/decisions/evaluate
+    methods: [POST]
+    maturity: integrated
+    capabilities: [opa-policy-decision, risk-classification]
+    evidence: [tests/integration/test_plan_capability_binding.py, policies/tests/constitution_test.rego]
+  - id: governance.mandate-check
+    modules: [GOV-05]
+    endpoint: /v1/memory/authorize
+    methods: [POST]
+    maturity: integrated
+    capabilities: [identity-and-consent-binding]
+    evidence: [tests/security/test_authority_separation.py]
+  - id: governance.capability-issuer
+    modules: [GOV-06]
+    endpoint: /v1/capabilities
+    methods: [POST]
+    maturity: verified
+    capabilities: [ed25519-capability-issuance, least-authority-budget]
+    evidence: [tests/security/test_authority_separation.py, tests/integration/test_plan_capability_binding.py]
+  - id: governance.emergency-control
+    modules: [GOV-11]
+    endpoint: /v1/stop-directives
+    methods: [POST]
+    maturity: verified
+    capabilities: [signed-safe-stop, signed-revocation]
+    evidence: [tests/security/test_stop_channel.py, tools/run_local_e2e.py]
 inbound_buses: [BUS-INT, BUS-EVI, BUS-DAT]
 outbound_buses: [BUS-AUT, BUS-EVI, BUS-STP, BUS-AUD]
 data_stores: [postgres-mandates, postgres-capabilities, opa-policy-store]

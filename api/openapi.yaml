@@ -549,6 +549,45 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
+  /v1/modules:
+    get:
+      summary: List Runtime Modules
+      operationId: list_runtime_modules_v1_modules_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                additionalProperties: true
+                type: object
+                title: Response List Runtime Modules V1 Modules Get
+  /v1/modules/{module_id}:
+    get:
+      summary: Get Runtime Module
+      operationId: get_runtime_module_v1_modules__module_id__get
+      parameters:
+      - name: module_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Module Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+                title: Response Get Runtime Module V1 Modules  Module Id  Get
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
 components:
   schemas:
     ApprovalReceipt:

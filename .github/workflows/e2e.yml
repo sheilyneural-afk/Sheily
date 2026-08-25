@@ -19,7 +19,7 @@ jobs:
       - name: Build and start governed stack
         run: >-
           docker compose -f deploy/local/docker-compose.yml up -d --build
-          experience-service audit-service
+          experience-service audit-service memory-service
       - name: Exercise cognition to signed execution and audit
         run: >-
           docker compose -f deploy/local/docker-compose.yml exec -T

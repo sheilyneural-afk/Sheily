@@ -8,6 +8,7 @@ from fastapi import FastAPI, HTTPException
 
 from noosfera_core.config import Settings
 from noosfera_core.manifest import ServiceManifest, load_service_manifest
+from noosfera_core.module_registry import install_runtime_module_registry
 
 
 def create_app(manifest_path: str | Path) -> FastAPI:
@@ -22,7 +23,7 @@ def create_app(manifest_path: str | Path) -> FastAPI:
             "service": manifest.id,
             "version": manifest.version,
             "status": "alive",
-            "modules": manifest.modules,
+            "declared_modules": manifest.modules,
         }
 
     @app.get(manifest.health.readiness)
@@ -41,10 +42,10 @@ def create_app(manifest_path: str | Path) -> FastAPI:
     @app.post("/v1/modules/{module_id}/invoke")
     async def invoke_unimplemented_module(module_id: str) -> None:
         if module_id not in manifest.modules:
-            raise HTTPException(status_code=404, detail="module is not hosted here")
+            raise HTTPException(status_code=404, detail="module is not declared here")
         raise HTTPException(
             status_code=501,
             detail="logical module has a contract but no capability provider in reference mode",
         )
 
-    return app
+    return install_runtime_module_registry(app, manifest)

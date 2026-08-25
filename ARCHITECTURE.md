@@ -4,7 +4,8 @@
 
 - **Módulo lógico:** responsabilidad única identificada por `EXP-01`, `GOV-06`, etc.
 - **Dominio:** familia de módulos con datos y responsabilidades afines.
-- **Servicio:** proceso desplegable que aloja uno o varios módulos de un dominio.
+- **Servicio:** proceso desplegable propietario o proveedor de módulos.
+- **Proveedor:** implementación explícita ligada a una ruta y método realmente cargados.
 - **Nodo:** frontera soberana que contiene servicios, políticas, identidad y recursos propios.
 - **Circuito:** canal con semántica y privilegios específicos.
 - **Contrato:** esquema versionado que define lo intercambiado.
@@ -66,7 +67,9 @@ El cableado, las tablas, endpoints, dominios de firma y fallos se especifican en
 
 ## Madurez
 
-La tabla de dominios expresa la arquitectura objetivo. La capacidad realmente disponible de cada módulo se publica por separado en `registry/module-maturity.yaml`. Los estados forman una secuencia explícita: `declared → hosted → implemented → integrated → verified → production-ready`. Ningún host genérico se cuenta como motor funcional por el mero hecho de arrancar.
+La tabla de dominios expresa la arquitectura objetivo. `registry/module-maturity.yaml` se genera desde los módulos y proveedores descubiertos, sin cifra fija. Sus estados son `declared → implemented → integrated → verified → production-ready`. En ejecución, `/v1/modules` distingue proveedores registrados, rutas cargadas y módulos invocables. Un host genérico no convierte una declaración en implementación.
+
+El mecanismo y sus invariantes se detallan en `docs/architecture/runtime-module-discovery.md`.
 
 ## Persistencia
 

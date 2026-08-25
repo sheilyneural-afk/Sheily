@@ -9,12 +9,13 @@ Este repositorio no afirma implementar una superinteligencia ni tecnología inex
 - Versión de arquitectura: `0.3.0`
 - Agente funcional: conversación y análisis documental con Ollama local
 - Autoridad de ejecución: kernel Rust con dos herramientas puras permitidas
-- Módulos lógicos registrados: `105`
-- Dominios de servicio: `14`
+- Módulos lógicos: descubiertos dinámicamente desde `registry/modules/*.yaml`
+- Proveedores reales: registrados por ruta y comprobados en `/v1/modules`
+- Dominios de servicio: descubiertos desde sus manifiestos
 - Circuitos operativos: `6`
 - Perímetro: definido en [`SCOPE.md`](SCOPE.md)
 - Inventario completo: [`FILE_MANIFEST.yaml`](FILE_MANIFEST.yaml)
-- Madurez verificable de los 105 módulos: [`registry/module-maturity.yaml`](registry/module-maturity.yaml)
+- Conteo y madurez derivados: [`registry/module-maturity.yaml`](registry/module-maturity.yaml)
 
 ## Regla de completitud
 
@@ -46,6 +47,7 @@ Después, abra la consola personal en `http://localhost:3001` o la operacional e
 - [`docs/architecture/`](docs/architecture/): vistas técnicas.
 - [`docs/architecture/agent-runtime-0.2.md`](docs/architecture/agent-runtime-0.2.md): diseño histórico anterior a las autoridades independientes.
 - [`docs/architecture/agent-runtime-0.3.md`](docs/architecture/agent-runtime-0.3.md): cognición, autoridades Ed25519, ledger durable y cableado actual.
+- [`docs/architecture/runtime-module-discovery.md`](docs/architecture/runtime-module-discovery.md): diferencia entre módulo declarado y proveedor realmente cargado.
 - [`registry/`](registry/): fuente de verdad de módulos, servicios, buses y nodos.
 - [`schemas/`](schemas/): contratos JSON Schema.
 - [`proto/`](proto/): APIs y eventos Protobuf.
@@ -66,3 +68,5 @@ intención → razonamiento → evidencia → autorización → ejecución → a
 ```
 
 Ningún razonador accede directamente a un actuador. Ningún emisor de permisos genera el plan que autoriza. Ningún ejecutor puede eliminar su propia traza.
+
+`make runtime-probe` consulta los procesos vivos. No considera ejecutable un módulo por aparecer en un manifiesto.

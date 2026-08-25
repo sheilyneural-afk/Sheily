@@ -79,19 +79,26 @@ def verify_file_manifest(check: Verification) -> None:
 
 def verify_modules_and_services(check: Verification) -> None:
     module_index = load_yaml(ROOT / "registry/modules/index.yaml")
+    discovery = module_index.get("discovery", {})
+    excluded = set(discovery.get("exclude", []))
+    module_files = [
+        path
+        for path in sorted(ROOT.glob(discovery.get("pattern", "registry/modules/*.yaml")))
+        if path.relative_to(ROOT).as_posix() not in excluded
+    ]
+    check.require(bool(module_files), "module discovery found no family files")
     buses = {item["id"] for item in load_yaml(ROOT / "registry/buses.yaml")["buses"]}
     all_modules: dict[str, dict[str, Any]] = {}
     family_modules: dict[str, set[str]] = {}
+    family_owners: dict[str, str] = {}
     port_pattern = re.compile(r"^[a-z][a-z0-9-]+$")
 
-    for family, relative in module_index["families"].items():
-        module_file = ROOT / relative
-        check.require(module_file.exists(), f"module family file missing: {relative}")
-        if not module_file.exists():
-            continue
+    for module_file in module_files:
         payload = load_yaml(module_file)
-        check.require(payload["family"] == family, f"family mismatch in {relative}")
+        family = payload["family"]
+        check.require(family not in family_modules, f"duplicate module family: {family}")
         family_modules[family] = set()
+        family_owners[family] = payload["service"]
         for module in payload["modules"]:
             module_id = module["id"]
             check.require(module_id not in all_modules, f"duplicate module id: {module_id}")
@@ -112,25 +119,40 @@ def verify_modules_and_services(check: Verification) -> None:
             all_modules[module_id] = module
             family_modules[family].add(module_id)
 
-    expected = module_index["expected_module_count"]
-    check.require(
-        len(all_modules) == expected, f"expected {expected} modules, found {len(all_modules)}"
-    )
-
     services_registry = load_yaml(ROOT / "registry/services.yaml")["services"]
+    registered_service_ids = {item["id"] for item in services_registry}
+    registered_ports = {item["port"] for item in services_registry}
+    check.require(
+        len(registered_service_ids) == len(services_registry),
+        "service registry contains duplicate service ids",
+    )
+    check.require(
+        len(registered_ports) == len(services_registry),
+        "service registry contains duplicate ports",
+    )
+    discovered_service_ids = {
+        path.parent.name for path in (ROOT / "services").glob("*/service.yaml")
+    }
+    check.require(
+        registered_service_ids == discovered_service_ids,
+        "service registry and discovered service manifests differ",
+    )
     service_schema = json.loads(
         (ROOT / "schemas/service-manifest.schema.json").read_text(encoding="utf-8")
     )
     service_validator = Draft202012Validator(service_schema)
-    check.require(
-        len(services_registry) == 14, f"expected 14 services, found {len(services_registry)}"
-    )
     seen_families: set[str] = set()
-    hosted: set[str] = set()
+    owned: set[str] = set()
+    provider_ids: set[str] = set()
     for registered in services_registry:
         service_id = registered["id"]
         family = registered["family"]
+        check.require(family not in seen_families, f"duplicate service family: {family}")
         seen_families.add(family)
+        check.require(
+            family_owners.get(family) == service_id,
+            f"module family owner differs from service registry: {family}",
+        )
         service_dir = ROOT / "services" / service_id
         required = [
             service_dir / "README.md",
@@ -152,18 +174,39 @@ def verify_modules_and_services(check: Verification) -> None:
             check.errors.append(f"invalid service manifest {service_id}: {error.message}")
         check.require(manifest["id"] == service_id, f"service id mismatch: {service_id}")
         check.require(manifest["family"] == family, f"service family mismatch: {service_id}")
+        check.require(
+            manifest["runtime"] == registered["runtime"], f"service runtime mismatch: {service_id}"
+        )
         declared = set(manifest["modules"])
         check.require(
             declared == family_modules.get(family, set()),
             f"module ownership mismatch for {service_id}",
         )
-        duplicate_hosting = hosted & declared
-        check.require(not duplicate_hosting, f"modules hosted twice: {sorted(duplicate_hosting)}")
-        hosted |= declared
+        duplicate_ownership = owned & declared
+        check.require(
+            not duplicate_ownership,
+            f"modules owned twice: {sorted(duplicate_ownership)}",
+        )
+        owned |= declared
+        for provider in manifest.get("providers", []):
+            provider_id = provider["id"]
+            check.require(provider_id not in provider_ids, f"duplicate provider id: {provider_id}")
+            provider_ids.add(provider_id)
+            for module_id in provider["modules"]:
+                check.require(
+                    module_id in all_modules,
+                    f"provider {provider_id} references unknown module {module_id}",
+                )
+            for evidence in provider["evidence"]:
+                evidence_path = evidence.split("::", 1)[0]
+                check.require(
+                    (ROOT / evidence_path).exists(),
+                    f"provider {provider_id} evidence is missing: {evidence}",
+                )
     check.require(
         seen_families == set(family_modules), "not every module family has exactly one service"
     )
-    check.require(hosted == set(all_modules), "not every module is hosted")
+    check.require(owned == set(all_modules), "not every module has a conceptual owner")
 
     maturity = load_yaml(ROOT / "registry/module-maturity.yaml")
     allowed_states = set(maturity.get("states", []))
@@ -175,6 +218,15 @@ def verify_modules_and_services(check: Verification) -> None:
     )
     check.require(
         len(maturity_ids) == len(maturity_entries), "module maturity registry has duplicates"
+    )
+    counts = maturity.get("counts", {})
+    check.require(
+        counts.get("modules_discovered") == len(all_modules),
+        "maturity module count was not derived from the current registry",
+    )
+    check.require(
+        counts.get("providers_registered") == len(provider_ids),
+        "maturity provider count was not derived from service manifests",
     )
     for item in maturity_entries:
         check.require(
@@ -245,8 +297,10 @@ def main() -> int:
         return 1
     print("repository verification passed")
     print("- file manifest is closed")
-    print("- 105 logical modules are hosted exactly once")
-    print("- 14 services have manifests, SLOs, runbooks and deployment profiles")
+    module_count = load_yaml(ROOT / "registry/module-maturity.yaml")["counts"]["modules_discovered"]
+    service_count = len(load_yaml(ROOT / "registry/services.yaml")["services"])
+    print(f"- {module_count} logical modules discovered without a numeric ceiling")
+    print(f"- {service_count} discovered services have manifests, SLOs and runbooks")
     print("- contracts, policies, proto imports and documentation links are valid")
     return 0
 

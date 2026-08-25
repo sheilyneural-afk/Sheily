@@ -8,11 +8,16 @@ x-noosfera-service: &noosfera-service
     opa: {condition: service_started}
   networks: [control, data]
   environment: &noosfera-environment
+    NOOSFERA_ENV: ${NOOSFERA_ENV:-local}
+    NOOSFERA_NODE_ID: ${NOOSFERA_NODE_ID:-node-local-development}
+    NOOSFERA_LOG_LEVEL: ${NOOSFERA_LOG_LEVEL:-INFO}
     NOOSFERA_DATABASE_URL: postgresql://noosfera:noosfera@postgres:5432/noosfera
     NOOSFERA_NATS_URL: nats://nats:4222
     NOOSFERA_OBJECT_STORE_ENDPOINT: http://minio:9000
+    NOOSFERA_OBJECT_STORE_BUCKET: ${NOOSFERA_OBJECT_STORE_BUCKET:-noosfera-evidence}
     NOOSFERA_OPA_URL: http://opa:8181
     NOOSFERA_OTLP_ENDPOINT: http://otel-collector:4317
+    NOOSFERA_SIGNING_KEY_REF: ${NOOSFERA_SIGNING_KEY_REF:-local-development-only}
     NOOSFERA_EXECUTION_URL: http://execution-service:8080
     NOOSFERA_IDENTITY_URL: http://identity-service:8080
     NOOSFERA_COGNITION_URL: http://cognition-service:8080
@@ -25,12 +30,26 @@ x-noosfera-service: &noosfera-service
     NOOSFERA_MODEL_BASE_URL: http://ollama:11434
     NOOSFERA_MODEL_PROVIDER: ${NOOSFERA_MODEL_PROVIDER:-ollama}
     NOOSFERA_MODEL_NAME: ${NOOSFERA_MODEL_NAME:-qwen3:8b}
+    NOOSFERA_MODEL_ALLOW_REMOTE: ${NOOSFERA_MODEL_ALLOW_REMOTE:-false}
+    NOOSFERA_MODEL_TIMEOUT_SECONDS: ${NOOSFERA_MODEL_TIMEOUT_SECONDS:-120}
+    NOOSFERA_MODEL_MAX_INPUT_CHARS: ${NOOSFERA_MODEL_MAX_INPUT_CHARS:-200000}
+    NOOSFERA_MODEL_CONTEXT_TOKENS: ${NOOSFERA_MODEL_CONTEXT_TOKENS:-32768}
+    NOOSFERA_MODEL_OUTPUT_TOKENS: ${NOOSFERA_MODEL_OUTPUT_TOKENS:-4096}
+    NOOSFERA_MAX_DOCUMENT_BYTES: ${NOOSFERA_MAX_DOCUMENT_BYTES:-5000000}
+    NOOSFERA_MAX_OUTPUT_BYTES: ${NOOSFERA_MAX_OUTPUT_BYTES:-250000}
+    NOOSFERA_LOCAL_USERNAME: ${NOOSFERA_LOCAL_USERNAME:-sheily}
     NOOSFERA_LOCAL_PASSWORD: ${NOOSFERA_LOCAL_PASSWORD:-change-me-local}
     NOOSFERA_INTERNAL_SERVICE_TOKEN: ${NOOSFERA_INTERNAL_SERVICE_TOKEN:-local-internal-service-token-change-me}
+    NOOSFERA_IDENTITY_KEY_ID: ${NOOSFERA_IDENTITY_KEY_ID:-identity-local-v1}
     NOOSFERA_IDENTITY_PUBLIC_KEY_B64: ${NOOSFERA_IDENTITY_PUBLIC_KEY_B64:-exnDIf2q8iXSzoTw0cuNx3YEmeVS7DNcVIIB7pPPcHg=}
+    NOOSFERA_AGENCY_KEY_ID: ${NOOSFERA_AGENCY_KEY_ID:-agency-local-v1}
     NOOSFERA_AGENCY_PUBLIC_KEY_B64: ${NOOSFERA_AGENCY_PUBLIC_KEY_B64:-QGNyLWPX7BkNlh+cnFMvTRdT4MixG5cPhcRuBD0DUq0=}
+    NOOSFERA_GOVERNANCE_KEY_ID: ${NOOSFERA_GOVERNANCE_KEY_ID:-governance-local-v1}
     NOOSFERA_GOVERNANCE_PUBLIC_KEY_B64: ${NOOSFERA_GOVERNANCE_PUBLIC_KEY_B64:-IrJbc2jDxJLC4UnngrXD4MAMz1PCOkfvSPAu064Vg3c=}
+    NOOSFERA_AUDIT_KEY_ID: ${NOOSFERA_AUDIT_KEY_ID:-audit-local-v1}
     NOOSFERA_AUDIT_PUBLIC_KEY_B64: ${NOOSFERA_AUDIT_PUBLIC_KEY_B64:-TdIFu4tTVfVgNGcq5iU5XdNNOI+CZyeHNlQkUyviV2g=}
+    NOOSFERA_TOKEN_TTL_SECONDS: ${NOOSFERA_TOKEN_TTL_SECONDS:-3600}
+    NOOSFERA_CORS_ORIGINS: ${NOOSFERA_CORS_ORIGINS:-http://localhost:3001,http://localhost:3002}
   read_only: true
   tmpfs: [/tmp]
   security_opt: [no-new-privileges:true]
@@ -82,7 +101,7 @@ services:
     image: ollama/ollama:latest
     container_name: sheily-ollama
     volumes: [ollama-data:/root/.ollama]
-    ports: ["11434:11434"]
+    ports: ["${NOOSFERA_OLLAMA_PORT:-11434}:11434"]
     networks: [model]
     restart: unless-stopped
 
@@ -185,7 +204,7 @@ services:
     read_only: true
     tmpfs: [/tmp, /var/cache/nginx, /var/run]
     security_opt: [no-new-privileges:true]
-    ports: ["3001:8080"]
+    ports: ["${NOOSFERA_PERSONAL_CONSOLE_PORT:-3001}:8080"]
     networks: [edge]
 
   operator-console:
@@ -197,7 +216,7 @@ services:
     read_only: true
     tmpfs: [/tmp, /var/cache/nginx, /var/run]
     security_opt: [no-new-privileges:true]
-    ports: ["3002:8080"]
+    ports: ["${NOOSFERA_OPERATOR_CONSOLE_PORT:-3002}:8080"]
     networks: [edge]
 
 networks:

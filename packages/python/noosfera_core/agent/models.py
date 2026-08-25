@@ -4,10 +4,10 @@ from __future__ import annotations
 
 from datetime import UTC, datetime
 from enum import StrEnum
-from typing import Any, Literal
+from typing import Any, Literal, Self
 from uuid import uuid4
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 
 def utc_now() -> datetime:
@@ -125,6 +125,25 @@ class MissionPlan(StrictModel):
     risk_factors: list[str] = Field(default_factory=list, max_length=10)
     requires_documents: bool
     cognitive_cycle_id: str | None = None
+
+    @model_validator(mode="after")
+    def validate_tool_binding(self) -> Self:
+        expected = {
+            "conversation.answer": (
+                "answer",
+                "urn:noosfera:tool:conversation-answer",
+                False,
+            ),
+            "document.report": (
+                "generate",
+                "urn:noosfera:tool:document-report",
+                True,
+            ),
+        }[self.tool]
+        actual = (self.operation, self.resource, self.requires_documents)
+        if actual != expected:
+            raise ValueError("tool, operation, resource and document scope are inconsistent")
+        return self
 
 
 class ResourceBudget(StrictModel):

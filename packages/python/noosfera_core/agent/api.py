@@ -71,6 +71,7 @@ from noosfera_core.agent.persistence import InMemoryStateStore, PostgresStateSto
 from noosfera_core.config import Settings
 from noosfera_core.hashing import canonical_hash
 from noosfera_core.manifest import ServiceManifest, load_service_manifest
+from noosfera_core.module_registry import install_runtime_module_registry
 
 
 @dataclass
@@ -307,6 +308,8 @@ def create_agent_app(
         return {
             "service": manifest.id,
             "status": "ready",
+            "model_provider": runtime.orchestrator.model.provider_name,
+            "model_name": runtime.orchestrator.model.model_name,
             **checks,
         }
 
@@ -592,4 +595,4 @@ def create_agent_app(
 
         return JSONResponse(status_code=409, content={"detail": str(exc)})
 
-    return app
+    return install_runtime_module_registry(app, manifest)

@@ -7,7 +7,7 @@ El LLM es un componente no confiable que produce propuestas estructuradas. No po
 ## Controles
 
 - `OllamaModel` solo acepta loopback, `host.docker.internal` o el nombre Compose `ollama`, salvo habilitación remota explícita.
-- El prompt de planificación limita el vocabulario de herramientas y Pydantic vuelve a validar el JSON.
+- El prompt de planificación limita el vocabulario y el adaptador fija después la tupla de autoridad según el alcance observado. Pydantic rechaza toda combinación incoherente de herramienta, operación, recurso y documentos.
 - El hash del plan se calcula fuera del modelo.
 - OPA evalúa riesgo y constitución fuera del proceso de inferencia.
 - La aprobación humana se registra después de presentar el plan y antes de emitir la capacidad.
@@ -21,6 +21,8 @@ El LLM es un componente no confiable que produce propuestas estructuradas. No po
 `NOOSFERA_MODEL_ALLOW_REMOTE=true` desactiva solo la comprobación de host; no convierte el despliegue en privado o conforme. Antes de usarlo se debe documentar el encargado de tratamiento, retención, jurisdicción, cifrado, controles de salida, coste, disponibilidad y mecanismo de borrado. También se debe revisar CORS, aislamiento de red y clasificación de cada documento.
 
 Sheily no realiza fallback. Si el modelo configurado no está disponible, `/health/ready` responde 503 y la misión falla de forma visible.
+
+La descarga de pesos es una operación administrativa explícita. `make model-pull` desconecta temporalmente solo el contenedor Ollama de la red privada, lo conecta al puente de salida, descarga al volumen persistente y restaura la red `model` con su alias DNS. La limpieza se ejecuta también al fallar; Experience nunca se conecta a ese puente.
 
 ## Amenazas residuales
 

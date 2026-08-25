@@ -1,6 +1,6 @@
 version: 1
 architecture_version: 0.3.0
-expected_file_count: 425
+expected_file_count: 429
 closure: every repository file outside generated and VCS directories must be listed
 ownership_rules:
 - prefix: .github/
@@ -203,6 +203,7 @@ files:
 - docs/architecture/extension-model.md
 - docs/architecture/failure-domains.md
 - docs/architecture/federation.md
+- docs/architecture/runtime-module-discovery.md
 - docs/architecture/storage-model.md
 - docs/architecture/system-context.md
 - docs/governance/change-control.md
@@ -301,6 +302,7 @@ files:
 - packages/python/noosfera_core/hashing.py
 - packages/python/noosfera_core/manifest.py
 - packages/python/noosfera_core/mission.py
+- packages/python/noosfera_core/module_registry.py
 - packages/python/noosfera_core/policy.py
 - packages/python/noosfera_core/ports.py
 - packages/python/noosfera_core/py.typed
@@ -464,6 +466,7 @@ files:
 - tests/agent/test_cognitive_kernel.py
 - tests/architecture/test_forbidden_routes.py
 - tests/architecture/test_module_registry.py
+- tests/architecture/test_runtime_module_registry.py
 - tests/chaos/test_mandatory_monitor_loss.py
 - tests/contracts/test_schema_examples.py
 - tests/fixtures/contracts/agent-mission.invalid.json
@@ -488,6 +491,7 @@ files:
 - tools/generate_module_maturity.py
 - tools/generate_openapi.py
 - tools/generate_runtime_schemas.py
+- tools/probe_runtime_capabilities.py
 - tools/pull_local_model.sh
 - tools/run_local_e2e.py
 - tools/run_model_evals.py

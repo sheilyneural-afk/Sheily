@@ -24,7 +24,17 @@ Servicios de uso humano:
 - API y OpenAPI interactiva: `http://localhost:8101/docs`
 - Consola personal: `http://localhost:3001`
 - Consola operacional: `http://localhost:3002`
+
+Si alguno de esos puertos ya está ocupado, cámbielo sin editar Compose, por ejemplo:
+
+```bash
+NOOSFERA_OPERATOR_CONSOLE_PORT=3003 \
+NOOSFERA_CORS_ORIGINS=http://localhost:3001,http://localhost:3003 \
+docker compose -f deploy/local/docker-compose.yml up -d operator-console experience-service
+```
 - Ollama: `http://localhost:11434`
+
+El puerto público de Ollama se puede mover con `NOOSFERA_OLLAMA_PORT`; los servicios siempre lo alcanzan por la red privada en `ollama:11434`.
 
 El usuario inicial es el valor de `NOOSFERA_LOCAL_USERNAME`, por defecto `sheily`. No use los secretos de ejemplo fuera de una máquina de desarrollo.
 
@@ -71,3 +81,12 @@ make local-e2e
 ```
 
 Esta prueba usa procesos reales para Identity, Cognition, Agency, Governance, OPA, PostgreSQL, NATS, Rust, Audit y Experience. El ejecutor de prueba entra por la red privada de Compose, por lo que las autoridades no necesitan exponer sus APIs al host. El único doble es la generación lingüística determinista, identificada expresamente como prueba.
+
+Para repetir el mismo recorrido con el LLM local real configurado, descargue antes el modelo y ejecute:
+
+```bash
+make model-pull
+make local-e2e-ollama
+```
+
+Esta variante amplía los tiempos de espera, pero mantiene exactamente las mismas comprobaciones de firmas, capacidades, evidencia, memoria, parada y auditoría.

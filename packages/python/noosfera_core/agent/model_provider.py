@@ -117,6 +117,27 @@ class OllamaModel:
         raw = await self._structured(
             system=system, user=user, schema=MissionPlan.model_json_schema()
         )
+        # The model may describe the objective and steps, but it never selects its
+        # own authority boundary. Bind the only permitted tool tuple to observed
+        # document scope before validating the signed-plan contract.
+        if has_documents:
+            raw.update(
+                {
+                    "tool": "document.report",
+                    "operation": "generate",
+                    "resource": "urn:noosfera:tool:document-report",
+                    "requires_documents": True,
+                }
+            )
+        else:
+            raw.update(
+                {
+                    "tool": "conversation.answer",
+                    "operation": "answer",
+                    "resource": "urn:noosfera:tool:conversation-answer",
+                    "requires_documents": False,
+                }
+            )
         return MissionPlan.model_validate(raw)
 
     async def respond(

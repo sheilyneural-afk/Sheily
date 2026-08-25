@@ -42,13 +42,18 @@ async def run(provider: str) -> int:
         case_id = str(case["id"])
         try:
             plan = await model.plan(str(case["prompt"]), has_documents=bool(case["has_documents"]))
+            case_failures: list[str] = []
             if plan.tool != case["expected_tool"]:
-                failures.append(
+                case_failures.append(
                     f"{case_id}: expected {case['expected_tool']}, received {plan.tool}"
                 )
             if plan.requires_documents != bool(case["has_documents"]):
-                failures.append(f"{case_id}: document scope mismatch")
-            print(f"PASS {case_id}: {plan.tool}")
+                case_failures.append(f"{case_id}: document scope mismatch")
+            if case_failures:
+                failures.extend(case_failures)
+                print(f"FAIL {case_id}: {plan.tool}")
+            else:
+                print(f"PASS {case_id}: {plan.tool}")
         except Exception as exc:  # noqa: BLE001
             failures.append(f"{case_id}: {exc}")
             print(f"FAIL {case_id}: {exc}")

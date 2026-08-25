@@ -1,9 +1,30 @@
 id: execution-service
 family: EXE
 version: 0.3.0
-runtime: python
-target_runtime: rust
+runtime: rust
 modules: [EXE-01, EXE-02, EXE-03, EXE-04, EXE-05, EXE-06, EXE-07, EXE-08]
+providers:
+  - id: execution.authorized-effect
+    modules: [EXE-01, EXE-03]
+    endpoint: /v1/executions
+    methods: [POST]
+    maturity: verified
+    capabilities: [plan-capability-binding, durable-budget-consumption]
+    evidence: [packages/rust/noosfera-execution-service/src/main.rs, tests/integration/test_plan_capability_binding.py]
+  - id: execution.mandatory-monitor
+    modules: [EXE-05]
+    endpoint: /v1/executions
+    methods: [POST]
+    maturity: integrated
+    capabilities: [fail-closed-internal-monitor]
+    evidence: [packages/rust/noosfera-execution-service/src/main.rs, tests/chaos/test_mandatory_monitor_loss.py]
+  - id: execution.safe-stop
+    modules: [EXE-08]
+    endpoint: /v1/stop
+    methods: [POST]
+    maturity: verified
+    capabilities: [durable-signed-stop, durable-signed-revocation]
+    evidence: [packages/rust/noosfera-execution-service/src/main.rs, tests/security/test_stop_channel.py]
 inbound_buses: [BUS-INT, BUS-AUT, BUS-STA, BUS-STP]
 outbound_buses: [BUS-ACT, BUS-STA, BUS-STP, BUS-AUD]
 data_stores: [postgres-execution-metadata, local-interlock-state]

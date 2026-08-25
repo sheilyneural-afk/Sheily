@@ -14,6 +14,7 @@ from noosfera_core.agent.crypto import Ed25519Signer
 from noosfera_core.agent.models import AuditAnchor
 from noosfera_core.config import Settings
 from noosfera_core.manifest import load_service_manifest
+from noosfera_core.module_registry import install_runtime_module_registry
 
 
 def create_audit_app(
@@ -73,4 +74,4 @@ def create_audit_app(
         authorize(service_token)
         return await runtime.list_anchors(limit)
 
-    return app
+    return install_runtime_module_registry(app, manifest)

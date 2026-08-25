@@ -3,6 +3,35 @@ family: EXP
 version: 0.3.0
 runtime: python
 modules: [EXP-01, EXP-02, EXP-03, EXP-04, EXP-05, EXP-06]
+providers:
+  - id: experience.conversation-missions
+    modules: [EXP-01, AGY-06]
+    endpoint: /v1/conversations/{conversation_id}/messages
+    methods: [POST]
+    maturity: integrated
+    capabilities: [conversation, governed-mission, response-streaming]
+    evidence: [tests/agent/test_api_flow.py, tools/run_local_e2e.py]
+  - id: experience.consent-approval
+    modules: [EXP-05]
+    endpoint: /v1/missions/{mission_id}/approval
+    methods: [POST]
+    maturity: integrated
+    capabilities: [plan-bound-approval, memory-consent]
+    evidence: [tests/agent/test_api_flow.py, tools/run_local_e2e.py]
+  - id: experience.personal-memory
+    modules: [MEM-02]
+    endpoint: /v1/memories
+    methods: [GET]
+    maturity: integrated
+    capabilities: [consented-memory-read]
+    evidence: [tests/agent/test_api_flow.py, tools/run_local_e2e.py]
+  - id: experience.memory-erasure
+    modules: [MEM-06]
+    endpoint: /v1/memories/{memory_id}
+    methods: [DELETE]
+    maturity: integrated
+    capabilities: [subject-controlled-memory-delete]
+    evidence: [tests/agent/test_api_flow.py]
 inbound_buses: [BUS-DAT]
 outbound_buses: [BUS-DAT, BUS-INT, BUS-EVI, BUS-AUD]
 data_stores: [postgres-consent-metadata]

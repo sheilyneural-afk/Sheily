@@ -670,6 +670,59 @@ async fn live() -> Json<Value> {
     Json(serde_json::json!({"status": "alive", "runtime": "rust"}))
 }
 
+async fn runtime_modules() -> Json<Value> {
+    Json(serde_json::json!({
+        "service": "execution-service",
+        "version": env!("CARGO_PKG_VERSION"),
+        "declared_modules": [
+            "EXE-01", "EXE-02", "EXE-03", "EXE-04",
+            "EXE-05", "EXE-06", "EXE-07", "EXE-08"
+        ],
+        "declared_count": 8,
+        "provided_modules": ["EXE-01", "EXE-03", "EXE-05", "EXE-08"],
+        "provided_count": 4,
+        "unprovided_modules": ["EXE-02", "EXE-04", "EXE-06", "EXE-07"],
+        "providers": [
+            {
+                "id": "execution.authorized-effect",
+                "service": "execution-service",
+                "modules": ["EXE-01", "EXE-03"],
+                "endpoint": "/v1/executions",
+                "methods": ["POST"],
+                "maturity": "verified",
+                "capabilities": ["plan-capability-binding", "durable-budget-consumption"],
+                "status": "loaded",
+                "route_bound": true,
+                "invocable": true
+            },
+            {
+                "id": "execution.mandatory-monitor",
+                "service": "execution-service",
+                "modules": ["EXE-05"],
+                "endpoint": "/v1/executions",
+                "methods": ["POST"],
+                "maturity": "integrated",
+                "capabilities": ["fail-closed-internal-monitor"],
+                "status": "loaded",
+                "route_bound": true,
+                "invocable": true
+            },
+            {
+                "id": "execution.safe-stop",
+                "service": "execution-service",
+                "modules": ["EXE-08"],
+                "endpoint": "/v1/stop",
+                "methods": ["POST"],
+                "maturity": "verified",
+                "capabilities": ["durable-signed-stop", "durable-signed-revocation"],
+                "status": "loaded",
+                "route_bound": true,
+                "invocable": true
+            }
+        ]
+    }))
+}
+
 async fn ready(
     State(state): State<AppState>,
 ) -> Result<Json<Value>, (StatusCode, Json<ErrorResponse>)> {
@@ -725,6 +778,7 @@ async fn main() {
     let app = Router::new()
         .route("/health/live", get(live))
         .route("/health/ready", get(ready))
+        .route("/v1/modules", get(runtime_modules))
         .route("/v1/executions", post(execute))
         .route("/v1/stop", post(stop))
         .route("/v1/revocations", post(revoke))
@@ -832,6 +886,21 @@ mod tests {
             resource: "urn:noosfera:tool:conversation-answer".to_owned(),
             parameters,
         }
+    }
+
+    #[tokio::test]
+    async fn runtime_registry_does_not_claim_unimplemented_modules() {
+        let Json(payload) = runtime_modules().await;
+        assert_eq!(payload["provided_count"], 4);
+        assert_eq!(
+            payload["unprovided_modules"],
+            serde_json::json!(["EXE-02", "EXE-04", "EXE-06", "EXE-07"])
+        );
+        assert!(payload["providers"]
+            .as_array()
+            .expect("providers")
+            .iter()
+            .all(|provider| provider["route_bound"] == true));
     }
 
     #[test]

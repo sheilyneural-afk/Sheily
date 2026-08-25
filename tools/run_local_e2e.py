@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Smoke test multiproceso contra el Compose local con proveedor determinista."""
+"""Smoke test multiproceso contra el Compose local y su proveedor configurado."""
 
 from __future__ import annotations
 
@@ -18,12 +18,20 @@ from noosfera_core.agent.models import AuditAnchor, PlanAttestation
 
 API = os.environ.get("NOOSFERA_E2E_API_URL", "http://127.0.0.1:8101")
 AUDIT_API = os.environ.get("NOOSFERA_E2E_AUDIT_URL", "http://127.0.0.1:8111")
+IDENTITY_API = os.environ.get("NOOSFERA_E2E_IDENTITY_URL", "http://identity-service:8080")
+MEMORY_API = os.environ.get("NOOSFERA_E2E_MEMORY_URL", "http://memory-service:8080")
+COGNITION_API = os.environ.get("NOOSFERA_E2E_COGNITION_URL", "http://cognition-service:8080")
+AGENCY_API = os.environ.get("NOOSFERA_E2E_AGENCY_URL", "http://agency-service:8080")
+GOVERNANCE_API = os.environ.get("NOOSFERA_E2E_GOVERNANCE_URL", "http://governance-service:8080")
+EXECUTION_API = os.environ.get("NOOSFERA_E2E_EXECUTION_URL", "http://execution-service:8080")
 AGENCY_PUBLIC_KEY = os.environ.get(
     "NOOSFERA_AGENCY_PUBLIC_KEY_B64", "QGNyLWPX7BkNlh+cnFMvTRdT4MixG5cPhcRuBD0DUq0="
 )
 AUDIT_PUBLIC_KEY = os.environ.get(
     "NOOSFERA_AUDIT_PUBLIC_KEY_B64", "TdIFu4tTVfVgNGcq5iU5XdNNOI+CZyeHNlQkUyviV2g="
 )
+HTTP_TIMEOUT_SECONDS = float(os.environ.get("NOOSFERA_E2E_HTTP_TIMEOUT_SECONDS", "10"))
+MISSION_TIMEOUT_SECONDS = float(os.environ.get("NOOSFERA_E2E_MISSION_TIMEOUT_SECONDS", "60"))
 
 
 def request(
@@ -43,7 +51,9 @@ def request(
         f"{base_url}{path}", data=body, headers=headers, method=method
     )
     try:
-        with urllib.request.urlopen(call, timeout=10) as response:  # noqa: S310 -- local E2E
+        with urllib.request.urlopen(  # noqa: S310 -- local E2E
+            call, timeout=HTTP_TIMEOUT_SECONDS
+        ) as response:
             raw = response.read()
             return json.loads(raw) if raw else {}
     except urllib.error.HTTPError as exc:
@@ -62,7 +72,7 @@ def wait_ready(path: str = "/health/ready", *, base_url: str = API) -> None:
 
 
 def wait_mission(token: str, mission_id: str, expected: set[str]) -> dict[str, Any]:
-    deadline = time.monotonic() + 60
+    deadline = time.monotonic() + MISSION_TIMEOUT_SECONDS
     while time.monotonic() < deadline:
         mission = request("GET", f"/v1/missions/{mission_id}", token=token)
         if mission["status"] in expected:
@@ -74,10 +84,14 @@ def wait_mission(token: str, mission_id: str, expected: set[str]) -> dict[str, A
 def upload_document(token: str, *, name: str, content: bytes) -> dict[str, Any]:
     boundary = f"noosfera-{uuid.uuid4().hex}"
     body = (
-        f"--{boundary}\r\n"
-        f'Content-Disposition: form-data; name="upload"; filename="{name}"\r\n'
-        "Content-Type: text/markdown\r\n\r\n"
-    ).encode() + content + f"\r\n--{boundary}--\r\n".encode()
+        (
+            f"--{boundary}\r\n"
+            f'Content-Disposition: form-data; name="upload"; filename="{name}"\r\n'
+            "Content-Type: text/markdown\r\n\r\n"
+        ).encode()
+        + content
+        + f"\r\n--{boundary}--\r\n".encode()
+    )
     call = urllib.request.Request(  # noqa: S310 -- fixed local E2E endpoint
         f"{API}/v1/documents",
         data=body,
@@ -87,7 +101,9 @@ def upload_document(token: str, *, name: str, content: bytes) -> dict[str, Any]:
         },
         method="POST",
     )
-    with urllib.request.urlopen(call, timeout=10) as response:  # noqa: S310 -- local E2E
+    with urllib.request.urlopen(  # noqa: S310 -- local E2E
+        call, timeout=HTTP_TIMEOUT_SECONDS
+    ) as response:
         value = json.loads(response.read())
     if not isinstance(value, dict):
         raise RuntimeError("document upload returned a malformed response")
@@ -103,11 +119,54 @@ def verify_attestation(mission: dict[str, Any]) -> None:
     )
 
 
+def verify_runtime_modules(base_url: str, required: set[str]) -> set[str]:
+    payload = request("GET", "/v1/modules", base_url=base_url)
+    provided = set(payload.get("provided_modules", []))
+    missing = required - provided
+    if missing:
+        raise RuntimeError(f"{base_url} lacks required loaded modules: {sorted(missing)}")
+    for provider in payload.get("providers", []):
+        if not all(
+            [
+                provider.get("status") == "loaded",
+                provider.get("route_bound") is True,
+                provider.get("invocable") is True,
+            ]
+        ):
+            raise RuntimeError(
+                f"{base_url} reports a provider that is not really bound: {provider}"
+            )
+    return provided
+
+
 def main() -> None:
     # Experience agrega la salud de Identity, Cognition, Agency, Governance,
     # PostgreSQL, NATS y Rust. Esas autoridades no se exponen al host.
     wait_ready(base_url=API)
+    experience_readiness = request("GET", "/health/ready", base_url=API)
     wait_ready(base_url=AUDIT_API)
+    wait_ready(base_url=MEMORY_API)
+    loaded_modules: set[str] = set()
+    loaded_modules |= verify_runtime_modules(
+        API, {"EXP-01", "EXP-05", "AGY-06", "MEM-02", "MEM-06"}
+    )
+    loaded_modules |= verify_runtime_modules(IDENTITY_API, {"IDN-01", "IDN-04"})
+    loaded_modules |= verify_runtime_modules(
+        COGNITION_API, {"MEM-01", "MEM-04", "COG-08", "COG-10", "AGY-01", "AGY-03", "AGY-04"}
+    )
+    loaded_modules |= verify_runtime_modules(AGENCY_API, {"AGY-07", "AGY-08"})
+    loaded_modules |= verify_runtime_modules(
+        GOVERNANCE_API, {"GOV-01", "GOV-03", "GOV-05", "GOV-06", "GOV-11"}
+    )
+    loaded_modules |= verify_runtime_modules(
+        EXECUTION_API, {"EXE-01", "EXE-03", "EXE-05", "EXE-08"}
+    )
+    loaded_modules |= verify_runtime_modules(AUDIT_API, {"AUD-01", "AUD-02"})
+    memory_reference = verify_runtime_modules(MEMORY_API, set())
+    if memory_reference:
+        raise RuntimeError(
+            "memory reference service claims loaded providers without an implementation"
+        )
     login = request(
         "POST",
         "/v1/auth/login",
@@ -145,9 +204,7 @@ def main() -> None:
             "remember": True,
         },
     )
-    planned_report = wait_mission(
-        token, str(report["id"]), {"awaiting-approval", "failed"}
-    )
+    planned_report = wait_mission(token, str(report["id"]), {"awaiting-approval", "failed"})
     if planned_report["status"] != "awaiting-approval":
         raise RuntimeError(f"document mission was not governed: {planned_report}")
     request(
@@ -227,6 +284,11 @@ def main() -> None:
                 "safe_stop": "verified",
                 "revocation": "verified",
                 "audit_anchor_signature": anchor["id"],
+                "model_provider": experience_readiness.get("model_provider"),
+                "model_name": experience_readiness.get("model_name"),
+                "loaded_runtime_modules": sorted(loaded_modules),
+                "loaded_runtime_module_count": len(loaded_modules),
+                "declared_only_memory_service": "verified",
             },
             indent=2,
         )

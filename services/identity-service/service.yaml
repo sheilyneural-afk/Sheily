@@ -4,6 +4,21 @@ version: 0.3.0
 runtime: python
 target_runtime: rust
 modules: [IDN-01, IDN-02, IDN-03, IDN-04, IDN-05]
+providers:
+  - id: identity.local-credentials
+    modules: [IDN-01]
+    endpoint: /v1/auth/login
+    methods: [POST]
+    maturity: integrated
+    capabilities: [local-authentication, signed-access-token]
+    evidence: [tests/agent/test_auth.py, tests/security/test_authority_separation.py]
+  - id: identity.current-will
+    modules: [IDN-04]
+    endpoint: /v1/approvals
+    methods: [POST]
+    maturity: integrated
+    capabilities: [signed-plan-bound-approval]
+    evidence: [tests/security/test_authority_separation.py, tools/run_local_e2e.py]
 inbound_buses: [BUS-DAT, BUS-INT]
 outbound_buses: [BUS-DAT, BUS-EVI, BUS-AUT, BUS-AUD]
 data_stores: [postgres-identity, vault-key-references]

@@ -13,6 +13,7 @@ from noosfera_core.agent.identity import IdentityAuthority
 from noosfera_core.agent.models import ApprovalReceipt, LoginRequest, TokenResponse
 from noosfera_core.config import Settings
 from noosfera_core.manifest import load_service_manifest
+from noosfera_core.module_registry import install_runtime_module_registry
 
 
 class ApprovalIssueRequest(BaseModel):
@@ -75,4 +76,4 @@ def create_identity_app(
         except AuthenticationError as exc:
             raise HTTPException(status_code=401, detail=str(exc)) from exc
 
-    return app
+    return install_runtime_module_registry(app, manifest)

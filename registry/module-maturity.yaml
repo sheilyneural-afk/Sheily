@@ -1,562 +1,976 @@
-version: 1
+version: 2
+counts:
+  modules_discovered: 105
+  providers_registered: 19
+  modules_with_providers: 27
+  modules_declared_only: 78
 states:
 - declared
-- hosted
 - implemented
 - integrated
 - verified
 - production-ready
+runtime_note: registered providers are claims; /v1/modules is authoritative for loaded
+  routes
 modules:
-- id: EXP-01
-  family: EXP
-  state: integrated
-  evidence:
-  - services/experience-service/service.yaml
-  - API de conversación y documentos
-- id: EXP-02
-  family: EXP
-  state: hosted
-  evidence:
-  - services/experience-service/service.yaml
-- id: EXP-03
-  family: EXP
-  state: hosted
-  evidence:
-  - services/experience-service/service.yaml
-- id: EXP-04
-  family: EXP
-  state: hosted
-  evidence:
-  - services/experience-service/service.yaml
-- id: EXP-05
-  family: EXP
-  state: integrated
-  evidence:
-  - services/experience-service/service.yaml
-  - consentimiento firmado ligado a misión/plan
-- id: EXP-06
-  family: EXP
-  state: hosted
-  evidence:
-  - services/experience-service/service.yaml
-- id: IDN-01
-  family: IDN
-  state: integrated
-  evidence:
-  - services/identity-service/service.yaml
-  - identidad local Ed25519 y tokens verificables
-- id: IDN-02
-  family: IDN
-  state: hosted
-  evidence:
-  - services/identity-service/service.yaml
-- id: IDN-03
-  family: IDN
-  state: hosted
-  evidence:
-  - services/identity-service/service.yaml
-- id: IDN-04
-  family: IDN
-  state: integrated
-  evidence:
-  - services/identity-service/service.yaml
-  - comprobante de voluntad actual firmado
-- id: IDN-05
-  family: IDN
-  state: hosted
-  evidence:
-  - services/identity-service/service.yaml
-- id: MEM-01
-  family: MEM
-  state: integrated
-  evidence:
-  - services/memory-service/service.yaml
-  - ciclo cognitivo como memoria de trabajo
-- id: MEM-02
-  family: MEM
-  state: integrated
-  evidence:
-  - services/memory-service/service.yaml
-  - memoria personal consentida con borrado
-- id: MEM-03
-  family: MEM
-  state: hosted
-  evidence:
-  - services/memory-service/service.yaml
-- id: MEM-04
-  family: MEM
-  state: integrated
-  evidence:
-  - services/memory-service/service.yaml
-  - creencias semánticas consolidadas por procedencia
-- id: MEM-05
-  family: MEM
-  state: integrated
-  evidence:
-  - services/memory-service/service.yaml
-  - hashes de contexto, evidencia y recibos
-- id: MEM-06
-  family: MEM
-  state: integrated
-  evidence:
-  - services/memory-service/service.yaml
-  - retención y borrado lógico consentido
-- id: MEM-07
-  family: MEM
-  state: hosted
-  evidence:
-  - services/memory-service/service.yaml
-- id: MEM-08
-  family: MEM
-  state: hosted
-  evidence:
-  - services/memory-service/service.yaml
-- id: PER-01
-  family: PER
-  state: hosted
-  evidence:
-  - services/perception-service/service.yaml
-- id: PER-02
-  family: PER
-  state: hosted
-  evidence:
-  - services/perception-service/service.yaml
-- id: PER-03
-  family: PER
-  state: hosted
-  evidence:
-  - services/perception-service/service.yaml
-- id: PER-04
-  family: PER
-  state: hosted
-  evidence:
-  - services/perception-service/service.yaml
-- id: PER-05
-  family: PER
-  state: hosted
-  evidence:
-  - services/perception-service/service.yaml
-- id: COG-01
-  family: COG
-  state: hosted
-  evidence:
-  - services/cognition-service/service.yaml
-- id: COG-02
-  family: COG
-  state: hosted
-  evidence:
-  - services/cognition-service/service.yaml
-- id: COG-03
-  family: COG
-  state: hosted
-  evidence:
-  - services/cognition-service/service.yaml
-- id: COG-04
-  family: COG
-  state: hosted
-  evidence:
-  - services/cognition-service/service.yaml
-- id: COG-05
-  family: COG
-  state: hosted
-  evidence:
-  - services/cognition-service/service.yaml
-- id: COG-06
-  family: COG
-  state: hosted
-  evidence:
-  - services/cognition-service/service.yaml
-- id: COG-07
-  family: COG
-  state: hosted
-  evidence:
-  - services/cognition-service/service.yaml
-- id: COG-08
-  family: COG
-  state: integrated
-  evidence:
-  - services/cognition-service/service.yaml
-  - frontera de acciones con crítico y abstención
-- id: COG-09
-  family: COG
-  state: hosted
-  evidence:
-  - services/cognition-service/service.yaml
-- id: COG-10
-  family: COG
-  state: integrated
-  evidence:
-  - services/cognition-service/service.yaml
-  - incertidumbre y suficiencia de evidencia explícitas
-- id: COG-11
-  family: COG
-  state: hosted
-  evidence:
-  - services/cognition-service/service.yaml
-- id: COG-12
-  family: COG
-  state: hosted
-  evidence:
-  - services/cognition-service/service.yaml
-- id: COG-13
-  family: COG
-  state: hosted
-  evidence:
-  - services/cognition-service/service.yaml
 - id: AGY-01
   family: AGY
   state: integrated
+  providers:
+  - id: cognition.causal-cycle
+    service: cognition-service
+    runtime: python
+    endpoint: /v1/cycles
+    methods:
+    - POST
+    capabilities:
+    - working-context
+    - adversarial-critique
+    - uncertainty
+    - intent-compilation
+    - goal-decomposition
   evidence:
-  - services/agency-service/service.yaml
-  - petición convertida en plan estructurado
+  - registry/modules/agy.yaml
+  - services/cognition-service/service.yaml
+  - tests/agent/test_cognitive_kernel.py
+  - tools/run_local_e2e.py
 - id: AGY-02
   family: AGY
-  state: hosted
+  state: declared
+  providers: []
   evidence:
-  - services/agency-service/service.yaml
+  - registry/modules/agy.yaml
 - id: AGY-03
   family: AGY
   state: integrated
+  providers:
+  - id: cognition.causal-cycle
+    service: cognition-service
+    runtime: python
+    endpoint: /v1/cycles
+    methods:
+    - POST
+    capabilities:
+    - working-context
+    - adversarial-critique
+    - uncertainty
+    - intent-compilation
+    - goal-decomposition
   evidence:
-  - services/agency-service/service.yaml
-  - objetivo descompuesto en pasos y criterios
+  - registry/modules/agy.yaml
+  - services/cognition-service/service.yaml
+  - tests/agent/test_cognitive_kernel.py
+  - tools/run_local_e2e.py
 - id: AGY-04
   family: AGY
   state: verified
+  providers:
+  - id: cognition.plan-generation
+    service: cognition-service
+    runtime: python
+    endpoint: /v1/cycles
+    methods:
+    - POST
+    capabilities:
+    - deterministic-plan-generation
+    - abstention
   evidence:
-  - services/agency-service/service.yaml
-  - plan causal generado fuera del LLM
+  - registry/modules/agy.yaml
+  - services/cognition-service/service.yaml
+  - tests/agent/test_cognitive_kernel.py
+  - tests/security/test_local_model_boundary.py
 - id: AGY-05
   family: AGY
-  state: hosted
+  state: declared
+  providers: []
   evidence:
-  - services/agency-service/service.yaml
+  - registry/modules/agy.yaml
 - id: AGY-06
   family: AGY
-  state: verified
+  state: integrated
+  providers:
+  - id: experience.conversation-missions
+    service: experience-service
+    runtime: python
+    endpoint: /v1/conversations/{conversation_id}/messages
+    methods:
+    - POST
+    capabilities:
+    - conversation
+    - governed-mission
+    - response-streaming
   evidence:
-  - services/agency-service/service.yaml
-  - máquina de estados de misión persistente
+  - registry/modules/agy.yaml
+  - services/experience-service/service.yaml
+  - tests/agent/test_api_flow.py
+  - tools/run_local_e2e.py
 - id: AGY-07
   family: AGY
   state: integrated
+  providers:
+  - id: agency.plan-dependencies
+    service: agency-service
+    runtime: python
+    endpoint: /v1/plans/attest
+    methods:
+    - POST
+    capabilities:
+    - dependency-validation
+    - budget-validation
   evidence:
+  - registry/modules/agy.yaml
   - services/agency-service/service.yaml
-  - validación de dependencias, alcance y presupuestos
+  - tests/integration/test_plan_capability_binding.py
 - id: AGY-08
   family: AGY
-  state: integrated
+  state: verified
+  providers:
+  - id: agency.goal-binding
+    service: agency-service
+    runtime: python
+    endpoint: /v1/plans/attest
+    methods:
+    - POST
+    capabilities:
+    - signed-plan-attestation
+    - scope-binding
   evidence:
+  - registry/modules/agy.yaml
   - services/agency-service/service.yaml
-  - vinculación hash de objetivo, contexto y plan
-- id: GOV-01
-  family: GOV
-  state: integrated
-  evidence:
-  - services/governance-service/service.yaml
-  - políticas constitucionales OPA
-- id: GOV-02
-  family: GOV
-  state: hosted
-  evidence:
-  - services/governance-service/service.yaml
-- id: GOV-03
-  family: GOV
-  state: integrated
-  evidence:
-  - services/governance-service/service.yaml
-  - clasificación de riesgo OPA
-- id: GOV-04
-  family: GOV
-  state: hosted
-  evidence:
-  - services/governance-service/service.yaml
-- id: GOV-05
-  family: GOV
-  state: integrated
-  evidence:
-  - services/governance-service/service.yaml
-  - mandato ligado a identidad y consentimiento
-- id: GOV-06
-  family: GOV
-  state: verified
-  evidence:
-  - services/governance-service/service.yaml
-  - emisor independiente de capacidades Ed25519
-- id: GOV-07
-  family: GOV
-  state: hosted
-  evidence:
-  - services/governance-service/service.yaml
-- id: GOV-08
-  family: GOV
-  state: hosted
-  evidence:
-  - services/governance-service/service.yaml
-- id: GOV-09
-  family: GOV
-  state: hosted
-  evidence:
-  - services/governance-service/service.yaml
-- id: GOV-10
-  family: GOV
-  state: hosted
-  evidence:
-  - services/governance-service/service.yaml
-- id: GOV-11
-  family: GOV
-  state: verified
-  evidence:
-  - services/governance-service/service.yaml
-  - directivas de parada firmadas y monotónicas
-- id: GOV-12
-  family: GOV
-  state: hosted
-  evidence:
-  - services/governance-service/service.yaml
-- id: EXE-01
-  family: EXE
-  state: verified
-  evidence:
-  - services/execution-service/service.yaml
-  - unión plan-capacidad-argumentos en Rust
-- id: EXE-02
-  family: EXE
-  state: hosted
-  evidence:
-  - services/execution-service/service.yaml
-- id: EXE-03
-  family: EXE
-  state: verified
-  evidence:
-  - services/execution-service/service.yaml
-  - presupuestos validados por el ejecutor
-- id: EXE-04
-  family: EXE
-  state: hosted
-  evidence:
-  - services/execution-service/service.yaml
-- id: EXE-05
-  family: EXE
-  state: integrated
-  evidence:
-  - services/execution-service/service.yaml
-  - monitores internos fail-closed
-- id: EXE-06
-  family: EXE
-  state: hosted
-  evidence:
-  - services/execution-service/service.yaml
-- id: EXE-07
-  family: EXE
-  state: hosted
-  evidence:
-  - services/execution-service/service.yaml
-- id: EXE-08
-  family: EXE
-  state: verified
-  evidence:
-  - services/execution-service/service.yaml
-  - safe-stop durable verificado por clave pública
-- id: FED-01
-  family: FED
-  state: hosted
-  evidence:
-  - services/federation-service/service.yaml
-- id: FED-02
-  family: FED
-  state: hosted
-  evidence:
-  - services/federation-service/service.yaml
-- id: FED-03
-  family: FED
-  state: hosted
-  evidence:
-  - services/federation-service/service.yaml
-- id: FED-04
-  family: FED
-  state: hosted
-  evidence:
-  - services/federation-service/service.yaml
-- id: FED-05
-  family: FED
-  state: hosted
-  evidence:
-  - services/federation-service/service.yaml
-- id: FED-06
-  family: FED
-  state: hosted
-  evidence:
-  - services/federation-service/service.yaml
-- id: FED-07
-  family: FED
-  state: hosted
-  evidence:
-  - services/federation-service/service.yaml
-- id: FED-08
-  family: FED
-  state: hosted
-  evidence:
-  - services/federation-service/service.yaml
-- id: SEC-01
-  family: SEC
-  state: hosted
-  evidence:
-  - services/security-service/service.yaml
-- id: SEC-02
-  family: SEC
-  state: hosted
-  evidence:
-  - services/security-service/service.yaml
-- id: SEC-03
-  family: SEC
-  state: hosted
-  evidence:
-  - services/security-service/service.yaml
-- id: SEC-04
-  family: SEC
-  state: hosted
-  evidence:
-  - services/security-service/service.yaml
-- id: SEC-05
-  family: SEC
-  state: hosted
-  evidence:
-  - services/security-service/service.yaml
-- id: SEC-06
-  family: SEC
-  state: hosted
-  evidence:
-  - services/security-service/service.yaml
-- id: SEC-07
-  family: SEC
-  state: hosted
-  evidence:
-  - services/security-service/service.yaml
-- id: SEC-08
-  family: SEC
-  state: hosted
-  evidence:
-  - services/security-service/service.yaml
+  - tests/integration/test_plan_capability_binding.py
+  - tools/run_local_e2e.py
 - id: AUD-01
   family: AUD
   state: integrated
+  providers:
+  - id: audit.immutable-ledger
+    service: audit-service
+    runtime: python
+    endpoint: /v1/anchors
+    methods:
+    - POST
+    capabilities:
+    - receipt-chain-validation
+    - signed-merkle-anchor
   evidence:
+  - registry/modules/aud.yaml
   - services/audit-service/service.yaml
-  - registro append-only, cadena y anclas Merkle firmadas
+  - tests/security/test_audit_anchor.py
+  - tools/run_local_e2e.py
 - id: AUD-02
   family: AUD
   state: integrated
+  providers:
+  - id: audit.immutable-ledger
+    service: audit-service
+    runtime: python
+    endpoint: /v1/anchors
+    methods:
+    - POST
+    capabilities:
+    - receipt-chain-validation
+    - signed-merkle-anchor
   evidence:
+  - registry/modules/aud.yaml
   - services/audit-service/service.yaml
-  - traza intención-plan-consentimiento-capacidad-ejecución
+  - tests/security/test_audit_anchor.py
+  - tools/run_local_e2e.py
 - id: AUD-03
   family: AUD
-  state: hosted
+  state: declared
+  providers: []
   evidence:
-  - services/audit-service/service.yaml
+  - registry/modules/aud.yaml
 - id: AUD-04
   family: AUD
-  state: hosted
+  state: declared
+  providers: []
   evidence:
-  - services/audit-service/service.yaml
+  - registry/modules/aud.yaml
 - id: AUD-05
   family: AUD
-  state: hosted
+  state: declared
+  providers: []
   evidence:
-  - services/audit-service/service.yaml
+  - registry/modules/aud.yaml
 - id: AUD-06
   family: AUD
-  state: hosted
+  state: declared
+  providers: []
   evidence:
-  - services/audit-service/service.yaml
+  - registry/modules/aud.yaml
+- id: COG-01
+  family: COG
+  state: declared
+  providers: []
+  evidence:
+  - registry/modules/cog.yaml
+- id: COG-02
+  family: COG
+  state: declared
+  providers: []
+  evidence:
+  - registry/modules/cog.yaml
+- id: COG-03
+  family: COG
+  state: declared
+  providers: []
+  evidence:
+  - registry/modules/cog.yaml
+- id: COG-04
+  family: COG
+  state: declared
+  providers: []
+  evidence:
+  - registry/modules/cog.yaml
+- id: COG-05
+  family: COG
+  state: declared
+  providers: []
+  evidence:
+  - registry/modules/cog.yaml
+- id: COG-06
+  family: COG
+  state: declared
+  providers: []
+  evidence:
+  - registry/modules/cog.yaml
+- id: COG-07
+  family: COG
+  state: declared
+  providers: []
+  evidence:
+  - registry/modules/cog.yaml
+- id: COG-08
+  family: COG
+  state: integrated
+  providers:
+  - id: cognition.causal-cycle
+    service: cognition-service
+    runtime: python
+    endpoint: /v1/cycles
+    methods:
+    - POST
+    capabilities:
+    - working-context
+    - adversarial-critique
+    - uncertainty
+    - intent-compilation
+    - goal-decomposition
+  evidence:
+  - registry/modules/cog.yaml
+  - services/cognition-service/service.yaml
+  - tests/agent/test_cognitive_kernel.py
+  - tools/run_local_e2e.py
+- id: COG-09
+  family: COG
+  state: declared
+  providers: []
+  evidence:
+  - registry/modules/cog.yaml
+- id: COG-10
+  family: COG
+  state: integrated
+  providers:
+  - id: cognition.causal-cycle
+    service: cognition-service
+    runtime: python
+    endpoint: /v1/cycles
+    methods:
+    - POST
+    capabilities:
+    - working-context
+    - adversarial-critique
+    - uncertainty
+    - intent-compilation
+    - goal-decomposition
+  evidence:
+  - registry/modules/cog.yaml
+  - services/cognition-service/service.yaml
+  - tests/agent/test_cognitive_kernel.py
+  - tools/run_local_e2e.py
+- id: COG-11
+  family: COG
+  state: declared
+  providers: []
+  evidence:
+  - registry/modules/cog.yaml
+- id: COG-12
+  family: COG
+  state: declared
+  providers: []
+  evidence:
+  - registry/modules/cog.yaml
+- id: COG-13
+  family: COG
+  state: declared
+  providers: []
+  evidence:
+  - registry/modules/cog.yaml
 - id: EVO-01
   family: EVO
-  state: hosted
+  state: declared
+  providers: []
   evidence:
-  - services/evolution-service/service.yaml
+  - registry/modules/evo.yaml
 - id: EVO-02
   family: EVO
-  state: hosted
+  state: declared
+  providers: []
   evidence:
-  - services/evolution-service/service.yaml
+  - registry/modules/evo.yaml
 - id: EVO-03
   family: EVO
-  state: hosted
+  state: declared
+  providers: []
   evidence:
-  - services/evolution-service/service.yaml
+  - registry/modules/evo.yaml
 - id: EVO-04
   family: EVO
-  state: hosted
+  state: declared
+  providers: []
   evidence:
-  - services/evolution-service/service.yaml
+  - registry/modules/evo.yaml
 - id: EVO-05
   family: EVO
-  state: hosted
+  state: declared
+  providers: []
   evidence:
-  - services/evolution-service/service.yaml
+  - registry/modules/evo.yaml
 - id: EVO-06
   family: EVO
-  state: hosted
+  state: declared
+  providers: []
   evidence:
-  - services/evolution-service/service.yaml
+  - registry/modules/evo.yaml
 - id: EVO-07
   family: EVO
-  state: hosted
+  state: declared
+  providers: []
   evidence:
-  - services/evolution-service/service.yaml
-- id: TMP-01
-  family: TMP
-  state: hosted
+  - registry/modules/evo.yaml
+- id: EXE-01
+  family: EXE
+  state: verified
+  providers:
+  - id: execution.authorized-effect
+    service: execution-service
+    runtime: rust
+    endpoint: /v1/executions
+    methods:
+    - POST
+    capabilities:
+    - plan-capability-binding
+    - durable-budget-consumption
   evidence:
-  - services/temporal-service/service.yaml
-- id: TMP-02
-  family: TMP
-  state: hosted
+  - registry/modules/exe.yaml
+  - services/execution-service/service.yaml
+  - packages/rust/noosfera-execution-service/src/main.rs
+  - tests/integration/test_plan_capability_binding.py
+- id: EXE-02
+  family: EXE
+  state: declared
+  providers: []
   evidence:
-  - services/temporal-service/service.yaml
-- id: TMP-03
-  family: TMP
-  state: hosted
+  - registry/modules/exe.yaml
+- id: EXE-03
+  family: EXE
+  state: verified
+  providers:
+  - id: execution.authorized-effect
+    service: execution-service
+    runtime: rust
+    endpoint: /v1/executions
+    methods:
+    - POST
+    capabilities:
+    - plan-capability-binding
+    - durable-budget-consumption
   evidence:
-  - services/temporal-service/service.yaml
-- id: TMP-04
-  family: TMP
-  state: hosted
+  - registry/modules/exe.yaml
+  - services/execution-service/service.yaml
+  - packages/rust/noosfera-execution-service/src/main.rs
+  - tests/integration/test_plan_capability_binding.py
+- id: EXE-04
+  family: EXE
+  state: declared
+  providers: []
   evidence:
-  - services/temporal-service/service.yaml
-- id: TMP-05
-  family: TMP
-  state: hosted
+  - registry/modules/exe.yaml
+- id: EXE-05
+  family: EXE
+  state: integrated
+  providers:
+  - id: execution.mandatory-monitor
+    service: execution-service
+    runtime: rust
+    endpoint: /v1/executions
+    methods:
+    - POST
+    capabilities:
+    - fail-closed-internal-monitor
   evidence:
-  - services/temporal-service/service.yaml
+  - registry/modules/exe.yaml
+  - services/execution-service/service.yaml
+  - packages/rust/noosfera-execution-service/src/main.rs
+  - tests/chaos/test_mandatory_monitor_loss.py
+- id: EXE-06
+  family: EXE
+  state: declared
+  providers: []
+  evidence:
+  - registry/modules/exe.yaml
+- id: EXE-07
+  family: EXE
+  state: declared
+  providers: []
+  evidence:
+  - registry/modules/exe.yaml
+- id: EXE-08
+  family: EXE
+  state: verified
+  providers:
+  - id: execution.safe-stop
+    service: execution-service
+    runtime: rust
+    endpoint: /v1/stop
+    methods:
+    - POST
+    capabilities:
+    - durable-signed-stop
+    - durable-signed-revocation
+  evidence:
+  - registry/modules/exe.yaml
+  - services/execution-service/service.yaml
+  - packages/rust/noosfera-execution-service/src/main.rs
+  - tests/security/test_stop_channel.py
+- id: EXP-01
+  family: EXP
+  state: integrated
+  providers:
+  - id: experience.conversation-missions
+    service: experience-service
+    runtime: python
+    endpoint: /v1/conversations/{conversation_id}/messages
+    methods:
+    - POST
+    capabilities:
+    - conversation
+    - governed-mission
+    - response-streaming
+  evidence:
+  - registry/modules/exp.yaml
+  - services/experience-service/service.yaml
+  - tests/agent/test_api_flow.py
+  - tools/run_local_e2e.py
+- id: EXP-02
+  family: EXP
+  state: declared
+  providers: []
+  evidence:
+  - registry/modules/exp.yaml
+- id: EXP-03
+  family: EXP
+  state: declared
+  providers: []
+  evidence:
+  - registry/modules/exp.yaml
+- id: EXP-04
+  family: EXP
+  state: declared
+  providers: []
+  evidence:
+  - registry/modules/exp.yaml
+- id: EXP-05
+  family: EXP
+  state: integrated
+  providers:
+  - id: experience.consent-approval
+    service: experience-service
+    runtime: python
+    endpoint: /v1/missions/{mission_id}/approval
+    methods:
+    - POST
+    capabilities:
+    - plan-bound-approval
+    - memory-consent
+  evidence:
+  - registry/modules/exp.yaml
+  - services/experience-service/service.yaml
+  - tests/agent/test_api_flow.py
+  - tools/run_local_e2e.py
+- id: EXP-06
+  family: EXP
+  state: declared
+  providers: []
+  evidence:
+  - registry/modules/exp.yaml
+- id: FED-01
+  family: FED
+  state: declared
+  providers: []
+  evidence:
+  - registry/modules/fed.yaml
+- id: FED-02
+  family: FED
+  state: declared
+  providers: []
+  evidence:
+  - registry/modules/fed.yaml
+- id: FED-03
+  family: FED
+  state: declared
+  providers: []
+  evidence:
+  - registry/modules/fed.yaml
+- id: FED-04
+  family: FED
+  state: declared
+  providers: []
+  evidence:
+  - registry/modules/fed.yaml
+- id: FED-05
+  family: FED
+  state: declared
+  providers: []
+  evidence:
+  - registry/modules/fed.yaml
+- id: FED-06
+  family: FED
+  state: declared
+  providers: []
+  evidence:
+  - registry/modules/fed.yaml
+- id: FED-07
+  family: FED
+  state: declared
+  providers: []
+  evidence:
+  - registry/modules/fed.yaml
+- id: FED-08
+  family: FED
+  state: declared
+  providers: []
+  evidence:
+  - registry/modules/fed.yaml
+- id: GOV-01
+  family: GOV
+  state: integrated
+  providers:
+  - id: governance.constitutional-risk
+    service: governance-service
+    runtime: python
+    endpoint: /v1/decisions/evaluate
+    methods:
+    - POST
+    capabilities:
+    - opa-policy-decision
+    - risk-classification
+  evidence:
+  - registry/modules/gov.yaml
+  - services/governance-service/service.yaml
+  - tests/integration/test_plan_capability_binding.py
+  - policies/tests/constitution_test.rego
+- id: GOV-02
+  family: GOV
+  state: declared
+  providers: []
+  evidence:
+  - registry/modules/gov.yaml
+- id: GOV-03
+  family: GOV
+  state: integrated
+  providers:
+  - id: governance.constitutional-risk
+    service: governance-service
+    runtime: python
+    endpoint: /v1/decisions/evaluate
+    methods:
+    - POST
+    capabilities:
+    - opa-policy-decision
+    - risk-classification
+  evidence:
+  - registry/modules/gov.yaml
+  - services/governance-service/service.yaml
+  - tests/integration/test_plan_capability_binding.py
+  - policies/tests/constitution_test.rego
+- id: GOV-04
+  family: GOV
+  state: declared
+  providers: []
+  evidence:
+  - registry/modules/gov.yaml
+- id: GOV-05
+  family: GOV
+  state: integrated
+  providers:
+  - id: governance.mandate-check
+    service: governance-service
+    runtime: python
+    endpoint: /v1/memory/authorize
+    methods:
+    - POST
+    capabilities:
+    - identity-and-consent-binding
+  evidence:
+  - registry/modules/gov.yaml
+  - services/governance-service/service.yaml
+  - tests/security/test_authority_separation.py
+- id: GOV-06
+  family: GOV
+  state: verified
+  providers:
+  - id: governance.capability-issuer
+    service: governance-service
+    runtime: python
+    endpoint: /v1/capabilities
+    methods:
+    - POST
+    capabilities:
+    - ed25519-capability-issuance
+    - least-authority-budget
+  evidence:
+  - registry/modules/gov.yaml
+  - services/governance-service/service.yaml
+  - tests/security/test_authority_separation.py
+  - tests/integration/test_plan_capability_binding.py
+- id: GOV-07
+  family: GOV
+  state: declared
+  providers: []
+  evidence:
+  - registry/modules/gov.yaml
+- id: GOV-08
+  family: GOV
+  state: declared
+  providers: []
+  evidence:
+  - registry/modules/gov.yaml
+- id: GOV-09
+  family: GOV
+  state: declared
+  providers: []
+  evidence:
+  - registry/modules/gov.yaml
+- id: GOV-10
+  family: GOV
+  state: declared
+  providers: []
+  evidence:
+  - registry/modules/gov.yaml
+- id: GOV-11
+  family: GOV
+  state: verified
+  providers:
+  - id: governance.emergency-control
+    service: governance-service
+    runtime: python
+    endpoint: /v1/stop-directives
+    methods:
+    - POST
+    capabilities:
+    - signed-safe-stop
+    - signed-revocation
+  evidence:
+  - registry/modules/gov.yaml
+  - services/governance-service/service.yaml
+  - tests/security/test_stop_channel.py
+  - tools/run_local_e2e.py
+- id: GOV-12
+  family: GOV
+  state: declared
+  providers: []
+  evidence:
+  - registry/modules/gov.yaml
+- id: IDN-01
+  family: IDN
+  state: integrated
+  providers:
+  - id: identity.local-credentials
+    service: identity-service
+    runtime: python
+    endpoint: /v1/auth/login
+    methods:
+    - POST
+    capabilities:
+    - local-authentication
+    - signed-access-token
+  evidence:
+  - registry/modules/idn.yaml
+  - services/identity-service/service.yaml
+  - tests/agent/test_auth.py
+  - tests/security/test_authority_separation.py
+- id: IDN-02
+  family: IDN
+  state: declared
+  providers: []
+  evidence:
+  - registry/modules/idn.yaml
+- id: IDN-03
+  family: IDN
+  state: declared
+  providers: []
+  evidence:
+  - registry/modules/idn.yaml
+- id: IDN-04
+  family: IDN
+  state: integrated
+  providers:
+  - id: identity.current-will
+    service: identity-service
+    runtime: python
+    endpoint: /v1/approvals
+    methods:
+    - POST
+    capabilities:
+    - signed-plan-bound-approval
+  evidence:
+  - registry/modules/idn.yaml
+  - services/identity-service/service.yaml
+  - tests/security/test_authority_separation.py
+  - tools/run_local_e2e.py
+- id: IDN-05
+  family: IDN
+  state: declared
+  providers: []
+  evidence:
+  - registry/modules/idn.yaml
+- id: MEM-01
+  family: MEM
+  state: integrated
+  providers:
+  - id: cognition.causal-cycle
+    service: cognition-service
+    runtime: python
+    endpoint: /v1/cycles
+    methods:
+    - POST
+    capabilities:
+    - working-context
+    - adversarial-critique
+    - uncertainty
+    - intent-compilation
+    - goal-decomposition
+  evidence:
+  - registry/modules/mem.yaml
+  - services/cognition-service/service.yaml
+  - tests/agent/test_cognitive_kernel.py
+  - tools/run_local_e2e.py
+- id: MEM-02
+  family: MEM
+  state: integrated
+  providers:
+  - id: experience.personal-memory
+    service: experience-service
+    runtime: python
+    endpoint: /v1/memories
+    methods:
+    - GET
+    capabilities:
+    - consented-memory-read
+  evidence:
+  - registry/modules/mem.yaml
+  - services/experience-service/service.yaml
+  - tests/agent/test_api_flow.py
+  - tools/run_local_e2e.py
+- id: MEM-03
+  family: MEM
+  state: declared
+  providers: []
+  evidence:
+  - registry/modules/mem.yaml
+- id: MEM-04
+  family: MEM
+  state: integrated
+  providers:
+  - id: cognition.belief-store
+    service: cognition-service
+    runtime: python
+    endpoint: /v1/beliefs/{user_id}
+    methods:
+    - GET
+    capabilities:
+    - provenance-bearing-belief-read
+  evidence:
+  - registry/modules/mem.yaml
+  - services/cognition-service/service.yaml
+  - tests/agent/test_cognitive_kernel.py
+- id: MEM-05
+  family: MEM
+  state: declared
+  providers: []
+  evidence:
+  - registry/modules/mem.yaml
+- id: MEM-06
+  family: MEM
+  state: integrated
+  providers:
+  - id: experience.memory-erasure
+    service: experience-service
+    runtime: python
+    endpoint: /v1/memories/{memory_id}
+    methods:
+    - DELETE
+    capabilities:
+    - subject-controlled-memory-delete
+  evidence:
+  - registry/modules/mem.yaml
+  - services/experience-service/service.yaml
+  - tests/agent/test_api_flow.py
+- id: MEM-07
+  family: MEM
+  state: declared
+  providers: []
+  evidence:
+  - registry/modules/mem.yaml
+- id: MEM-08
+  family: MEM
+  state: declared
+  providers: []
+  evidence:
+  - registry/modules/mem.yaml
+- id: PER-01
+  family: PER
+  state: declared
+  providers: []
+  evidence:
+  - registry/modules/per.yaml
+- id: PER-02
+  family: PER
+  state: declared
+  providers: []
+  evidence:
+  - registry/modules/per.yaml
+- id: PER-03
+  family: PER
+  state: declared
+  providers: []
+  evidence:
+  - registry/modules/per.yaml
+- id: PER-04
+  family: PER
+  state: declared
+  providers: []
+  evidence:
+  - registry/modules/per.yaml
+- id: PER-05
+  family: PER
+  state: declared
+  providers: []
+  evidence:
+  - registry/modules/per.yaml
 - id: RES-01
   family: RES
-  state: hosted
+  state: declared
+  providers: []
   evidence:
-  - services/resource-service/service.yaml
+  - registry/modules/res.yaml
 - id: RES-02
   family: RES
-  state: hosted
+  state: declared
+  providers: []
   evidence:
-  - services/resource-service/service.yaml
+  - registry/modules/res.yaml
 - id: RES-03
   family: RES
-  state: hosted
+  state: declared
+  providers: []
   evidence:
-  - services/resource-service/service.yaml
+  - registry/modules/res.yaml
 - id: RES-04
   family: RES
-  state: hosted
+  state: declared
+  providers: []
   evidence:
-  - services/resource-service/service.yaml
+  - registry/modules/res.yaml
 - id: RES-05
   family: RES
-  state: hosted
+  state: declared
+  providers: []
   evidence:
-  - services/resource-service/service.yaml
+  - registry/modules/res.yaml
 - id: RES-06
   family: RES
-  state: hosted
+  state: declared
+  providers: []
   evidence:
-  - services/resource-service/service.yaml
+  - registry/modules/res.yaml
+- id: SEC-01
+  family: SEC
+  state: declared
+  providers: []
+  evidence:
+  - registry/modules/sec.yaml
+- id: SEC-02
+  family: SEC
+  state: declared
+  providers: []
+  evidence:
+  - registry/modules/sec.yaml
+- id: SEC-03
+  family: SEC
+  state: declared
+  providers: []
+  evidence:
+  - registry/modules/sec.yaml
+- id: SEC-04
+  family: SEC
+  state: declared
+  providers: []
+  evidence:
+  - registry/modules/sec.yaml
+- id: SEC-05
+  family: SEC
+  state: declared
+  providers: []
+  evidence:
+  - registry/modules/sec.yaml
+- id: SEC-06
+  family: SEC
+  state: declared
+  providers: []
+  evidence:
+  - registry/modules/sec.yaml
+- id: SEC-07
+  family: SEC
+  state: declared
+  providers: []
+  evidence:
+  - registry/modules/sec.yaml
+- id: SEC-08
+  family: SEC
+  state: declared
+  providers: []
+  evidence:
+  - registry/modules/sec.yaml
+- id: TMP-01
+  family: TMP
+  state: declared
+  providers: []
+  evidence:
+  - registry/modules/tmp.yaml
+- id: TMP-02
+  family: TMP
+  state: declared
+  providers: []
+  evidence:
+  - registry/modules/tmp.yaml
+- id: TMP-03
+  family: TMP
+  state: declared
+  providers: []
+  evidence:
+  - registry/modules/tmp.yaml
+- id: TMP-04
+  family: TMP
+  state: declared
+  providers: []
+  evidence:
+  - registry/modules/tmp.yaml
+- id: TMP-05
+  family: TMP
+  state: declared
+  providers: []
+  evidence:
+  - registry/modules/tmp.yaml

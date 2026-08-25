@@ -14,6 +14,7 @@ from noosfera_core.agent.cognition import CognitionRejected, CognitiveCycleStore
 from noosfera_core.agent.models import Belief, CognitiveCycle
 from noosfera_core.config import Settings
 from noosfera_core.manifest import load_service_manifest
+from noosfera_core.module_registry import install_runtime_module_registry
 
 
 class CycleRequest(BaseModel):
@@ -97,4 +98,4 @@ def create_cognition_app(
         authorize(service_token)
         return await cycles.list_beliefs(user_id)
 
-    return app
+    return install_runtime_module_registry(app, manifest)

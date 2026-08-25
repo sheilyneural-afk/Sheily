@@ -1,87 +1,87 @@
 #!/usr/bin/env python3
-"""Genera el inventario explícito de madurez de los 105 módulos."""
+"""Genera madurez desde módulos y proveedores descubiertos, sin cifras fijas."""
 
 from __future__ import annotations
 
+import copy
 from pathlib import Path
+from typing import Any
 
 import yaml
 
 ROOT = Path(__file__).resolve().parents[1]
 OUTPUT = ROOT / "registry" / "module-maturity.yaml"
-
-INTEGRATED = {
-    "EXP-01": "API de conversación y documentos",
-    "EXP-05": "consentimiento firmado ligado a misión/plan",
-    "IDN-01": "identidad local Ed25519 y tokens verificables",
-    "IDN-04": "comprobante de voluntad actual firmado",
-    "MEM-01": "ciclo cognitivo como memoria de trabajo",
-    "MEM-02": "memoria personal consentida con borrado",
-    "MEM-04": "creencias semánticas consolidadas por procedencia",
-    "MEM-05": "hashes de contexto, evidencia y recibos",
-    "MEM-06": "retención y borrado lógico consentido",
-    "COG-08": "frontera de acciones con crítico y abstención",
-    "COG-10": "incertidumbre y suficiencia de evidencia explícitas",
-    "AGY-01": "petición convertida en plan estructurado",
-    "AGY-03": "objetivo descompuesto en pasos y criterios",
-    "AGY-04": "plan causal generado fuera del LLM",
-    "AGY-06": "máquina de estados de misión persistente",
-    "AGY-07": "validación de dependencias, alcance y presupuestos",
-    "AGY-08": "vinculación hash de objetivo, contexto y plan",
-    "GOV-01": "políticas constitucionales OPA",
-    "GOV-03": "clasificación de riesgo OPA",
-    "GOV-05": "mandato ligado a identidad y consentimiento",
-    "GOV-06": "emisor independiente de capacidades Ed25519",
-    "GOV-11": "directivas de parada firmadas y monotónicas",
-    "EXE-01": "unión plan-capacidad-argumentos en Rust",
-    "EXE-03": "presupuestos validados por el ejecutor",
-    "EXE-05": "monitores internos fail-closed",
-    "EXE-08": "safe-stop durable verificado por clave pública",
-    "AUD-01": "registro append-only, cadena y anclas Merkle firmadas",
-    "AUD-02": "traza intención-plan-consentimiento-capacidad-ejecución",
+STATE_RANK = {
+    "declared": 0,
+    "implemented": 1,
+    "integrated": 2,
+    "verified": 3,
+    "production-ready": 4,
 }
 
-VERIFIED = {
-    "AGY-04",
-    "AGY-06",
-    "GOV-06",
-    "GOV-11",
-    "EXE-01",
-    "EXE-03",
-    "EXE-08",
-}
+
+def discover_module_files() -> list[Path]:
+    index = yaml.safe_load((ROOT / "registry/modules/index.yaml").read_text(encoding="utf-8"))
+    discovery = index["discovery"]
+    excluded = set(discovery.get("exclude", []))
+    return [
+        path
+        for path in sorted(ROOT.glob(discovery["pattern"]))
+        if path.relative_to(ROOT).as_posix() not in excluded
+    ]
 
 
 def main() -> None:
-    index = yaml.safe_load((ROOT / "registry/modules/index.yaml").read_text(encoding="utf-8"))
-    entries: list[dict[str, object]] = []
-    for family, relative in index["families"].items():
-        payload = yaml.safe_load((ROOT / relative).read_text(encoding="utf-8"))
+    modules: dict[str, dict[str, Any]] = {}
+    for path in discover_module_files():
+        payload = yaml.safe_load(path.read_text(encoding="utf-8"))
         for module in payload["modules"]:
-            module_id = module["id"]
-            state = "hosted"
-            evidence: list[str] = [f"services/{payload['service']}/service.yaml"]
-            if module_id in INTEGRATED:
-                state = "verified" if module_id in VERIFIED else "integrated"
-                evidence.append(INTEGRATED[module_id])
-            entries.append(
-                {
-                    "id": module_id,
-                    "family": family,
-                    "state": state,
-                    "evidence": evidence,
-                }
-            )
+            modules[module["id"]] = {
+                "id": module["id"],
+                "family": payload["family"],
+                "state": "declared",
+                "providers": [],
+                "evidence": [path.relative_to(ROOT).as_posix()],
+            }
+
+    provider_count = 0
+    for manifest_path in sorted((ROOT / "services").glob("*/service.yaml")):
+        manifest = yaml.safe_load(manifest_path.read_text(encoding="utf-8"))
+        for provider in manifest.get("providers", []):
+            provider_count += 1
+            provider_view = {
+                "id": provider["id"],
+                "service": manifest["id"],
+                "runtime": manifest["runtime"],
+                "endpoint": provider["endpoint"],
+                "methods": provider["methods"],
+                "capabilities": provider["capabilities"],
+            }
+            for module_id in provider["modules"]:
+                entry = modules[module_id]
+                entry["providers"].append(copy.deepcopy(provider_view))
+                if STATE_RANK[provider["maturity"]] > STATE_RANK[entry["state"]]:
+                    entry["state"] = provider["maturity"]
+                for evidence in [
+                    manifest_path.relative_to(ROOT).as_posix(),
+                    *provider["evidence"],
+                ]:
+                    if evidence not in entry["evidence"]:
+                        entry["evidence"].append(evidence)
+
+    entries = sorted(modules.values(), key=lambda item: item["id"])
     document = {
-        "version": 1,
-        "states": [
-            "declared",
-            "hosted",
-            "implemented",
-            "integrated",
-            "verified",
-            "production-ready",
-        ],
+        "version": 2,
+        "counts": {
+            "modules_discovered": len(entries),
+            "providers_registered": provider_count,
+            "modules_with_providers": sum(bool(item["providers"]) for item in entries),
+            "modules_declared_only": sum(not item["providers"] for item in entries),
+        },
+        "states": list(STATE_RANK),
+        "runtime_note": (
+            "registered providers are claims; /v1/modules is authoritative for loaded routes"
+        ),
         "modules": entries,
     }
     OUTPUT.write_text(

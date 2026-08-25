@@ -12,6 +12,29 @@
     "runtime": {"enum": ["python", "rust", "typescript"]},
     "target_runtime": {"enum": ["python", "rust", "typescript"]},
     "modules": {"type": "array", "items": {"pattern": "^[A-Z]{3}-[0-9]{2}$"}, "minItems": 1, "uniqueItems": true},
+    "providers": {
+      "type": "array",
+      "default": [],
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "modules", "endpoint", "methods", "maturity", "capabilities", "evidence"],
+        "properties": {
+          "id": {"type": "string", "pattern": "^[a-z][a-z0-9.-]+$"},
+          "modules": {"type": "array", "items": {"pattern": "^[A-Z]{3}-[0-9]{2}$"}, "minItems": 1, "uniqueItems": true},
+          "endpoint": {"type": "string", "pattern": "^/"},
+          "methods": {
+            "type": "array",
+            "items": {"enum": ["GET", "POST", "PUT", "PATCH", "DELETE"]},
+            "minItems": 1,
+            "uniqueItems": true
+          },
+          "maturity": {"enum": ["implemented", "integrated", "verified", "production-ready"]},
+          "capabilities": {"type": "array", "items": {"type": "string", "minLength": 1}, "minItems": 1, "uniqueItems": true},
+          "evidence": {"type": "array", "items": {"type": "string", "minLength": 1}, "minItems": 1, "uniqueItems": true}
+        }
+      }
+    },
     "inbound_buses": {"type": "array", "items": {"pattern": "^BUS-[A-Z]{3}$"}},
     "outbound_buses": {"type": "array", "items": {"pattern": "^BUS-[A-Z]{3}$"}},
     "data_stores": {"type": "array", "items": {"type": "string"}},

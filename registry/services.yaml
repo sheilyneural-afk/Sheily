@@ -7,7 +7,7 @@ services:
   - {id: cognition-service, family: COG, runtime: python, risk: high, port: 8105}
   - {id: agency-service, family: AGY, runtime: python, risk: high, port: 8106}
   - {id: governance-service, family: GOV, runtime: python, target_runtime: rust, risk: critical, port: 8107}
-  - {id: execution-service, family: EXE, runtime: python, target_runtime: rust, risk: critical, port: 8108}
+  - {id: execution-service, family: EXE, runtime: rust, risk: critical, port: 8108}
   - {id: federation-service, family: FED, runtime: python, target_runtime: rust, risk: critical, port: 8109}
   - {id: security-service, family: SEC, runtime: python, target_runtime: rust, risk: critical, port: 8110}
   - {id: audit-service, family: AUD, runtime: python, target_runtime: rust, risk: critical, port: 8111}

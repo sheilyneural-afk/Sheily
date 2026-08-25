@@ -3,6 +3,21 @@ family: AGY
 version: 0.3.0
 runtime: python
 modules: [AGY-01, AGY-02, AGY-03, AGY-04, AGY-05, AGY-06, AGY-07, AGY-08]
+providers:
+  - id: agency.plan-dependencies
+    modules: [AGY-07]
+    endpoint: /v1/plans/attest
+    methods: [POST]
+    maturity: integrated
+    capabilities: [dependency-validation, budget-validation]
+    evidence: [tests/integration/test_plan_capability_binding.py]
+  - id: agency.goal-binding
+    modules: [AGY-08]
+    endpoint: /v1/plans/attest
+    methods: [POST]
+    maturity: verified
+    capabilities: [signed-plan-attestation, scope-binding]
+    evidence: [tests/integration/test_plan_capability_binding.py, tools/run_local_e2e.py]
 inbound_buses: [BUS-INT, BUS-EVI, BUS-AUT, BUS-STA]
 outbound_buses: [BUS-INT, BUS-EVI, BUS-STP, BUS-AUD]
 data_stores: [postgres-missions, object-store-plans]
