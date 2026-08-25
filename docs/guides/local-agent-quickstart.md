@@ -9,7 +9,7 @@
 ## Inicio
 
 ```bash
-cp .env.example .env
+cp .env.example deploy/local/.env
 ```
 
 Cambie como mínimo `NOOSFERA_LOCAL_PASSWORD` y `NOOSFERA_INTERNAL_SERVICE_TOKEN`. Para un entorno que no sea de desarrollo genere cuatro pares Ed25519 distintos para Identity, Agency, Governance y Audit. Las claves privadas se inyectan únicamente en su servicio propietario; Experience y Rust reciben solo claves públicas.
@@ -25,11 +25,17 @@ Servicios de uso humano:
 - Consola personal: `http://localhost:3001`
 - Consola operacional: `http://localhost:3002`
 
+Las consolas encaminan `/v1/*` y `/health/*` al servicio Experience por la red
+privada de Compose. El navegador nunca necesita acceder directamente al puerto
+8101 y una publicación HTTPS puede exponer una sola dirección. `localhost` solo
+es válido desde un navegador que se ejecute en la misma máquina que Docker; para
+otro equipo se requiere un proxy o túnel autenticado y no deben utilizarse los
+secretos de desarrollo.
+
 Si alguno de esos puertos ya está ocupado, cámbielo sin editar Compose, por ejemplo:
 
 ```bash
 NOOSFERA_OPERATOR_CONSOLE_PORT=3003 \
-NOOSFERA_CORS_ORIGINS=http://localhost:3001,http://localhost:3003 \
 docker compose -f deploy/local/docker-compose.yml up -d operator-console experience-service
 ```
 - Ollama: `http://localhost:11434`

@@ -44,6 +44,8 @@ def actual_files() -> set[str]:
     for path in ROOT.rglob("*"):
         if not path.is_file() or any(part in IGNORED_PARTS for part in path.parts):
             continue
+        if path.name == ".env":
+            continue
         if path.parts[-2:] == ("artifacts", "runtime"):
             continue
         result.add(path.relative_to(ROOT).as_posix())

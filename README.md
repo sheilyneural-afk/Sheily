@@ -36,7 +36,7 @@ make local-up
 make model-pull
 ```
 
-Después, abra la consola personal en `http://localhost:3001` o la operacional en `http://localhost:3002`. La guía completa está en [`docs/guides/local-agent-quickstart.md`](docs/guides/local-agent-quickstart.md).
+Después, desde la misma máquina que ejecuta Docker, abra la consola personal en `http://localhost:3001` o la operacional en `http://localhost:3002`. Ambas usan un proxy de mismo origen hacia Experience; para acceder desde otra red se necesita una publicación HTTPS autenticada. La guía completa está en [`docs/guides/local-agent-quickstart.md`](docs/guides/local-agent-quickstart.md).
 
 ## Navegación
 

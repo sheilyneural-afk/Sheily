@@ -1,6 +1,6 @@
 version: 1
 architecture_version: 0.3.0
-expected_file_count: 429
+expected_file_count: 430
 closure: every repository file outside generated and VCS directories must be listed
 ownership_rules:
 - prefix: .github/
@@ -168,6 +168,7 @@ files:
 - deploy/images/execution-service.Containerfile
 - deploy/images/reference-service.Containerfile
 - deploy/local/docker-compose.yml
+- deploy/nginx/console.conf
 - deploy/services/agency-service.yaml
 - deploy/services/audit-service.yaml
 - deploy/services/cognition-service.yaml

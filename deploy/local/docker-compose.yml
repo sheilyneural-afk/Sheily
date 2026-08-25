@@ -199,7 +199,7 @@ services:
     build:
       context: ../..
       dockerfile: deploy/images/console.Containerfile
-      args: {APP_NAME: personal-console, VITE_SHEILY_API_URL: http://localhost:8101}
+      args: {APP_NAME: personal-console, VITE_SHEILY_API_URL: ""}
     depends_on: [experience-service]
     read_only: true
     tmpfs: [/tmp, /var/cache/nginx, /var/run]
@@ -211,7 +211,7 @@ services:
     build:
       context: ../..
       dockerfile: deploy/images/console.Containerfile
-      args: {APP_NAME: operator-console, VITE_SHEILY_API_URL: http://localhost:8101}
+      args: {APP_NAME: operator-console, VITE_SHEILY_API_URL: ""}
     depends_on: [experience-service]
     read_only: true
     tmpfs: [/tmp, /var/cache/nginx, /var/run]
