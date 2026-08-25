@@ -11,7 +11,11 @@ from fastapi import FastAPI, Header, HTTPException, Query
 
 from noosfera_core.agent.audit_anchor import AuditAnchorStore, AuditIntegrityError
 from noosfera_core.agent.crypto import Ed25519Signer
-from noosfera_core.agent.models import AuditAnchor
+from noosfera_core.agent.document_verification import (
+    DocumentEvidenceVerifier,
+    EvidenceVerificationRejected,
+)
+from noosfera_core.agent.models import AuditAnchor, DocumentVerificationInput, ModelOutput
 from noosfera_core.config import Settings
 from noosfera_core.manifest import load_service_manifest
 from noosfera_core.module_registry import install_runtime_module_registry
@@ -30,6 +34,7 @@ def create_audit_app(
         active.database_url,
         Ed25519Signer(active.audit_private_key_b64, key_id=active.audit_key_id),
     )
+    document_verifier = DocumentEvidenceVerifier(runtime.signer)
 
     @asynccontextmanager
     async def lifespan(app: FastAPI) -> AsyncIterator[None]:
@@ -73,5 +78,18 @@ def create_audit_app(
     ) -> list[AuditAnchor]:
         authorize(service_token)
         return await runtime.list_anchors(limit)
+
+    @app.post("/v1/document-verifications", response_model=ModelOutput)
+    async def verify_document_report(
+        request: DocumentVerificationInput,
+        service_token: str | None = Header(default=None, alias="X-Noosfera-Service-Token"),
+    ) -> ModelOutput:
+        authorize(service_token)
+        try:
+            output = await document_verifier.verify(request)
+        except EvidenceVerificationRejected as exc:
+            raise HTTPException(status_code=422, detail=str(exc)) from exc
+        await runtime.save_document_verification(output)
+        return output
 
     return install_runtime_module_registry(app, manifest)

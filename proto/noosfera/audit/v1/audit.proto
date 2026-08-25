@@ -50,7 +50,32 @@ message CreateAnchorResponse {
   AuditAnchor anchor = 1;
 }
 
+message DocumentVerificationReport {
+  string status = 1;
+  string verification_method = 2;
+  bytes evidence_bundle_hash = 3;
+  bytes report_hash = 4;
+  repeated string verified_claim_ids = 5;
+  repeated string rejected_claim_ids = 6;
+  repeated string open_objections = 7;
+  google.protobuf.Timestamp signed_at = 8;
+  string key_id = 9;
+  string algorithm = 10;
+  bytes signature = 11;
+}
+
+message VerifyDocumentRequest {
+  bytes document_evidence_context = 1;
+  bytes model_draft = 2;
+}
+
+message VerifyDocumentResponse {
+  bytes verified_output = 1;
+  DocumentVerificationReport report = 2;
+}
+
 service AuditService {
   rpc Append(AppendRequest) returns (AppendResponse);
   rpc CreateAnchor(CreateAnchorRequest) returns (CreateAnchorResponse);
+  rpc VerifyDocument(VerifyDocumentRequest) returns (VerifyDocumentResponse);
 }

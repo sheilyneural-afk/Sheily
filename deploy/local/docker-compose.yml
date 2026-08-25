@@ -23,6 +23,8 @@ x-noosfera-service: &noosfera-service
     NOOSFERA_COGNITION_URL: http://cognition-service:8080
     NOOSFERA_AGENCY_URL: http://agency-service:8080
     NOOSFERA_GOVERNANCE_URL: http://governance-service:8080
+    NOOSFERA_AUDIT_URL: http://audit-service:8080
+    NOOSFERA_DOCUMENT_VERIFICATION_BACKEND: remote
     NOOSFERA_IDENTITY_BACKEND: remote
     NOOSFERA_COGNITION_BACKEND: remote
     NOOSFERA_AGENCY_BACKEND: remote
@@ -31,14 +33,18 @@ x-noosfera-service: &noosfera-service
     NOOSFERA_MODEL_PROVIDER: ${NOOSFERA_MODEL_PROVIDER:-ollama}
     NOOSFERA_MODEL_NAME: ${NOOSFERA_MODEL_NAME:-qwen3:8b}
     NOOSFERA_MODEL_ALLOW_REMOTE: ${NOOSFERA_MODEL_ALLOW_REMOTE:-false}
-    NOOSFERA_MODEL_TIMEOUT_SECONDS: ${NOOSFERA_MODEL_TIMEOUT_SECONDS:-120}
+    NOOSFERA_MODEL_TIMEOUT_SECONDS: ${NOOSFERA_MODEL_TIMEOUT_SECONDS:-600}
+    NOOSFERA_MODEL_MAX_CONCURRENCY: ${NOOSFERA_MODEL_MAX_CONCURRENCY:-1}
     NOOSFERA_MODEL_MAX_INPUT_CHARS: ${NOOSFERA_MODEL_MAX_INPUT_CHARS:-200000}
+    NOOSFERA_MODEL_DOCUMENT_MAX_BLOCKS: ${NOOSFERA_MODEL_DOCUMENT_MAX_BLOCKS:-32}
     NOOSFERA_MODEL_CONTEXT_TOKENS: ${NOOSFERA_MODEL_CONTEXT_TOKENS:-32768}
     NOOSFERA_MODEL_OUTPUT_TOKENS: ${NOOSFERA_MODEL_OUTPUT_TOKENS:-4096}
+    NOOSFERA_SELF_MODEL_REGISTRY_PATH: /app/registry
+    NOOSFERA_RUNTIME_REGISTRY_URLS: experience-service=http://experience-service:8080,identity-service=http://identity-service:8080,memory-service=http://memory-service:8080,perception-service=http://perception-service:8080,cognition-service=http://cognition-service:8080,agency-service=http://agency-service:8080,governance-service=http://governance-service:8080,execution-service=http://execution-service:8080,federation-service=http://federation-service:8080,security-service=http://security-service:8080,audit-service=http://audit-service:8080,evolution-service=http://evolution-service:8080,temporal-service=http://temporal-service:8080,resource-service=http://resource-service:8080
     NOOSFERA_MAX_DOCUMENT_BYTES: ${NOOSFERA_MAX_DOCUMENT_BYTES:-5000000}
     NOOSFERA_MAX_OUTPUT_BYTES: ${NOOSFERA_MAX_OUTPUT_BYTES:-250000}
     NOOSFERA_LOCAL_USERNAME: ${NOOSFERA_LOCAL_USERNAME:-sheily}
-    NOOSFERA_LOCAL_PASSWORD: ${NOOSFERA_LOCAL_PASSWORD:-change-me-local}
+    NOOSFERA_LOCAL_PASSWORD: ${NOOSFERA_LOCAL_PASSWORD:-sheily}
     NOOSFERA_INTERNAL_SERVICE_TOKEN: ${NOOSFERA_INTERNAL_SERVICE_TOKEN:-local-internal-service-token-change-me}
     NOOSFERA_IDENTITY_KEY_ID: ${NOOSFERA_IDENTITY_KEY_ID:-identity-local-v1}
     NOOSFERA_IDENTITY_PUBLIC_KEY_B64: ${NOOSFERA_IDENTITY_PUBLIC_KEY_B64:-exnDIf2q8iXSzoTw0cuNx3YEmeVS7DNcVIIB7pPPcHg=}
@@ -158,6 +164,8 @@ services:
       NOOSFERA_DATABASE_URL: postgresql://noosfera:noosfera@postgres:5432/noosfera
       NOOSFERA_GOVERNANCE_KEY_ID: ${NOOSFERA_GOVERNANCE_KEY_ID:-governance-local-v1}
       NOOSFERA_GOVERNANCE_PUBLIC_KEY_B64: ${NOOSFERA_GOVERNANCE_PUBLIC_KEY_B64:-IrJbc2jDxJLC4UnngrXD4MAMz1PCOkfvSPAu064Vg3c=}
+      NOOSFERA_AUDIT_KEY_ID: ${NOOSFERA_AUDIT_KEY_ID:-audit-local-v1}
+      NOOSFERA_AUDIT_PUBLIC_KEY_B64: ${NOOSFERA_AUDIT_PUBLIC_KEY_B64:-TdIFu4tTVfVgNGcq5iU5XdNNOI+CZyeHNlQkUyviV2g=}
     restart: unless-stopped
     read_only: true
     tmpfs: [/tmp]

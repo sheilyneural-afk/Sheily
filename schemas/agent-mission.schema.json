@@ -65,7 +65,16 @@
           "required": ["answer", "citations"],
           "properties": {
             "answer": {"type": "string", "minLength": 1, "maxLength": 100000},
-            "citations": {"type": "array", "maxItems": 100, "items": {"type": "object", "additionalProperties": false, "required": ["document_id", "label"], "properties": {"document_id": {"$ref": "common.schema.json#/$defs/urn"}, "label": {"type": "string"}}}},
+            "citations": {"type": "array", "maxItems": 100, "items": {"type": "object", "additionalProperties": false, "required": ["evidence_id", "document_id", "version_id", "block_id", "label", "quote", "page_number", "section_path", "relation"], "properties": {"evidence_id": {"type": "string", "minLength": 1}, "document_id": {"$ref": "common.schema.json#/$defs/urn"}, "version_id": {"$ref": "common.schema.json#/$defs/urn"}, "block_id": {"$ref": "common.schema.json#/$defs/urn"}, "label": {"type": "string"}, "quote": {"type": "string", "minLength": 1}, "page_number": {"type": ["integer", "null"], "minimum": 1}, "section_path": {"type": "array", "items": {"type": "string"}}, "relation": {"enum": ["supports", "contradicts", "limits"]}}}},
+            "claims": {"type": "array", "items": {"type": "object"}},
+            "contradictions": {"type": "array", "items": {"type": "object"}},
+            "limitations": {"type": "array", "items": {"type": "object"}},
+            "unknowns": {"type": "array", "items": {"type": "string"}},
+            "assumptions": {"type": "array", "items": {"type": "string"}},
+            "coverage": {"type": ["object", "null"]},
+            "evidence_bundle": {"type": ["object", "null"]},
+            "verification_report": {"oneOf": [{"type": "null"}, {"$ref": "document-verification-report.schema.json"}]},
+            "system_evidence": {"type": "array", "maxItems": 20, "items": {"type": "object"}},
             "internal_state_claims": {"type": "array", "maxItems": 20, "items": {"type": "object"}}
           }
         }

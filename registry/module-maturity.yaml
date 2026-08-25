@@ -1,9 +1,9 @@
 version: 2
 counts:
   modules_discovered: 105
-  providers_registered: 19
-  modules_with_providers: 27
-  modules_declared_only: 78
+  providers_registered: 22
+  modules_with_providers: 36
+  modules_declared_only: 69
 states:
 - declared
 - implemented
@@ -177,16 +177,46 @@ modules:
   - tools/run_local_e2e.py
 - id: AUD-03
   family: AUD
-  state: declared
-  providers: []
+  state: verified
+  providers:
+  - id: audit.document-evidence-verification
+    service: audit-service
+    runtime: python
+    endpoint: /v1/document-verifications
+    methods:
+    - POST
+    capabilities:
+    - exact-quote-verification
+    - claim-evidence-binding
+    - coverage-and-critical-omission-detection
+    - signed-evidence-bundle
+    - open-objection-preservation
   evidence:
   - registry/modules/aud.yaml
+  - services/audit-service/service.yaml
+  - tests/agent/test_document_intelligence.py
+  - packages/rust/noosfera-execution-service/src/main.rs
 - id: AUD-04
   family: AUD
-  state: declared
-  providers: []
+  state: verified
+  providers:
+  - id: audit.document-evidence-verification
+    service: audit-service
+    runtime: python
+    endpoint: /v1/document-verifications
+    methods:
+    - POST
+    capabilities:
+    - exact-quote-verification
+    - claim-evidence-binding
+    - coverage-and-critical-omission-detection
+    - signed-evidence-bundle
+    - open-objection-preservation
   evidence:
   - registry/modules/aud.yaml
+  - services/audit-service/service.yaml
+  - tests/agent/test_document_intelligence.py
+  - packages/rust/noosfera-execution-service/src/main.rs
 - id: AUD-05
   family: AUD
   state: declared
@@ -195,10 +225,25 @@ modules:
   - registry/modules/aud.yaml
 - id: AUD-06
   family: AUD
-  state: declared
-  providers: []
+  state: verified
+  providers:
+  - id: audit.document-evidence-verification
+    service: audit-service
+    runtime: python
+    endpoint: /v1/document-verifications
+    methods:
+    - POST
+    capabilities:
+    - exact-quote-verification
+    - claim-evidence-binding
+    - coverage-and-critical-omission-detection
+    - signed-evidence-bundle
+    - open-objection-preservation
   evidence:
   - registry/modules/aud.yaml
+  - services/audit-service/service.yaml
+  - tests/agent/test_document_intelligence.py
+  - packages/rust/noosfera-execution-service/src/main.rs
 - id: COG-01
   family: COG
   state: declared
@@ -207,10 +252,25 @@ modules:
   - registry/modules/cog.yaml
 - id: COG-02
   family: COG
-  state: declared
-  providers: []
+  state: integrated
+  providers:
+  - id: experience.structured-document-intelligence
+    service: experience-service
+    runtime: python
+    endpoint: /v1/documents
+    methods:
+    - POST
+    capabilities:
+    - versioned-structural-ingest
+    - addressable-exact-evidence
+    - critical-first-context-selection
+    - epistemic-claim-drafting
+    - contradiction-limitation-unknown-preservation
   evidence:
   - registry/modules/cog.yaml
+  - services/experience-service/service.yaml
+  - tests/agent/test_document_intelligence.py
+  - tests/agent/test_api_flow.py
 - id: COG-03
   family: COG
   state: declared
@@ -257,17 +317,47 @@ modules:
     - uncertainty
     - intent-compilation
     - goal-decomposition
+  - id: experience.structured-document-intelligence
+    service: experience-service
+    runtime: python
+    endpoint: /v1/documents
+    methods:
+    - POST
+    capabilities:
+    - versioned-structural-ingest
+    - addressable-exact-evidence
+    - critical-first-context-selection
+    - epistemic-claim-drafting
+    - contradiction-limitation-unknown-preservation
   evidence:
   - registry/modules/cog.yaml
   - services/cognition-service/service.yaml
   - tests/agent/test_cognitive_kernel.py
   - tools/run_local_e2e.py
+  - services/experience-service/service.yaml
+  - tests/agent/test_document_intelligence.py
+  - tests/agent/test_api_flow.py
 - id: COG-09
   family: COG
-  state: declared
-  providers: []
+  state: integrated
+  providers:
+  - id: experience.structured-document-intelligence
+    service: experience-service
+    runtime: python
+    endpoint: /v1/documents
+    methods:
+    - POST
+    capabilities:
+    - versioned-structural-ingest
+    - addressable-exact-evidence
+    - critical-first-context-selection
+    - epistemic-claim-drafting
+    - contradiction-limitation-unknown-preservation
   evidence:
   - registry/modules/cog.yaml
+  - services/experience-service/service.yaml
+  - tests/agent/test_document_intelligence.py
+  - tests/agent/test_api_flow.py
 - id: COG-10
   family: COG
   state: integrated
@@ -284,11 +374,26 @@ modules:
     - uncertainty
     - intent-compilation
     - goal-decomposition
+  - id: experience.structured-document-intelligence
+    service: experience-service
+    runtime: python
+    endpoint: /v1/documents
+    methods:
+    - POST
+    capabilities:
+    - versioned-structural-ingest
+    - addressable-exact-evidence
+    - critical-first-context-selection
+    - epistemic-claim-drafting
+    - contradiction-limitation-unknown-preservation
   evidence:
   - registry/modules/cog.yaml
   - services/cognition-service/service.yaml
   - tests/agent/test_cognitive_kernel.py
   - tools/run_local_e2e.py
+  - services/experience-service/service.yaml
+  - tests/agent/test_document_intelligence.py
+  - tests/agent/test_api_flow.py
 - id: COG-11
   family: COG
   state: declared
@@ -297,10 +402,23 @@ modules:
   - registry/modules/cog.yaml
 - id: COG-12
   family: COG
-  state: declared
-  providers: []
+  state: integrated
+  providers:
+  - id: cognition.self-evidence
+    service: cognition-service
+    runtime: python
+    endpoint: /v1/self-model
+    methods:
+    - GET
+    capabilities:
+    - declared-observed-separation
+    - runtime-discrepancy-reporting
+    - self-claim-grounding
   evidence:
   - registry/modules/cog.yaml
+  - services/cognition-service/service.yaml
+  - tests/agent/test_self_model.py
+  - tests/agent/test_api_flow.py
 - id: COG-13
   family: COG
   state: declared
@@ -798,10 +916,25 @@ modules:
   - tests/agent/test_cognitive_kernel.py
 - id: MEM-05
   family: MEM
-  state: declared
-  providers: []
+  state: integrated
+  providers:
+  - id: experience.structured-document-intelligence
+    service: experience-service
+    runtime: python
+    endpoint: /v1/documents
+    methods:
+    - POST
+    capabilities:
+    - versioned-structural-ingest
+    - addressable-exact-evidence
+    - critical-first-context-selection
+    - epistemic-claim-drafting
+    - contradiction-limitation-unknown-preservation
   evidence:
   - registry/modules/mem.yaml
+  - services/experience-service/service.yaml
+  - tests/agent/test_document_intelligence.py
+  - tests/agent/test_api_flow.py
 - id: MEM-06
   family: MEM
   state: integrated
@@ -844,10 +977,25 @@ modules:
   - registry/modules/per.yaml
 - id: PER-03
   family: PER
-  state: declared
-  providers: []
+  state: integrated
+  providers:
+  - id: experience.structured-document-intelligence
+    service: experience-service
+    runtime: python
+    endpoint: /v1/documents
+    methods:
+    - POST
+    capabilities:
+    - versioned-structural-ingest
+    - addressable-exact-evidence
+    - critical-first-context-selection
+    - epistemic-claim-drafting
+    - contradiction-limitation-unknown-preservation
   evidence:
   - registry/modules/per.yaml
+  - services/experience-service/service.yaml
+  - tests/agent/test_document_intelligence.py
+  - tests/agent/test_api_flow.py
 - id: PER-04
   family: PER
   state: declared
@@ -916,10 +1064,25 @@ modules:
   - registry/modules/sec.yaml
 - id: SEC-04
   family: SEC
-  state: declared
-  providers: []
+  state: integrated
+  providers:
+  - id: experience.structured-document-intelligence
+    service: experience-service
+    runtime: python
+    endpoint: /v1/documents
+    methods:
+    - POST
+    capabilities:
+    - versioned-structural-ingest
+    - addressable-exact-evidence
+    - critical-first-context-selection
+    - epistemic-claim-drafting
+    - contradiction-limitation-unknown-preservation
   evidence:
   - registry/modules/sec.yaml
+  - services/experience-service/service.yaml
+  - tests/agent/test_document_intelligence.py
+  - tests/agent/test_api_flow.py
 - id: SEC-05
   family: SEC
   state: declared

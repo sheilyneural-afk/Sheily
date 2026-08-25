@@ -13,6 +13,8 @@ global:
   executionUrl: http://execution-service:8108
   modelBaseUrl: http://ollama:11434
   modelName: qwen3:8b
+  selfModelRegistryPath: /app/registry
+  runtimeRegistryUrls: experience-service=http://experience-service:8101,identity-service=http://identity-service:8102,memory-service=http://memory-service:8103,perception-service=http://perception-service:8104,cognition-service=http://cognition-service:8105,agency-service=http://agency-service:8106,governance-service=http://governance-service:8107,execution-service=http://execution-service:8108,federation-service=http://federation-service:8109,security-service=http://security-service:8110,audit-service=http://audit-service:8111,evolution-service=http://evolution-service:8112,temporal-service=http://temporal-service:8113,resource-service=http://resource-service:8114
   identityKeyId: identity-production-v1
   identityPublicKeyB64: replace-with-identity-public-key
   agencyKeyId: agency-production-v1

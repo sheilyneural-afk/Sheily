@@ -65,7 +65,11 @@ class RustExecutionClient:
                 )
                 response.raise_for_status()
         except httpx.HTTPError as exc:
-            raise ExecutionRejected("cannot change Rust safe-stop state") from exc
+            detail = ""
+            if isinstance(exc, httpx.HTTPStatusError):
+                detail = exc.response.text[:500]
+            suffix = f": {detail}" if detail else ""
+            raise ExecutionRejected(f"cannot change Rust safe-stop state{suffix}") from exc
 
     async def revoke(self, directive: RevocationDirective) -> None:
         try:

@@ -1,12 +1,12 @@
 version: 1
 topics:
-  BUS-DAT: [data.observation.v1, data.knowledge.v1, data.view.v1, cognition.cycle.v1]
+  BUS-DAT: [data.observation.v1, data.knowledge.v1, data.view.v1, cognition.cycle.v1, cognition.self-model.v1]
   BUS-INT: [intent.contract.v1, intent.plan.v1, agency.plan-attestation.v1, identity.approval.v1, mission.command.v1, mission.state.v1]
   BUS-EVI: [evidence.bundle.v1, evidence.critique.v1, risk.assessment.v1]
   BUS-AUT: [authorization.capability.v1, authorization.revocation.v1, authorization.moratorium.v1]
   BUS-ACT: [action.command.v1]
   BUS-STA: [action.status.v1, sensor.observation.v1, resource.status.v1]
-  BUS-AUD: [audit.event.v1, audit.receipt.v1, audit.anchor.v1, dissent.record.v1]
+  BUS-AUD: [audit.event.v1, audit.receipt.v1, audit.anchor.v1, dissent.record.v1, cognition.self-model.v1]
   BUS-FED: [federation.package.v1, federation.receipt.v1]
   BUS-EVO: [evolution.candidate.v1, evolution.evaluation.v1, evolution.deployment.v1]
   BUS-STP: [safety.pause.v1, safety.stop.v1, safety.safe-state.v1]

@@ -220,6 +220,18 @@ CREATE TABLE IF NOT EXISTS agent_documents (
   content_hash CHAR(64) NOT NULL, content_text TEXT NOT NULL, size_bytes BIGINT NOT NULL,
   created_at TIMESTAMPTZ NOT NULL
 );
+ALTER TABLE agent_documents ADD COLUMN IF NOT EXISTS normalized_hash CHAR(64);
+ALTER TABLE agent_documents ADD COLUMN IF NOT EXISTS version_id TEXT;
+ALTER TABLE agent_documents ADD COLUMN IF NOT EXISTS extractor TEXT;
+ALTER TABLE agent_documents ADD COLUMN IF NOT EXISTS extractor_version TEXT;
+CREATE TABLE IF NOT EXISTS agent_document_blocks (
+  id TEXT PRIMARY KEY, document_id TEXT NOT NULL REFERENCES agent_documents(id),
+  version_id TEXT NOT NULL, ordinal INTEGER NOT NULL, kind TEXT NOT NULL,
+  page_number INTEGER, section_path JSONB NOT NULL, char_start INTEGER NOT NULL,
+  char_end INTEGER NOT NULL, text_hash CHAR(64) NOT NULL, content_text TEXT NOT NULL,
+  extraction_confidence DOUBLE PRECISION NOT NULL, epistemic_status TEXT NOT NULL,
+  critical BOOLEAN NOT NULL, UNIQUE(document_id, ordinal)
+);
 CREATE TABLE IF NOT EXISTS agent_missions (
   id TEXT PRIMARY KEY, user_id TEXT NOT NULL, conversation_id TEXT NOT NULL,
   status TEXT NOT NULL, payload JSONB NOT NULL, version BIGINT NOT NULL,
@@ -248,6 +260,8 @@ CREATE INDEX IF NOT EXISTS idx_agent_messages_conversation
   ON agent_messages(conversation_id, created_at);
 CREATE INDEX IF NOT EXISTS idx_agent_missions_user ON agent_missions(user_id, updated_at DESC);
 CREATE INDEX IF NOT EXISTS idx_agent_documents_user ON agent_documents(user_id, created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_agent_document_blocks_document
+  ON agent_document_blocks(document_id, ordinal);
 CREATE INDEX IF NOT EXISTS idx_agent_memories_user ON agent_memories(user_id, created_at DESC);
 """
 
@@ -330,31 +344,115 @@ class PostgresStateStore:
         return [Message.model_validate(dict(row)) for row in rows]
 
     async def save_document(self, document: DocumentRecord) -> None:
-        await self._require_pool().execute(
-            """INSERT INTO agent_documents
-               (id,user_id,name,media_type,content_hash,content_text,size_bytes,created_at)
-               VALUES($1,$2,$3,$4,$5,$6,$7,$8)""",
-            document.id,
-            document.user_id,
-            document.name,
-            document.media_type,
-            document.content_hash,
-            document.text,
-            document.size_bytes,
-            document.created_at,
-        )
+        pool = self._require_pool()
+        async with pool.acquire() as connection, connection.transaction():
+            await connection.execute(
+                """INSERT INTO agent_documents
+                   (id,user_id,name,media_type,content_hash,normalized_hash,version_id,
+                    extractor,extractor_version,content_text,size_bytes,created_at)
+                   VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)""",
+                document.id,
+                document.user_id,
+                document.name,
+                document.media_type,
+                document.content_hash,
+                document.normalized_hash,
+                document.version_id,
+                document.extractor,
+                document.extractor_version,
+                document.text,
+                document.size_bytes,
+                document.created_at,
+            )
+            await connection.executemany(
+                """INSERT INTO agent_document_blocks
+                   (id,document_id,version_id,ordinal,kind,page_number,section_path,
+                    char_start,char_end,text_hash,content_text,extraction_confidence,
+                    epistemic_status,critical)
+                   VALUES($1,$2,$3,$4,$5,$6,$7::jsonb,$8,$9,$10,$11,$12,$13,$14)""",
+                [
+                    (
+                        block.id,
+                        block.document_id,
+                        block.version_id,
+                        block.ordinal,
+                        block.kind,
+                        block.page_number,
+                        json.dumps(block.section_path),
+                        block.char_start,
+                        block.char_end,
+                        block.text_hash,
+                        block.text,
+                        block.extraction_confidence,
+                        block.epistemic_status,
+                        block.critical,
+                    )
+                    for block in document.blocks
+                ],
+            )
 
     async def get_documents(self, document_ids: list[str], user_id: str) -> list[DocumentRecord]:
         if not document_ids:
             return []
-        rows = await self._require_pool().fetch(
-            """SELECT id,user_id,name,media_type,content_hash,
-                      content_text AS text,size_bytes,created_at
+        pool = self._require_pool()
+        rows = await pool.fetch(
+            """SELECT id,user_id,name,media_type,content_hash,normalized_hash,version_id,
+                      extractor,extractor_version,content_text AS text,size_bytes,created_at
                FROM agent_documents WHERE user_id=$1 AND id=ANY($2::text[]) ORDER BY created_at""",
             user_id,
             document_ids,
         )
-        return [DocumentRecord.model_validate(dict(row)) for row in rows]
+        block_rows = await pool.fetch(
+            """SELECT id,document_id,version_id,ordinal,kind,page_number,section_path,
+                      char_start,char_end,text_hash,content_text AS text,extraction_confidence,
+                      epistemic_status,critical
+               FROM agent_document_blocks WHERE document_id=ANY($1::text[])
+               ORDER BY document_id,ordinal""",
+            document_ids,
+        )
+        from hashlib import sha256
+
+        from noosfera_core.agent.documents import build_blocks
+        from noosfera_core.agent.models import DocumentBlock
+
+        blocks_by_document: dict[str, list[DocumentBlock]] = defaultdict(list)
+        for row in block_rows:
+            value = dict(row)
+            value["section_path"] = (
+                json.loads(value["section_path"])
+                if isinstance(value["section_path"], str)
+                else value["section_path"]
+            )
+            blocks_by_document[str(row["document_id"])].append(DocumentBlock.model_validate(value))
+        documents: list[DocumentRecord] = []
+        for row in rows:
+            value = dict(row)
+            document_id = str(value["id"])
+            version_id = str(
+                value.get("version_id")
+                or f"urn:noosfera:document-version:{value['content_hash']}"
+            )
+            blocks = blocks_by_document.get(document_id, [])
+            if not blocks:
+                normalized, blocks = build_blocks(
+                    document_id=document_id,
+                    version_id=version_id,
+                    pages=[str(value["text"])],
+                    media_type=str(value["media_type"]),
+                )
+                value["text"] = normalized
+            value.update(
+                {
+                    "version_id": version_id,
+                    "normalized_hash": value.get("normalized_hash")
+                    or sha256(str(value["text"]).encode()).hexdigest(),
+                    "extractor": value.get("extractor") or "noosfera-structural-ingest",
+                    "extractor_version": value.get("extractor_version") or "1.0.0",
+                    "blocks": blocks,
+                }
+            )
+            documents.append(DocumentRecord.model_validate(value))
+        return documents
 
     async def create_mission(self, mission: Mission) -> None:
         await self._require_pool().execute(

@@ -1,6 +1,6 @@
 version: 1
 architecture_version: 0.3.0
-expected_file_count: 430
+expected_file_count: 439
 closure: every repository file outside generated and VCS directories must be listed
 ownership_rules:
 - prefix: .github/
@@ -99,6 +99,7 @@ files:
 - README.md
 - SCOPE.md
 - SECURITY.md
+- THIRD_PARTY_NOTICES.md
 - VERSION
 - adapters/README.md
 - adapters/__init__.py
@@ -149,6 +150,7 @@ files:
 - database/migrations/0007_agent_runtime.sql
 - database/migrations/0008_authority_boundaries.sql
 - database/migrations/0009_immutable_audit.sql
+- database/migrations/0010_document_intelligence.sql
 - database/roles.sql
 - deploy/README.md
 - deploy/helm/noosfera/Chart.yaml
@@ -284,6 +286,8 @@ files:
 - packages/python/noosfera_core/agent/cognition.py
 - packages/python/noosfera_core/agent/cognition_api.py
 - packages/python/noosfera_core/agent/crypto.py
+- packages/python/noosfera_core/agent/document_context.py
+- packages/python/noosfera_core/agent/document_verification.py
 - packages/python/noosfera_core/agent/documents.py
 - packages/python/noosfera_core/agent/events.py
 - packages/python/noosfera_core/agent/execution.py
@@ -296,6 +300,7 @@ files:
 - packages/python/noosfera_core/agent/models.py
 - packages/python/noosfera_core/agent/orchestrator.py
 - packages/python/noosfera_core/agent/persistence.py
+- packages/python/noosfera_core/agent/self_model.py
 - packages/python/noosfera_core/audit.py
 - packages/python/noosfera_core/capability.py
 - packages/python/noosfera_core/config.py
@@ -395,6 +400,7 @@ files:
 - schemas/capability.schema.json
 - schemas/cognitive-cycle.schema.json
 - schemas/common.schema.json
+- schemas/document-verification-report.schema.json
 - schemas/event-envelope.schema.json
 - schemas/evidence-bundle.schema.json
 - schemas/federation-package.schema.json
@@ -410,6 +416,7 @@ files:
 - schemas/resource-budget.schema.json
 - schemas/revocation-directive.schema.json
 - schemas/risk-assessment.schema.json
+- schemas/self-model.schema.json
 - schemas/service-manifest.schema.json
 - schemas/stop-directive.schema.json
 - schemas/update-candidate.schema.json
@@ -465,6 +472,8 @@ files:
 - tests/agent/test_api_flow.py
 - tests/agent/test_auth.py
 - tests/agent/test_cognitive_kernel.py
+- tests/agent/test_document_intelligence.py
+- tests/agent/test_self_model.py
 - tests/architecture/test_forbidden_routes.py
 - tests/architecture/test_module_registry.py
 - tests/architecture/test_runtime_module_registry.py

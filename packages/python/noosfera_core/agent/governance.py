@@ -67,10 +67,10 @@ class OpaGovernance:
         reasons: list[str] = []
         if has_documents:
             reasons.append(
-                "the mission will disclose document contents to the configured local model"
+                "el contenido de los documentos se entregará al modelo local configurado"
             )
         if remember:
-            reasons.append("the user requested persistent memory")
+            reasons.append("la persona solicitó conservar el resultado durante 30 días")
         return RiskDecision(
             risk_class=risk_class,
             score=score,
@@ -107,7 +107,9 @@ class DeterministicGovernance:
             risk_class="R1" if has_documents or remember else "R0",
             score=0.08 if has_documents or remember else 0.0,
             requires_approval=has_documents or remember,
-            reasons=["document access requires owner approval"] if has_documents else [],
+            reasons=["el acceso al documento requiere aprobación de su propietaria"]
+            if has_documents
+            else [],
         )
 
     async def authorize_memory(self, *, user_id: str, owner_confirmation: bool) -> None:

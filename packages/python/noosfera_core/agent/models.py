@@ -87,13 +87,37 @@ class MessageCreate(StrictModel):
     remember: bool = False
 
 
+class DocumentBlock(StrictModel):
+    """Unidad direccionable conservada por la ingesta, no inventada por el modelo."""
+
+    id: str
+    document_id: str
+    version_id: str
+    ordinal: int = Field(ge=1)
+    kind: Literal["heading", "paragraph", "list", "code", "table"]
+    page_number: int | None = Field(default=None, ge=1)
+    section_path: list[str] = Field(default_factory=list, max_length=20)
+    char_start: int = Field(ge=0)
+    char_end: int = Field(ge=0)
+    text_hash: str = Field(pattern=r"^[a-f0-9]{64}$")
+    text: str = Field(min_length=1, max_length=100_000)
+    extraction_confidence: float = Field(default=1.0, ge=0, le=1)
+    epistemic_status: Literal["communicated-source-content"] = "communicated-source-content"
+    critical: bool = False
+
+
 class DocumentRecord(StrictModel):
     id: str
     user_id: str
     name: str
     media_type: str
     content_hash: str
+    normalized_hash: str = Field(pattern=r"^[a-f0-9]{64}$")
+    version_id: str
+    extractor: str = "noosfera-structural-ingest"
+    extractor_version: str = "1.0.0"
     text: str = Field(exclude=True)
+    blocks: list[DocumentBlock] = Field(default_factory=list)
     size_bytes: int
     created_at: datetime
 
@@ -103,6 +127,10 @@ class DocumentPublic(StrictModel):
     name: str
     media_type: str
     content_hash: str
+    normalized_hash: str
+    version_id: str
+    block_count: int = Field(ge=1)
+    page_count: int | None = Field(default=None, ge=1)
     size_bytes: int
     created_at: datetime
 
@@ -279,7 +307,125 @@ class CognitiveCycle(StrictModel):
 
 
 class EvidenceReference(StrictModel):
+    """Cita verificable a un fragmento exacto de una versión inmutable."""
+
+    evidence_id: str
     document_id: str
+    version_id: str
+    block_id: str
+    label: str
+    quote: str = Field(min_length=1, max_length=10_000)
+    page_number: int | None = Field(default=None, ge=1)
+    section_path: list[str] = Field(default_factory=list, max_length=20)
+    relation: Literal["supports", "contradicts", "limits"] = "supports"
+
+
+class DocumentClaim(StrictModel):
+    id: str
+    statement: str = Field(min_length=1, max_length=5_000)
+    epistemic_status: Literal[
+        "direct-observation", "source-communication", "inference", "hypothesis"
+    ]
+    confidence: float = Field(ge=0, le=1)
+    evidence_ids: list[str] = Field(min_length=1, max_length=20)
+
+
+class DocumentContradiction(StrictModel):
+    id: str
+    statement: str = Field(min_length=1, max_length=5_000)
+    evidence_ids: list[str] = Field(min_length=2, max_length=20)
+
+
+class DocumentLimitation(StrictModel):
+    id: str
+    statement: str = Field(min_length=1, max_length=5_000)
+    evidence_ids: list[str] = Field(default_factory=list, max_length=20)
+    system_detected: bool = False
+
+
+class CoverageReport(StrictModel):
+    total_blocks: int = Field(ge=1)
+    analyzed_blocks: int = Field(ge=1)
+    cited_blocks: int = Field(ge=1)
+    critical_blocks: int = Field(ge=0)
+    cited_critical_blocks: int = Field(ge=0)
+    ratio: float = Field(ge=0, le=1)
+    omitted_block_ids: list[str] = Field(default_factory=list)
+
+
+class DocumentSourceVersion(StrictModel):
+    document_id: str
+    version_id: str
+    label: str
+    media_type: str
+    content_hash: str = Field(pattern=r"^[a-f0-9]{64}$")
+    normalized_hash: str = Field(pattern=r"^[a-f0-9]{64}$")
+    extractor: str
+    extractor_version: str
+    total_blocks: int = Field(ge=1)
+
+
+class DocumentEvidenceContext(StrictModel):
+    source_versions: list[DocumentSourceVersion] = Field(min_length=1)
+    blocks: list[DocumentBlock] = Field(min_length=1)
+    total_block_ids: list[str] = Field(min_length=1)
+    analyzed_block_ids: list[str] = Field(min_length=1)
+    critical_block_ids: list[str] = Field(default_factory=list)
+    missing_artifacts: list[str] = Field(default_factory=list)
+    selection_method: Literal["critical-first-bm25-v1"] = "critical-first-bm25-v1"
+
+
+class EvidenceBundle(StrictModel):
+    mission_id: str
+    source_versions: list[dict[str, Any]] = Field(min_length=1)
+    evidence: list[EvidenceReference] = Field(min_length=1)
+    claims: list[DocumentClaim] = Field(min_length=1)
+    transformations: list[str] = Field(min_length=1)
+    assumptions: list[str] = Field(default_factory=list)
+    counterevidence: list[DocumentContradiction] = Field(default_factory=list)
+    open_objections: list[str] = Field(default_factory=list)
+    invalidation_conditions: list[str] = Field(default_factory=list)
+    coverage: CoverageReport
+
+
+class DocumentVerificationReport(StrictModel):
+    status: Literal["passed", "passed-with-open-objections"]
+    verification_method: Literal["structural-exact-quote-and-lexical-v1"]
+    evidence_bundle_hash: str = Field(pattern=r"^[a-f0-9]{64}$")
+    report_hash: str = Field(pattern=r"^[a-f0-9]{64}$")
+    verified_claim_ids: list[str]
+    rejected_claim_ids: list[str] = Field(default_factory=list)
+    open_objections: list[str] = Field(default_factory=list)
+    signed_at: datetime
+    key_id: str
+    algorithm: Literal["Ed25519"] = "Ed25519"
+    signature: str
+
+
+class ModelDraft(StrictModel):
+    """Borrador del LLM. No contiene sellos ni estados de verificación."""
+
+    answer: str = Field(min_length=1, max_length=100_000)
+    citations: list[EvidenceReference] = Field(default_factory=list, max_length=100)
+    claims: list[DocumentClaim] = Field(default_factory=list, max_length=100)
+    contradictions: list[DocumentContradiction] = Field(default_factory=list, max_length=50)
+    limitations: list[DocumentLimitation] = Field(default_factory=list, max_length=50)
+    unknowns: list[str] = Field(default_factory=list, max_length=50)
+    assumptions: list[str] = Field(default_factory=list, max_length=50)
+
+
+class DocumentVerificationInput(StrictModel):
+    mission_id: str
+    prompt: str = Field(min_length=1, max_length=20_000)
+    context: DocumentEvidenceContext
+    draft: ModelDraft
+
+
+class SystemEvidenceReference(StrictModel):
+    """Referencia a evidencia producida por un subsistema verificable de Sheily."""
+
+    source: str
+    evidence_hash: str = Field(pattern=r"^[a-f0-9]{64}$")
     label: str
 
 
@@ -294,6 +440,15 @@ class InternalStateClaim(StrictModel):
 class ModelOutput(StrictModel):
     answer: str = Field(min_length=1, max_length=100_000)
     citations: list[EvidenceReference] = Field(default_factory=list, max_length=100)
+    claims: list[DocumentClaim] = Field(default_factory=list, max_length=100)
+    contradictions: list[DocumentContradiction] = Field(default_factory=list, max_length=50)
+    limitations: list[DocumentLimitation] = Field(default_factory=list, max_length=50)
+    unknowns: list[str] = Field(default_factory=list, max_length=50)
+    assumptions: list[str] = Field(default_factory=list, max_length=50)
+    coverage: CoverageReport | None = None
+    evidence_bundle: EvidenceBundle | None = None
+    verification_report: DocumentVerificationReport | None = None
+    system_evidence: list[SystemEvidenceReference] = Field(default_factory=list, max_length=20)
     internal_state_claims: list[InternalStateClaim] = Field(default_factory=list, max_length=20)
 
 

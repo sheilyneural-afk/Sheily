@@ -9,6 +9,7 @@ WORKDIR /app
 RUN addgroup --system noosfera && adduser --system --ingroup noosfera noosfera
 COPY pyproject.toml /app/pyproject.toml
 COPY packages/python/noosfera_core /app/packages/python/noosfera_core
+COPY registry /app/registry
 COPY services/${SERVICE_DIR}/ /app/service/
 RUN pip install --no-cache-dir .
 USER noosfera

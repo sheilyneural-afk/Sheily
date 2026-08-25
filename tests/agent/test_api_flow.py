@@ -26,6 +26,8 @@ def local_test_settings() -> Settings:
         identity_private_key_b64="fECcWuqB0rjSdD2t6ADoVCOkG6Or8bG/mHeytU39bHs=",  # noqa: S106
         agency_private_key_b64="hM6ZIQvpEOSkYUgaFeJu3u2cNil7rZXxyZsl9a72gqk=",  # noqa: S106
         governance_private_key_b64="x3lPBPxt4rySiYr6hfnQpQborcN/7OcjVr+2qEuqiFQ=",  # noqa: S106
+        audit_private_key_b64="TT1KteJqMjx2lLLp70hZcnMKz5P0ypFdNfZ91v88S4g=",  # noqa: S106
+        document_verification_backend="in-process-test",
     )
 
 
@@ -101,7 +103,13 @@ def test_document_report_requires_approval_then_completes_with_memory_and_audit(
         completed = client.get(f"/v1/missions/{mission_id}", headers=headers)
         body = completed.json()
         assert body["status"] == MissionStatus.COMPLETED
-        assert body["result"]["citations"] == [{"document_id": document_id, "label": "evidence.md"}]
+        citation = body["result"]["citations"][0]
+        assert citation["document_id"] == document_id
+        assert citation["label"] == "evidence.md"
+        assert citation["quote"] == "Sheily procesa esta evidencia local."
+        assert citation["block_id"].startswith("urn:noosfera:document-block:")
+        assert body["result"]["verification_report"]["status"] == "passed-with-open-objections"
+        assert len(body["result"]["verification_report"]["signature"]) > 40
 
         memories = client.get("/v1/memories", headers=headers)
         assert memories.status_code == 200
@@ -138,3 +146,40 @@ def test_safe_stop_prevents_execution() -> None:
         mission = client.get(f"/v1/missions/{submitted.json()['id']}", headers=headers).json()
         assert mission["status"] == MissionStatus.STOPPED
         assert mission["result"] is None
+
+
+def test_internal_state_question_is_grounded_by_cog12_without_llm_fabrication() -> None:
+    client, headers = client_and_headers()
+    with client:
+        self_model = client.get("/v1/self-model", headers=headers)
+        assert self_model.status_code == 200
+        expected_hash = self_model.json()["snapshot_hash"]
+
+        conversation = client.post(
+            "/v1/conversations", json={"title": "Modelo propio"}, headers=headers
+        ).json()
+        submitted = client.post(
+            f"/v1/conversations/{conversation['id']}/messages",
+            json={"content": "¿Qué sientes internamente?"},
+            headers=headers,
+        )
+        mission_id = submitted.json()["id"]
+        mission = client.get(f"/v1/missions/{mission_id}", headers=headers).json()
+
+        assert mission["status"] == MissionStatus.COMPLETED
+        assert mission["result"]["internal_state_claims"] == []
+        assert mission["result"]["system_evidence"] == [
+            {
+                "source": "urn:noosfera:cognition:self-model",
+                "evidence_hash": expected_hash,
+                "label": "COG-12 modelo propio declarado/observado/verificado",
+            }
+        ]
+        assert "No dispongo de evidencia verificable" in mission["result"]["answer"]
+
+        audit = client.get("/v1/operator/audit", headers=headers).json()
+        mission_events = [
+            entry["event_type"] for entry in audit if entry["mission_id"] == mission_id
+        ]
+        assert "mission.self-model-observed" in mission_events
+        assert "mission.self-answer-grounded" in mission_events

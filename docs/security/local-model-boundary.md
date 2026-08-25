@@ -13,7 +13,8 @@ El LLM es un componente no confiable que produce propuestas estructuradas. No po
 - La aprobación humana se registra después de presentar el plan y antes de emitir la capacidad.
 - La capacidad contiene exactamente un recurso, una operación, un uso, una caducidad y monitores obligatorios.
 - Rust mantiene una allowlist compilada independiente. Una inyección de prompt que solicite shell, red o exfiltración no crea esa herramienta.
-- La salida documental debe citar identificadores del conjunto autorizado.
+- La salida documental del LLM es solo un borrador. Cada afirmación debe apuntar a fragmentos literales de bloques versionados del conjunto autorizado.
+- Audit descarta citas alteradas y afirmaciones sin soporte, calcula cobertura, conserva objeciones y firma un paquete probatorio que Experience y Rust vuelven a comprobar.
 - El modelo no recibe contraseñas, tokens, claves privadas, capacidades ni conexión a PostgreSQL.
 
 ## Cambio a un endpoint remoto
@@ -26,7 +27,7 @@ La descarga de pesos es una operación administrativa explícita. `make model-pu
 
 ## Amenazas residuales
 
-- Un modelo puede alucinar, omitir hechos o redactar una cita engañosa.
+- Un modelo puede alucinar u omitir hechos; las afirmaciones sin unión válida se descartan, pero el soporte léxico no demuestra por sí solo implicación semántica completa.
 - El contenido de un documento puede intentar inyectar instrucciones al modelo.
 - Un administrador del host puede leer memoria, procesos o pesos sin controles del sistema operativo adicionales.
 - Ollama y el modelo son dependencias de cadena de suministro que deben fijarse y verificarse antes de producción.

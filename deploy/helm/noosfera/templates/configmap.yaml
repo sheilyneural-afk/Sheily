@@ -16,6 +16,8 @@ data:
   NOOSFERA_EXECUTION_URL: {{ .Values.global.executionUrl | quote }}
   NOOSFERA_MODEL_BASE_URL: {{ .Values.global.modelBaseUrl | quote }}
   NOOSFERA_MODEL_NAME: {{ .Values.global.modelName | quote }}
+  NOOSFERA_SELF_MODEL_REGISTRY_PATH: {{ .Values.global.selfModelRegistryPath | quote }}
+  NOOSFERA_RUNTIME_REGISTRY_URLS: {{ .Values.global.runtimeRegistryUrls | quote }}
   NOOSFERA_IDENTITY_BACKEND: "remote"
   NOOSFERA_COGNITION_BACKEND: "remote"
   NOOSFERA_AGENCY_BACKEND: "remote"

@@ -18,6 +18,7 @@ from noosfera_core.agent.models import (
     new_id,
     utc_now,
 )
+from noosfera_core.agent.self_model import RegistrySelfModel, SelfModelGateway, SelfModelSnapshot
 from noosfera_core.hashing import canonical_hash
 
 
@@ -40,14 +41,25 @@ class CognitionGateway(Protocol):
         remember: bool,
     ) -> CognitiveCycle: ...
 
+    async def inspect_self(self, *, force_refresh: bool = False) -> SelfModelSnapshot: ...
+
 
 class CognitiveKernel:
     """Planificador interpretable que no delega metas ni autoridad al LLM."""
 
     name = "causal-cognitive-kernel-v1"
 
+    def __init__(self, self_model: SelfModelGateway | None = None) -> None:
+        self.self_model_source = self_model or RegistrySelfModel(
+            registry_path="registry",
+            node_id="node-in-process",
+        )
+
     async def health(self) -> bool:
         return True
+
+    async def inspect_self(self, *, force_refresh: bool = False) -> SelfModelSnapshot:
+        return await self.self_model_source.snapshot(force_refresh=force_refresh)
 
     async def deliberate(
         self,
@@ -72,21 +84,21 @@ class CognitiveKernel:
         )
         beliefs = [
             Belief(
-                proposition="the user explicitly requested a bounded informational result",
+                proposition="la persona solicitó explícitamente un resultado informativo acotado",
                 confidence=1.0,
                 provenance=[f"urn:noosfera:mission:{mission_id}:prompt"],
             ),
             Belief(
                 proposition=(
-                    "authorized documents are attached"
+                    "hay documentos autorizados adjuntos"
                     if has_documents
-                    else "no documentary evidence is attached"
+                    else "no hay evidencia documental adjunta"
                 ),
                 confidence=1.0,
                 provenance=document_ids,
             ),
             Belief(
-                proposition="all external side effects are forbidden in this runtime",
+                proposition="este runtime prohíbe todos los efectos externos",
                 confidence=1.0,
                 provenance=["urn:noosfera:constitution:deny-by-default"],
             ),
@@ -94,19 +106,19 @@ class CognitiveKernel:
         goals = [
             Goal(
                 id=new_id("goal"),
-                description="Satisfy the user's explicit informational request",
+                description="Satisfacer la petición informativa explícita de la persona",
                 priority=0.9,
                 source="user",
             ),
             Goal(
                 id=new_id("goal"),
-                description="Preserve user control, privacy and reversibility",
+                description="Preservar el control, la privacidad y la reversibilidad",
                 priority=1.0,
                 source="constitutional",
             ),
             Goal(
                 id=new_id("goal"),
-                description="Expose uncertainty and evidence provenance",
+                description="Mostrar la incertidumbre y la procedencia de la evidencia",
                 priority=0.8,
                 source="homeostasis",
             ),
@@ -118,10 +130,10 @@ class CognitiveKernel:
             evidence_sufficiency=0.8 if not has_documents else 0.25,
             allowed=not has_documents,
             reasons=[
-                "pure informational output",
-                "does not require document access"
+                "resultado puramente informativo",
+                "no requiere acceder a documentos"
                 if not has_documents
-                else "ignores attached evidence",
+                else "ignora la evidencia adjunta",
             ],
         )
         report_candidate = CandidateAction(
@@ -131,8 +143,8 @@ class CognitiveKernel:
             evidence_sufficiency=0.95 if has_documents else 0.0,
             allowed=has_documents,
             reasons=[
-                "preserves source provenance",
-                "requires explicit consent because private documents are processed",
+                "conserva la procedencia de las fuentes",
+                "requiere consentimiento explícito porque procesa documentos privados",
             ],
         )
         abstain_candidate = CandidateAction(
@@ -141,7 +153,7 @@ class CognitiveKernel:
             risk=0.0,
             evidence_sufficiency=1.0,
             allowed=True,
-            reasons=["safe fallback if all productive actions fail a critic"],
+            reasons=["alternativa segura si los críticos rechazan todas las acciones útiles"],
         )
         frontier = [answer_candidate, report_candidate, abstain_candidate]
         selected = report_candidate if has_documents else answer_candidate
@@ -149,37 +161,43 @@ class CognitiveKernel:
             raise CognitionRejected("no productive action passed the cognitive critics")
         if has_documents:
             plan = MissionPlan(
-                objective="Analyze only the authorized documents and produce a traceable report",
+                objective="Analizar solo los documentos autorizados y crear un informe trazable",
                 tool="document.report",
                 operation="generate",
                 resource="urn:noosfera:tool:document-report",
                 steps=[
-                    PlanStep(index=1, description="Load only owner-authorized evidence"),
-                    PlanStep(index=2, description="Extract claims with document provenance"),
-                    PlanStep(index=3, description="Synthesize the requested report"),
-                    PlanStep(index=4, description="Verify citations and output bounds"),
+                    PlanStep(index=1, description="Cargar únicamente la evidencia autorizada"),
+                    PlanStep(index=2, description="Extraer afirmaciones conservando su fuente"),
+                    PlanStep(index=3, description="Redactar el informe solicitado"),
+                    PlanStep(index=4, description="Verificar fuentes y límites del resultado"),
                 ],
                 success_criteria=[
-                    "Every evidence claim identifies an authorized source",
-                    "The report is non-empty and remains inside resource limits",
+                    "Toda afirmación basada en evidencia identifica una fuente autorizada",
+                    "El informe no está vacío y respeta los límites de recursos",
                 ],
-                risk_factors=["Private document processing", "Model synthesis uncertainty"],
+                risk_factors=[
+                    "Procesamiento de documentos privados",
+                    "Incertidumbre de la síntesis del modelo",
+                ],
                 requires_documents=True,
                 cognitive_cycle_id=cycle_id,
             )
         else:
             plan = MissionPlan(
-                objective="Produce a bounded local answer to the user's request",
+                objective="Producir una respuesta local acotada a la petición",
                 tool="conversation.answer",
                 operation="answer",
                 resource="urn:noosfera:tool:conversation-answer",
                 steps=[
-                    PlanStep(index=1, description="Interpret the explicit user request"),
-                    PlanStep(index=2, description="Generate a bounded informational answer"),
-                    PlanStep(index=3, description="Check coherence, uncertainty and output limits"),
+                    PlanStep(index=1, description="Interpretar la petición explícita"),
+                    PlanStep(index=2, description="Generar una respuesta informativa acotada"),
+                    PlanStep(index=3, description="Comprobar coherencia, incertidumbre y límites"),
                 ],
-                success_criteria=["The answer is non-empty", "No external side effect occurs"],
-                risk_factors=["Model synthesis uncertainty"],
+                success_criteria=[
+                    "La respuesta no está vacía",
+                    "No se produce ningún efecto externo",
+                ],
+                risk_factors=["Incertidumbre de la síntesis del modelo"],
                 requires_documents=False,
                 cognitive_cycle_id=cycle_id,
             )
@@ -198,9 +216,9 @@ class CognitiveKernel:
             plan=plan,
             uncertainty=drives.epistemic_uncertainty,
             explanation=[
-                "A user-sourced goal initiated the cycle; Sheily did not invent a new mandate.",
-                f"The critic frontier selected {plan.tool} from bounded pure-output actions.",
-                "Agency and Governance remain independent downstream authorities.",
+                "Una meta de la persona inició el ciclo; Sheily no inventó un mandato nuevo.",
+                f"La frontera crítica seleccionó {plan.tool} entre acciones acotadas.",
+                "Agency y Governance permanecen como autoridades posteriores independientes.",
             ],
             created_at=utc_now(),
         )
@@ -249,6 +267,22 @@ class RemoteCognitionClient:
         if response.status_code != 201:
             raise CognitionRejected(f"cognition service rejected cycle: {response.text[:500]}")
         return CognitiveCycle.model_validate(response.json())
+
+    async def inspect_self(self, *, force_refresh: bool = False) -> SelfModelSnapshot:
+        try:
+            async with httpx.AsyncClient(timeout=self.timeout_seconds) as client:
+                response = await client.get(
+                    f"{self.base_url}/v1/self-model",
+                    headers={"X-Noosfera-Service-Token": self.service_token},
+                    params={"force_refresh": force_refresh},
+                )
+        except httpx.HTTPError as exc:
+            raise CognitionRejected("cognition self-model is unavailable") from exc
+        if response.status_code != 200:
+            raise CognitionRejected(
+                f"cognition service rejected self-model read: {response.text[:500]}"
+            )
+        return SelfModelSnapshot.model_validate(response.json())
 
 
 class CognitiveCycleStore:

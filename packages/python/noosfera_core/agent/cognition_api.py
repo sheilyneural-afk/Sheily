@@ -7,11 +7,16 @@ from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 from pathlib import Path
 
-from fastapi import FastAPI, Header, HTTPException
+from fastapi import FastAPI, Header, HTTPException, Query
 from pydantic import BaseModel, ConfigDict, Field
 
 from noosfera_core.agent.cognition import CognitionRejected, CognitiveCycleStore, CognitiveKernel
 from noosfera_core.agent.models import Belief, CognitiveCycle
+from noosfera_core.agent.self_model import (
+    RegistrySelfModel,
+    SelfModelSnapshot,
+    parse_runtime_registry_urls,
+)
 from noosfera_core.config import Settings
 from noosfera_core.manifest import load_service_manifest
 from noosfera_core.module_registry import install_runtime_module_registry
@@ -36,7 +41,18 @@ def create_cognition_app(
 ) -> FastAPI:
     manifest = load_service_manifest(manifest_path)
     active = settings or Settings()
-    runtime = kernel or CognitiveKernel()
+    if kernel is None:
+        self_model = RegistrySelfModel(
+            registry_path=active.self_model_registry_path,
+            node_id=active.node_id,
+            current_manifest=manifest,
+            service_urls=parse_runtime_registry_urls(active.runtime_registry_urls),
+            timeout_seconds=active.runtime_registry_timeout_seconds,
+            cache_seconds=active.self_model_cache_seconds,
+        )
+        runtime = CognitiveKernel(self_model=self_model)
+    else:
+        runtime = kernel
     cycles = store or CognitiveCycleStore(active.database_url)
 
     @asynccontextmanager
@@ -98,4 +114,15 @@ def create_cognition_app(
         authorize(service_token)
         return await cycles.list_beliefs(user_id)
 
-    return install_runtime_module_registry(app, manifest)
+    @app.get("/v1/self-model", response_model=SelfModelSnapshot)
+    async def inspect_self(
+        service_token: str | None = Header(default=None, alias="X-Noosfera-Service-Token"),
+        force_refresh: bool = Query(default=False),
+    ) -> SelfModelSnapshot:
+        authorize(service_token)
+        return await runtime.inspect_self(force_refresh=force_refresh)
+
+    installed = install_runtime_module_registry(app, manifest)
+    if isinstance(runtime.self_model_source, RegistrySelfModel):
+        runtime.self_model_source.bind_local_snapshot(installed.state.module_registry)
+    return installed

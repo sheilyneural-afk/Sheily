@@ -6,7 +6,7 @@ import json
 from typing import Any
 
 from noosfera_core.agent.crypto import Ed25519Signer
-from noosfera_core.agent.models import AuditAnchor, new_id, utc_now
+from noosfera_core.agent.models import AuditAnchor, ModelOutput, new_id, utc_now
 from noosfera_core.hashing import canonical_hash
 
 AUDIT_ANCHOR_DOMAIN = "noosfera.audit.anchor.v1"
@@ -40,6 +40,29 @@ class AuditAnchorStore:
         import asyncpg  # type: ignore[import-untyped]
 
         self._pool = await asyncpg.create_pool(self.database_url, min_size=1, max_size=5)
+        await self._pool.execute(
+            """CREATE TABLE IF NOT EXISTS audit_document_verifications (
+                 report_hash CHAR(64) PRIMARY KEY,
+                 evidence_bundle_hash CHAR(64) NOT NULL,
+                 key_id TEXT NOT NULL,
+                 payload JSONB NOT NULL,
+                 created_at TIMESTAMPTZ NOT NULL
+               )"""
+        )
+        await self._pool.execute(
+            """DO $$
+               BEGIN
+                 IF NOT EXISTS (
+                   SELECT 1 FROM pg_trigger
+                   WHERE tgname='audit_document_verifications_append_only'
+                 ) THEN
+                   CREATE TRIGGER audit_document_verifications_append_only
+                     BEFORE UPDATE OR DELETE ON audit_document_verifications
+                     FOR EACH ROW EXECUTE FUNCTION reject_append_only_mutation();
+                 END IF;
+               END
+               $$;"""
+        )
 
     async def close(self) -> None:
         if self._pool is not None:
@@ -128,3 +151,17 @@ class AuditAnchorStore:
             )
             for row in rows
         ]
+
+    async def save_document_verification(self, output: ModelOutput) -> None:
+        if output.verification_report is None or output.evidence_bundle is None:
+            raise ValueError("document verification output has no proof")
+        await self._require_pool().execute(
+            """INSERT INTO audit_document_verifications
+                 (report_hash,evidence_bundle_hash,key_id,payload,created_at)
+               VALUES($1,$2,$3,$4::jsonb,$5)""",
+            output.verification_report.report_hash,
+            output.verification_report.evidence_bundle_hash,
+            output.verification_report.key_id,
+            output.model_dump_json(),
+            output.verification_report.signed_at,
+        )

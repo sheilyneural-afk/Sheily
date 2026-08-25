@@ -2,23 +2,77 @@
 
 from __future__ import annotations
 
+import asyncio
 import json
-from typing import Any, Protocol
+from typing import Any, Literal, Protocol
 from urllib.parse import urlparse
 
 import httpx
+from pydantic import BaseModel, ConfigDict, Field
 
 from noosfera_core.agent.models import (
+    DocumentClaim,
+    DocumentContradiction,
+    DocumentEvidenceContext,
+    DocumentLimitation,
     DocumentRecord,
     EvidenceReference,
     MissionPlan,
-    ModelOutput,
+    ModelDraft,
     PlanStep,
 )
+from noosfera_core.agent.self_model import SelfModelSnapshot
 
 
 class ModelUnavailable(RuntimeError):
     pass
+
+
+class _LanguageCitation(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    evidence_id: str = Field(pattern=r"^E[0-9]+$")
+    source_ref: str = Field(pattern=r"^S[0-9]+$")
+    block_ref: str = Field(pattern=r"^B[0-9]+$")
+    relation: Literal["supports", "contradicts", "limits"] = "supports"
+
+
+class _LanguageClaim(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    id: str = Field(pattern=r"^C[0-9]+$")
+    statement: str = Field(min_length=1)
+    epistemic_status: Literal["source-communication", "inference", "hypothesis"]
+    confidence: float = Field(ge=0, le=1)
+    evidence_ids: list[str] = Field(min_length=1, max_length=8)
+
+
+class _LanguageContradiction(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    id: str
+    statement: str = Field(min_length=1)
+    evidence_ids: list[str] = Field(min_length=2, max_length=8)
+
+
+class _LanguageLimitation(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    id: str
+    statement: str = Field(min_length=1)
+    evidence_ids: list[str] = Field(default_factory=list, max_length=8)
+
+
+class _LanguageDocumentDraft(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    summary: str = Field(min_length=1)
+    citations: list[_LanguageCitation] = Field(min_length=1, max_length=8)
+    claims: list[_LanguageClaim] = Field(min_length=1, max_length=5)
+    contradictions: list[_LanguageContradiction] = Field(default_factory=list, max_length=4)
+    limitations: list[_LanguageLimitation] = Field(default_factory=list, max_length=6)
+    unknowns: list[str] = Field(default_factory=list, max_length=6)
+    assumptions: list[str] = Field(default_factory=list, max_length=6)
 
 
 class AgentModel(Protocol):
@@ -30,8 +84,14 @@ class AgentModel(Protocol):
     async def plan(self, prompt: str, *, has_documents: bool) -> MissionPlan: ...
 
     async def respond(
-        self, prompt: str, *, documents: list[DocumentRecord], history: list[dict[str, str]]
-    ) -> ModelOutput: ...
+        self,
+        prompt: str,
+        *,
+        documents: list[DocumentRecord],
+        document_context: DocumentEvidenceContext | None,
+        history: list[dict[str, str]],
+        self_model: SelfModelSnapshot,
+    ) -> ModelDraft: ...
 
 
 def assert_local_endpoint(base_url: str, allow_remote: bool) -> None:
@@ -56,6 +116,7 @@ class OllamaModel:
         max_input_chars: int,
         context_tokens: int,
         output_tokens: int,
+        max_concurrency: int = 1,
         allow_remote: bool = False,
     ) -> None:
         assert_local_endpoint(base_url, allow_remote)
@@ -65,6 +126,7 @@ class OllamaModel:
         self.max_input_chars = max_input_chars
         self.context_tokens = context_tokens
         self.output_tokens = output_tokens
+        self._inference_slots = asyncio.Semaphore(max_concurrency)
 
     async def health(self) -> bool:
         try:
@@ -94,9 +156,10 @@ class OllamaModel:
             },
         }
         try:
-            async with httpx.AsyncClient(timeout=self.timeout_seconds) as client:
-                response = await client.post(f"{self.base_url}/api/chat", json=request)
-                response.raise_for_status()
+            async with self._inference_slots:
+                async with httpx.AsyncClient(timeout=self.timeout_seconds) as client:
+                    response = await client.post(f"{self.base_url}/api/chat", json=request)
+                    response.raise_for_status()
             content = response.json()["message"]["content"]
             value = json.loads(content)
             if not isinstance(value, dict):
@@ -141,27 +204,131 @@ class OllamaModel:
         return MissionPlan.model_validate(raw)
 
     async def respond(
-        self, prompt: str, *, documents: list[DocumentRecord], history: list[dict[str, str]]
-    ) -> ModelOutput:
-        document_payload = [
-            {"id": item.id, "name": item.name, "content": item.text} for item in documents
-        ]
+        self,
+        prompt: str,
+        *,
+        documents: list[DocumentRecord],
+        document_context: DocumentEvidenceContext | None,
+        history: list[dict[str, str]],
+        self_model: SelfModelSnapshot,
+    ) -> ModelDraft:
+        document_payload = None
+        source_aliases: dict[str, Any] = {}
+        block_aliases: dict[str, Any] = {}
+        block_sources: dict[str, str] = {}
+        if document_context is not None:
+            source_aliases = {
+                f"S{index}": source
+                for index, source in enumerate(document_context.source_versions, start=1)
+            }
+            source_ref_by_id = {
+                source.document_id: alias for alias, source in source_aliases.items()
+            }
+            block_aliases = {
+                f"B{index}": block for index, block in enumerate(document_context.blocks, start=1)
+            }
+            block_sources = {
+                alias: source_ref_by_id[block.document_id] for alias, block in block_aliases.items()
+            }
+            document_payload = {
+                "sources": [
+                    {
+                        "source_ref": alias,
+                        "label": source.label,
+                    }
+                    for alias, source in source_aliases.items()
+                ],
+                "blocks": [
+                    {
+                        "block_ref": alias,
+                        "source_ref": block_sources[alias],
+                        "kind": block.kind,
+                        "page_number": block.page_number,
+                        "section_path": block.section_path,
+                        "critical": block.critical,
+                        "text": block.text,
+                    }
+                    for alias, block in block_aliases.items()
+                ],
+                "missing_artifacts": document_context.missing_artifacts,
+                "selection_method": document_context.selection_method,
+            }
         system = (
             "You are Sheily running locally. Answer only from the supplied conversation and "
-            "documents. Cite a document only with its exact id. State uncertainty. Return only "
-            "JSON matching the schema. Do not claim to have used external sources or tools. "
+            "addressable document blocks. Return only JSON matching the schema. For every "
+            "document claim, select one or more evidence blocks and use only the supplied short "
+            "source_ref and block_ref aliases. Do not copy quote text: Sheily resolves each alias "
+            "to its immutable source block outside the model. Produce at most five concise claims "
+            "and eight "
+            "citations. evidence_id and claim id must be unique labels such as E1 and C1. "
+            "A source describes what its author communicates; it is not "
+            "a direct observation by you. Preserve warnings, limitations, contradictions, missing "
+            "artifacts and uncertainty. Never invent a citation. The answer is "
+            "only a draft: an independent service will ignore unsupported prose and verify claims. "
+            "Do not claim to have used external sources or tools. "
             "You receive no observed or sealed affective, conscious, emotional or subjective "
-            "state. Therefore never claim that you feel, experience, desire or are conscious; "
-            "internal_state_claims must remain empty."
+            "state. Therefore never claim that you feel, experience, desire or are conscious. "
+            "Never turn a declared or loaded capability into a verified capability."
         )
         user = json.dumps(
-            {"request": prompt, "history": history[-12:], "documents": document_payload},
+            {
+                "request": prompt,
+                "history": history[-12:],
+                "documents": document_payload,
+                "runtime_evidence": {
+                    "self_model_snapshot_hash": self_model.snapshot_hash,
+                    "affective_or_subjective_state_observed": False,
+                },
+            },
             ensure_ascii=False,
         )
-        raw = await self._structured(
-            system=system, user=user, schema=ModelOutput.model_json_schema()
+        schema = (
+            _LanguageDocumentDraft.model_json_schema()
+            if document_context is not None
+            else ModelDraft.model_json_schema()
         )
-        return ModelOutput.model_validate(raw)
+        raw = await self._structured(system=system, user=user, schema=schema)
+        if document_context is None:
+            return ModelDraft.model_validate(raw)
+        language = _LanguageDocumentDraft.model_validate(raw)
+        citations: list[EvidenceReference] = []
+        for citation in language.citations:
+            source = source_aliases.get(citation.source_ref)
+            block = block_aliases.get(citation.block_ref)
+            if (
+                source is None
+                or block is None
+                or block_sources.get(citation.block_ref) != citation.source_ref
+            ):
+                raise ModelUnavailable("local model referenced an unknown evidence alias")
+            citations.append(
+                EvidenceReference(
+                    evidence_id=citation.evidence_id,
+                    document_id=source.document_id,
+                    version_id=source.version_id,
+                    block_id=block.id,
+                    label=source.label,
+                    quote=block.text,
+                    page_number=block.page_number,
+                    section_path=block.section_path,
+                    relation=citation.relation,
+                )
+            )
+        return ModelDraft(
+            answer=language.summary,
+            citations=citations,
+            claims=[DocumentClaim.model_validate(item.model_dump()) for item in language.claims],
+            contradictions=[
+                DocumentContradiction.model_validate(item.model_dump())
+                for item in language.contradictions
+            ],
+            limitations=[
+                DocumentLimitation(**item.model_dump(), system_detected=False)
+                for item in language.limitations
+            ],
+            unknowns=language.unknowns,
+            assumptions=language.assumptions,
+        )
 
 
 class DeterministicLocalModel:
@@ -201,28 +368,54 @@ class DeterministicLocalModel:
         )
 
     async def respond(
-        self, prompt: str, *, documents: list[DocumentRecord], history: list[dict[str, str]]
-    ) -> ModelOutput:
-        del history
+        self,
+        prompt: str,
+        *,
+        documents: list[DocumentRecord],
+        document_context: DocumentEvidenceContext | None,
+        history: list[dict[str, str]],
+        self_model: SelfModelSnapshot,
+    ) -> ModelDraft:
+        del history, self_model
         if documents:
-            sections = [
-                f"## {document.name}\n\n{document.text[:500].strip()}" for document in documents
-            ]
-            return ModelOutput(
-                answer=(
-                    f"# Informe de referencia\n\nSolicitud: {prompt}\n\n"
-                    + "\n\n".join(sections)
-                    + (
-                        "\n\n> Resultado determinista de pruebas; configure Ollama "
-                        "para análisis real."
+            if document_context is None:
+                raise ValueError("document analysis requires structured evidence context")
+            citations: list[EvidenceReference] = []
+            claims: list[DocumentClaim] = []
+            sources = {item.document_id: item for item in document_context.source_versions}
+            for index, document in enumerate(documents, start=1):
+                block = next(
+                    item for item in document_context.blocks if item.document_id == document.id
+                )
+                evidence_id = f"E{index}"
+                quote = block.text[:500]
+                citations.append(
+                    EvidenceReference(
+                        evidence_id=evidence_id,
+                        document_id=document.id,
+                        version_id=document.version_id,
+                        block_id=block.id,
+                        label=sources[document.id].label,
+                        quote=quote,
+                        page_number=block.page_number,
+                        section_path=block.section_path,
                     )
-                ),
-                citations=[
-                    EvidenceReference(document_id=document.id, label=document.name)
-                    for document in documents
-                ],
+                )
+                claims.append(
+                    DocumentClaim(
+                        id=f"C{index}",
+                        statement=quote,
+                        epistemic_status="source-communication",
+                        confidence=1.0,
+                        evidence_ids=[evidence_id],
+                    )
+                )
+            return ModelDraft(
+                answer=f"Borrador determinista para: {prompt}",
+                citations=citations,
+                claims=claims,
             )
-        return ModelOutput(
+        return ModelDraft(
             answer=(
                 f"Respuesta determinista a: {prompt}\n\n"
                 "Configure un modelo local para obtener una respuesta generativa real."

@@ -20,6 +20,52 @@ import {
 
 const terminal = new Set(["completed", "failed", "rejected", "stopped"]);
 
+const statusLabels: Record<string, string> = {
+  received: "Petición recibida",
+  planning: "Preparando un plan",
+  "awaiting-approval": "Esperando tu autorización",
+  authorized: "Plan autorizado",
+  executing: "Ejecutando en entorno protegido",
+  verifying: "Verificando el resultado",
+  completed: "Completada",
+  rejected: "Rechazada",
+  failed: "Fallida",
+  stopped: "Detenida de forma segura",
+};
+
+const eventLabels: Record<string, string> = {
+  "mission.received": "Petición recibida",
+  "mission.planning": "Planificación iniciada",
+  "phase.cognition.completed": "Análisis cognitivo completado",
+  "phase.agency.completed": "Plan vinculado a la petición",
+  "phase.governance-evaluation.completed": "Riesgo y permisos evaluados",
+  "mission.plan-ready": "Plan preparado",
+  "mission.approval-required": "Autorización solicitada",
+  "mission.approved-by-user": "Autorizado por ti",
+  "mission.self-model-observed": "Estado operativo comprobado",
+  "mission.self-answer-grounded": "Respuesta propia vinculada a evidencia",
+  "mission.evidence-context-built": "Evidencia estructurada y límites localizados",
+  "phase.language-realization.completed": "Borrador local generado",
+  "phase.independent-document-verification.completed": "Afirmaciones verificadas por Auditoría",
+  "mission.evidence-bundle-sealed": "Paquete de evidencia sellado",
+  "mission.capability-issued": "Permiso limitado emitido",
+  "mission.executing": "Ejecución protegida iniciada",
+  "phase.rust-execution.completed": "Ejecución Rust completada",
+  "mission.verifying": "Verificación final iniciada",
+  "mission.completed": "Misión completada",
+  "mission.rejected-by-user": "Misión rechazada por ti",
+  "mission.failed": "La misión falló",
+};
+
+const riskLabels: Record<string, string> = {
+  R0: "Sin acceso adicional",
+  R1: "Requiere tu permiso",
+  R2: "Riesgo moderado",
+  R3: "Riesgo alto",
+  R4: "Riesgo crítico",
+  R5: "Operación no autorizable aquí",
+};
+
 export function App() {
   const [token, setToken] = useState("");
   const [username, setUsername] = useState("sheily");
@@ -32,6 +78,7 @@ export function App() {
   const [events, setEvents] = useState<MissionEvent[]>([]);
   const [memories, setMemories] = useState<MemoryRecord[]>([]);
   const [busy, setBusy] = useState(false);
+  const [decisionPending, setDecisionPending] = useState<"approved" | "rejected" | null>(null);
   const [error, setError] = useState("");
 
   async function refreshMission(activeToken: string, missionId: string) {
@@ -103,6 +150,7 @@ export function App() {
     setBusy(true);
     setError("");
     setEvents([]);
+    setDecisionPending(null);
     try {
       const created = await sendMessage(
         token,
@@ -125,6 +173,7 @@ export function App() {
   async function decide(approved: boolean) {
     if (!mission) return;
     setBusy(true);
+    setDecisionPending(approved ? "approved" : "rejected");
     setError("");
     try {
       await approveMission(token, mission.id, approved, remember);
@@ -134,6 +183,7 @@ export function App() {
       });
     } catch (reason) {
       setBusy(false);
+      setDecisionPending(null);
       setError(reason instanceof Error ? reason.message : "No se pudo registrar la decisión");
     }
   }
@@ -240,7 +290,7 @@ export function App() {
           <section className="mission-card">
             <div className="mission-title">
               <div>
-                <p className="eyebrow">MISIÓN {mission.status.toUpperCase()}</p>
+                <p className="eyebrow">MISIÓN · {statusLabels[mission.status]}</p>
                 <h2>{mission.plan?.objective ?? mission.prompt}</h2>
               </div>
               {mission.risk && (
@@ -256,26 +306,145 @@ export function App() {
                 ))}
               </ol>
             )}
-            {mission.status === "awaiting-approval" && (
+            {mission.status === "awaiting-approval" && decisionPending === null && (
               <div className="approval">
-                <h3>Tu aprobación es necesaria</h3>
-                <p>{mission.risk?.reasons.join(" · ")}</p>
+                <p className="eyebrow">{riskLabels[mission.risk?.risk_class ?? "R1"]}</p>
+                <h3>Sheily está esperando tu decisión</h3>
+                <p>La misión todavía no ha procesado el contenido ni ha creado el informe.</p>
+                <p>Si autorizas este plan, permites únicamente:</p>
+                <ul>
+                  <li>
+                    Leer {documents.length === 1 ? "el documento" : "los documentos"}{" "}
+                    {documents.map((document) => document.name).join(", ")}.
+                  </li>
+                  <li>Entregar su contenido al modelo Ollama que se ejecuta en este nodo.</li>
+                  <li>Generar el informe indicado arriba sin acceso a Internet ni efectos externos.</li>
+                  {remember && <li>Conservar el resultado autorizado durante 30 días.</li>}
+                </ul>
+                {mission.risk?.reasons.length ? (
+                  <p className="approval-reason">Motivo: {mission.risk.reasons.join(" · ")}</p>
+                ) : null}
+                <p className="approval-scope">
+                  El permiso sirve una sola vez, queda ligado a esta misión y no autoriza otros
+                  archivos ni otras acciones.
+                </p>
                 <div>
                   <button className="danger" onClick={() => void decide(false)}>
-                    Rechazar
+                    No autorizar
                   </button>
-                  <button onClick={() => void decide(true)}>Autorizar una vez</button>
+                  <button onClick={() => void decide(true)}>Autorizar este plan una vez</button>
                 </div>
+              </div>
+            )}
+            {mission.status === "awaiting-approval" && decisionPending !== null && (
+              <div className="approval approval-recorded" role="status">
+                <p className="eyebrow">
+                  {decisionPending === "approved" ? "DECISIÓN ENVIADA" : "RECHAZO ENVIADO"}
+                </p>
+                <h3>
+                  {decisionPending === "approved"
+                    ? "Autorización registrada; procesando con el modelo local"
+                    : "Rechazo registrado; cerrando la misión"}
+                </h3>
+                <p>No necesitas volver a pulsar ningún botón.</p>
               </div>
             )}
             {mission.result && (
               <article className="result">
-                <h3>Resultado verificado</h3>
+                <div className="verification-heading">
+                  <div>
+                    <p className="eyebrow">INFORME EPISTÉMICO</p>
+                    <h3>Resultado con procedencia verificable</h3>
+                  </div>
+                  {mission.result.verification_report && (
+                    <span className="proof-badge">
+                      Firma {mission.result.verification_report.key_id}
+                    </span>
+                  )}
+                </div>
                 <pre>{mission.result.answer}</pre>
+                {mission.result.claims.length > 0 && (
+                  <section className="evidence-section">
+                    <h4>Afirmaciones que superaron la verificación</h4>
+                    <div className="claim-grid">
+                      {mission.result.claims.map((claim) => (
+                        <article key={claim.id} className="claim-card">
+                          <p>{claim.statement}</p>
+                          <small>
+                            {claim.epistemic_status.replaceAll("-", " ")} · confianza{" "}
+                            {Math.round(claim.confidence * 100)}% · {claim.evidence_ids.join(", ")}
+                          </small>
+                        </article>
+                      ))}
+                    </div>
+                  </section>
+                )}
+                {mission.result.limitations.length > 0 && (
+                  <section className="evidence-section warning-section">
+                    <h4>Límites que Sheily no permite ocultar</h4>
+                    <ul>
+                      {mission.result.limitations.map((item) => (
+                        <li key={item.id}>
+                          {item.statement}{" "}
+                          {item.system_detected && <strong>Detectado por el sistema</strong>}
+                        </li>
+                      ))}
+                    </ul>
+                  </section>
+                )}
+                {mission.result.unknowns.length > 0 && (
+                  <section className="evidence-section unknown-section">
+                    <h4>No comprobado</h4>
+                    <ul>{mission.result.unknowns.map((item) => <li key={item}>{item}</li>)}</ul>
+                  </section>
+                )}
+                {mission.result.coverage && (
+                  <section className="coverage-card">
+                    <div>
+                      <b>{Math.round(mission.result.coverage.ratio * 100)}%</b>
+                      <span>cobertura estructural</span>
+                    </div>
+                    <p>
+                      {mission.result.coverage.analyzed_blocks}/{mission.result.coverage.total_blocks}{" "}
+                      bloques analizados · {mission.result.coverage.cited_blocks} citados ·{" "}
+                      {mission.result.coverage.cited_critical_blocks}/
+                      {mission.result.coverage.critical_blocks} críticos cubiertos
+                    </p>
+                  </section>
+                )}
                 {mission.result.citations.length > 0 && (
-                  <footer>
-                    Fuentes: {mission.result.citations.map((citation) => citation.label).join(", ")}
-                  </footer>
+                  <section className="evidence-section">
+                    <h4>Fragmentos literales y ubicación</h4>
+                    {mission.result.citations.map((citation) => (
+                      <details key={citation.evidence_id} className="citation-card">
+                        <summary>
+                          [{citation.evidence_id}] {citation.label}
+                          {citation.section_path.length > 0
+                            ? ` · ${citation.section_path.join(" › ")}`
+                            : ""}
+                          {citation.page_number ? ` · página ${citation.page_number}` : ""}
+                        </summary>
+                        <blockquote>{citation.quote}</blockquote>
+                        <code>{citation.block_id}</code>
+                      </details>
+                    ))}
+                  </section>
+                )}
+                {mission.result.verification_report && (
+                  <details className="proof-card">
+                    <summary>Prueba independiente y objeciones abiertas</summary>
+                    <dl>
+                      <dt>Estado</dt><dd>{mission.result.verification_report.status}</dd>
+                      <dt>Método</dt><dd>{mission.result.verification_report.verification_method}</dd>
+                      <dt>Paquete</dt><dd><code>{mission.result.verification_report.evidence_bundle_hash}</code></dd>
+                      <dt>Informe</dt><dd><code>{mission.result.verification_report.report_hash}</code></dd>
+                    </dl>
+                    <ul>
+                      {mission.result.verification_report.open_objections.map((item) => (
+                        <li key={item}>{item}</li>
+                      ))}
+                    </ul>
+                  </details>
                 )}
               </article>
             )}
@@ -284,7 +453,7 @@ export function App() {
               {events.map((event) => (
                 <span key={event.sequence}>
                   <b>{event.sequence}</b>
-                  {event.event_type}
+                  {eventLabels[event.event_type] ?? event.event_type}
                 </span>
               ))}
             </div>

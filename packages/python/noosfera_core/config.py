@@ -33,14 +33,22 @@ class Settings(BaseSettings):
     agency_url: str = "http://localhost:8106"
     governance_url: str = "http://localhost:8107"
     execution_url: str = "http://localhost:8108"
+    audit_url: str = "http://localhost:8111"
+    document_verification_backend: str = "remote"
     model_provider: str = "ollama"
     model_base_url: str = "http://localhost:11434"
     model_name: str = "qwen3:8b"
     model_allow_remote: bool = False
-    model_timeout_seconds: float = 120.0
+    model_timeout_seconds: float = 600.0
+    model_max_concurrency: int = Field(default=1, ge=1, le=8)
     model_max_input_chars: int = 200_000
+    model_document_max_blocks: int = Field(default=32, ge=8, le=200)
     model_context_tokens: int = 32_768
     model_output_tokens: int = 4_096
+    self_model_registry_path: str = "registry"
+    runtime_registry_urls: str = ""
+    runtime_registry_timeout_seconds: float = 1.0
+    self_model_cache_seconds: float = 5.0
     max_document_bytes: int = 5_000_000
     max_output_bytes: int = 250_000
     capability_ttl_seconds: int = 300
@@ -71,8 +79,11 @@ class Settings(BaseSettings):
             raise ValueError("production may not use the local database")
         if self.env == "production" and self.model_provider == "deterministic":
             raise ValueError("production may not use the deterministic model")
-        if self.env == "production" and self.local_password == "change-me-local":  # noqa: S105
-            raise ValueError("production requires a non-default local password")
+        if self.env == "production" and (
+            self.local_password in {"change-me-local", "sheily"}  # noqa: S105
+            or len(self.local_password) < 12
+        ):
+            raise ValueError("production requires a strong non-default local password")
         if self.env == "production" and "change-me" in self.internal_service_token:
             raise ValueError("production requires a non-default internal service token")
         if self.env == "production" and self.governance_backend != "remote":
@@ -83,8 +94,11 @@ class Settings(BaseSettings):
     def assert_identity_safe(self) -> None:
         if not self.identity_private_key_b64:
             raise ValueError("identity service requires NOOSFERA_IDENTITY_PRIVATE_KEY_B64")
-        if self.env == "production" and self.local_password == "change-me-local":  # noqa: S105
-            raise ValueError("production requires a non-default local password")
+        if self.env == "production" and (
+            self.local_password in {"change-me-local", "sheily"}  # noqa: S105
+            or len(self.local_password) < 12
+        ):
+            raise ValueError("production requires a strong non-default local password")
 
     def assert_agency_safe(self) -> None:
         if not self.agency_private_key_b64:

@@ -15,6 +15,7 @@ from noosfera_core.agent.models import (
     RevocationDirective,
     StopDirective,
 )
+from noosfera_core.agent.self_model import SelfModelSnapshot
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -25,6 +26,7 @@ MODELS = {
     "cognitive-cycle.schema.json": CognitiveCycle,
     "plan-attestation.schema.json": PlanAttestation,
     "revocation-directive.schema.json": RevocationDirective,
+    "self-model.schema.json": SelfModelSnapshot,
     "stop-directive.schema.json": StopDirective,
 }
 

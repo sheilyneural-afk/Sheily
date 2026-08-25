@@ -24,6 +24,7 @@ use tokio_postgres::{Client, NoTls};
 const CAPABILITY_DOMAIN: &str = "noosfera.governance.capability.v1";
 const STOP_DOMAIN: &str = "noosfera.governance.stop-directive.v1";
 const REVOCATION_DOMAIN: &str = "noosfera.governance.revocation-directive.v1";
+const DOCUMENT_VERIFICATION_DOMAIN: &str = "noosfera.audit.document-verification.v1";
 const GOVERNANCE_ISSUER: &str = "urn:noosfera:service:governance";
 const EXPERIENCE_HOLDER: &str = "urn:noosfera:service:experience";
 
@@ -261,6 +262,8 @@ impl Ledger {
 struct AppState {
     governance_public_key: Arc<VerifyingKey>,
     governance_key_id: Arc<String>,
+    audit_public_key: Arc<VerifyingKey>,
+    audit_key_id: Arc<String>,
     ledger: Ledger,
 }
 
@@ -390,6 +393,30 @@ fn verify_signature(
         .map_err(|_| "signature verification failed".to_owned())
 }
 
+fn verify_audit_signature(
+    state: &AppState,
+    payload: &Value,
+    supplied: &str,
+    key_id: &str,
+    algorithm: &str,
+) -> Result<(), String> {
+    if algorithm != "Ed25519" || key_id != state.audit_key_id.as_str() {
+        return Err("untrusted audit verification key".to_owned());
+    }
+    let signature_bytes = BASE64
+        .decode(supplied)
+        .map_err(|_| "invalid audit base64 signature".to_owned())?;
+    let signature = Signature::from_slice(&signature_bytes)
+        .map_err(|_| "invalid audit Ed25519 signature".to_owned())?;
+    let mut message = DOCUMENT_VERIFICATION_DOMAIN.as_bytes().to_vec();
+    message.push(0);
+    message.extend(canonical_bytes(payload)?);
+    state
+        .audit_public_key
+        .verify(&message, &signature)
+        .map_err(|_| "audit verification signature failed".to_owned())
+}
+
 fn bound(capability: &Capability, name: &str, expected_unit: &str) -> Result<f64, String> {
     let limit = capability
         .bounds
@@ -404,7 +431,11 @@ fn bound(capability: &Capability, name: &str, expected_unit: &str) -> Result<f64
     Ok(limit.maximum)
 }
 
-fn validate_tool(request: &ApiExecutionRequest, maximum_output: usize) -> Result<(), String> {
+fn validate_tool(
+    state: &AppState,
+    request: &ApiExecutionRequest,
+    maximum_output: usize,
+) -> Result<(), String> {
     let expected = match request.tool.as_str() {
         "conversation.answer" => ("answer", "urn:noosfera:tool:conversation-answer", false),
         "document.report" => ("generate", "urn:noosfera:tool:document-report", true),
@@ -431,6 +462,95 @@ fn validate_tool(request: &ApiExecutionRequest, maximum_output: usize) -> Result
         if citations.is_empty() {
             return Err("document report contains no citations".to_owned());
         }
+        for citation in citations {
+            let object = citation
+                .as_object()
+                .ok_or_else(|| "document citation is not an object".to_owned())?;
+            for field in [
+                "evidence_id",
+                "document_id",
+                "version_id",
+                "block_id",
+                "quote",
+            ] {
+                if object
+                    .get(field)
+                    .and_then(Value::as_str)
+                    .is_none_or(|value| value.trim().is_empty())
+                {
+                    return Err(format!("document citation has no {field}"));
+                }
+            }
+        }
+        let claims = request
+            .parameters
+            .get("claims")
+            .and_then(Value::as_array)
+            .filter(|claims| !claims.is_empty())
+            .ok_or_else(|| "document report contains no evidence-bound claims".to_owned())?;
+        if claims.iter().any(|claim| {
+            claim
+                .get("evidence_ids")
+                .and_then(Value::as_array)
+                .is_none_or(|ids| ids.is_empty())
+        }) {
+            return Err("document claim contains no evidence ids".to_owned());
+        }
+        let bundle = request
+            .parameters
+            .get("evidence_bundle")
+            .filter(|value| value.is_object())
+            .ok_or_else(|| "document report contains no evidence bundle".to_owned())?;
+        let report = request
+            .parameters
+            .get("verification_report")
+            .and_then(Value::as_object)
+            .ok_or_else(|| "document report contains no verification report".to_owned())?;
+        let status = report
+            .get("status")
+            .and_then(Value::as_str)
+            .unwrap_or_default();
+        if !matches!(status, "passed" | "passed-with-open-objections") {
+            return Err("document verification did not pass".to_owned());
+        }
+        let bundle_hash = report
+            .get("evidence_bundle_hash")
+            .and_then(Value::as_str)
+            .ok_or_else(|| "verification report has no evidence bundle hash".to_owned())?;
+        let actual_bundle_hash = noosfera_execution_kernel::sha256_hex(&canonical_bytes(bundle)?);
+        if bundle_hash != actual_bundle_hash {
+            return Err("verification evidence bundle hash mismatch".to_owned());
+        }
+        let report_hash = report
+            .get("report_hash")
+            .and_then(Value::as_str)
+            .ok_or_else(|| "verification report has no report hash".to_owned())?;
+        let mut report_body = report.clone();
+        let signature = report_body
+            .remove("signature")
+            .and_then(|value| value.as_str().map(str::to_owned))
+            .ok_or_else(|| "verification report has no signature".to_owned())?;
+        let signed_payload = Value::Object(report_body.clone());
+        let mut hash_body = report_body;
+        hash_body.remove("report_hash");
+        let actual_report_hash =
+            noosfera_execution_kernel::sha256_hex(&canonical_bytes(&Value::Object(hash_body))?);
+        if report_hash != actual_report_hash {
+            return Err("verification report hash mismatch".to_owned());
+        }
+        verify_audit_signature(
+            state,
+            &signed_payload,
+            &signature,
+            report
+                .get("key_id")
+                .and_then(Value::as_str)
+                .unwrap_or_default(),
+            report
+                .get("algorithm")
+                .and_then(Value::as_str)
+                .unwrap_or_default(),
+        )?;
     }
     Ok(())
 }
@@ -533,7 +653,7 @@ async fn execute(
     {
         return Err(reject("invalid process or tool-call budget".to_owned()));
     }
-    validate_tool(&request, maximum_output).map_err(reject)?;
+    validate_tool(&state, &request, maximum_output).map_err(reject)?;
     let internal_monitors = BTreeSet::from([
         "urn:noosfera:monitor:model-local".to_owned(),
         "urn:noosfera:monitor:stop-channel".to_owned(),
@@ -764,6 +884,18 @@ async fn main() {
         VerifyingKey::from_bytes(&public_key_array).expect("invalid Ed25519 public key");
     let governance_key_id =
         env::var("NOOSFERA_GOVERNANCE_KEY_ID").unwrap_or_else(|_| "governance-local-v1".to_owned());
+    let audit_public_key_b64 = env::var("NOOSFERA_AUDIT_PUBLIC_KEY_B64")
+        .expect("NOOSFERA_AUDIT_PUBLIC_KEY_B64 is required");
+    let audit_public_key_bytes = BASE64
+        .decode(audit_public_key_b64)
+        .expect("audit public key must be base64");
+    let audit_public_key_array: [u8; 32] = audit_public_key_bytes
+        .try_into()
+        .expect("audit public key must contain 32 bytes");
+    let audit_public_key = VerifyingKey::from_bytes(&audit_public_key_array)
+        .expect("invalid audit Ed25519 public key");
+    let audit_key_id =
+        env::var("NOOSFERA_AUDIT_KEY_ID").unwrap_or_else(|_| "audit-local-v1".to_owned());
     let database_url =
         env::var("NOOSFERA_DATABASE_URL").expect("NOOSFERA_DATABASE_URL is required");
     let ledger = Ledger::postgres(&database_url)
@@ -773,6 +905,8 @@ async fn main() {
     let state = AppState {
         governance_public_key: Arc::new(governance_public_key),
         governance_key_id: Arc::new(governance_key_id),
+        audit_public_key: Arc::new(audit_public_key),
+        audit_key_id: Arc::new(audit_key_id),
         ledger,
     };
     let app = Router::new()
@@ -804,6 +938,8 @@ mod tests {
         AppState {
             governance_public_key: Arc::new(signing_key().verifying_key()),
             governance_key_id: Arc::new("governance-test-v1".to_owned()),
+            audit_public_key: Arc::new(signing_key().verifying_key()),
+            audit_key_id: Arc::new("audit-test-v1".to_owned()),
             ledger: Ledger::memory(),
         }
     }
@@ -888,6 +1024,81 @@ mod tests {
         }
     }
 
+    fn valid_document_request(capability_id: &str) -> ApiExecutionRequest {
+        let mut request = valid_request(capability_id);
+        request.tool = "document.report".to_owned();
+        request.operation = "generate".to_owned();
+        request.resource = "urn:noosfera:tool:document-report".to_owned();
+        request.plan = serde_json::json!({
+            "cognitive_cycle_id": null,
+            "objective": "Analyze authorized evidence",
+            "operation": "generate",
+            "requires_documents": true,
+            "resource": "urn:noosfera:tool:document-report",
+            "risk_factors": ["private document"],
+            "steps": [{"description": "Verify claims", "index": 1}],
+            "success_criteria": ["Exact evidence"],
+            "tool": "document.report"
+        });
+        let bundle = serde_json::json!({
+            "mission_id": "urn:noosfera:mission:test",
+            "source_versions": [{"document_id": "d1"}],
+            "evidence": [{"evidence_id": "E1"}],
+            "claims": [{"id": "C1"}],
+            "transformations": ["structural ingest"],
+            "assumptions": [],
+            "counterevidence": [],
+            "open_objections": ["semantic entailment is not a formal proof"],
+            "invalidation_conditions": ["source hash changes"],
+            "coverage": {"total_blocks": 1, "analyzed_blocks": 1, "cited_blocks": 1,
+                "critical_blocks": 0, "cited_critical_blocks": 0, "ratio": 1.0,
+                "omitted_block_ids": []}
+        });
+        let bundle_hash = noosfera_execution_kernel::sha256_hex(&canonical_bytes(&bundle).unwrap());
+        let mut report = serde_json::json!({
+            "status": "passed-with-open-objections",
+            "verification_method": "structural-exact-quote-and-lexical-v1",
+            "evidence_bundle_hash": bundle_hash,
+            "verified_claim_ids": ["C1"],
+            "rejected_claim_ids": [],
+            "open_objections": ["semantic entailment is not a formal proof"],
+            "signed_at": "2300-01-01T00:00:00Z",
+            "key_id": "audit-test-v1",
+            "algorithm": "Ed25519"
+        });
+        let report_hash = noosfera_execution_kernel::sha256_hex(&canonical_bytes(&report).unwrap());
+        report["report_hash"] = Value::String(report_hash);
+        let report_signature = sign(DOCUMENT_VERIFICATION_DOMAIN, &report);
+        report["signature"] = Value::String(report_signature);
+        request.parameters = serde_json::json!({
+            "answer": "Supported claim [E1]",
+            "citations": [{
+                "evidence_id": "E1", "document_id": "d1", "version_id": "v1",
+                "block_id": "b1", "label": "evidence.md", "quote": "Supported claim",
+                "page_number": null, "section_path": [], "relation": "supports"
+            }],
+            "claims": [{"id": "C1", "statement": "Supported claim",
+                "epistemic_status": "source-communication", "confidence": 1.0,
+                "evidence_ids": ["E1"]}],
+            "contradictions": [], "limitations": [], "unknowns": [], "assumptions": [],
+            "coverage": {"total_blocks": 1, "analyzed_blocks": 1, "cited_blocks": 1,
+                "critical_blocks": 0, "cited_critical_blocks": 0, "ratio": 1.0,
+                "omitted_block_ids": []},
+            "evidence_bundle": bundle,
+            "verification_report": report,
+            "system_evidence": [], "internal_state_claims": []
+        });
+        request.plan_hash = plan_hash(&request.plan).unwrap();
+        request.capability["plan_hash"] = Value::String(request.plan_hash.clone());
+        request.capability["resource"] = Value::String(request.resource.clone());
+        request.capability["permitted_operations"] = serde_json::json!(["generate"]);
+        request.capability["arguments_hash"] = Value::String(
+            noosfera_execution_kernel::sha256_hex(&canonical_bytes(&request.parameters).unwrap()),
+        );
+        request.capability_signature = sign(CAPABILITY_DOMAIN, &request.capability);
+        request
+    }
+
     #[tokio::test]
     async fn runtime_registry_does_not_claim_unimplemented_modules() {
         let Json(payload) = runtime_modules().await;
@@ -931,6 +1142,23 @@ mod tests {
     async fn rejects_tampered_parameters() {
         let mut request = valid_request("urn:noosfera:capability:tampered");
         request.parameters["answer"] = Value::String("Changed after authorization".to_owned());
+        assert!(execute(State(state()), Json(request)).await.is_err());
+    }
+
+    #[tokio::test]
+    async fn accepts_only_audit_signed_document_evidence() {
+        let request = valid_document_request("urn:noosfera:capability:document");
+        assert!(execute(State(state()), Json(request)).await.is_ok());
+    }
+
+    #[tokio::test]
+    async fn rejects_tampered_document_evidence_bundle() {
+        let mut request = valid_document_request("urn:noosfera:capability:bad-document");
+        request.parameters["evidence_bundle"]["assumptions"] = serde_json::json!(["tampered"]);
+        request.capability["arguments_hash"] = Value::String(
+            noosfera_execution_kernel::sha256_hex(&canonical_bytes(&request.parameters).unwrap()),
+        );
+        request.capability_signature = sign(CAPABILITY_DOMAIN, &request.capability);
         assert!(execute(State(state()), Json(request)).await.is_err());
     }
 

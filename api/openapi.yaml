@@ -79,6 +79,32 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/HTTPValidationError'
+  /v1/self-model:
+    get:
+      summary: Self Model
+      operationId: self_model_v1_self_model_get
+      parameters:
+      - name: authorization
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Authorization
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SelfModelSnapshot'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
   /v1/conversations:
     post:
       summary: Create Conversation
@@ -834,6 +860,31 @@ components:
       - observed
       - sealed
       title: InternalStateClaim
+    InternalStateEvidence:
+      properties:
+        affective_state:
+          type: string
+          const: sealed-unobserved
+          title: Affective State
+          default: sealed-unobserved
+        conscious_state:
+          type: string
+          const: not-instrumented
+          title: Conscious State
+          default: not-instrumented
+        subjective_experience:
+          type: string
+          const: not-observable-by-runtime
+          title: Subjective Experience
+          default: not-observable-by-runtime
+        claim_policy:
+          type: string
+          const: must-not-fabricate
+          title: Claim Policy
+          default: must-not-fabricate
+      additionalProperties: false
+      type: object
+      title: InternalStateEvidence
     LoginRequest:
       properties:
         username:
@@ -1129,6 +1180,12 @@ components:
           type: array
           maxItems: 100
           title: Citations
+        system_evidence:
+          items:
+            $ref: '#/components/schemas/SystemEvidenceReference'
+          type: array
+          maxItems: 20
+          title: System Evidence
         internal_state_claims:
           items:
             $ref: '#/components/schemas/InternalStateClaim'
@@ -1391,6 +1448,169 @@ components:
       - score
       - requires_approval
       title: RiskDecision
+    SelfModelSnapshot:
+      properties:
+        schema_version:
+          type: string
+          const: noosfera.self-model.v1
+          title: Schema Version
+          default: noosfera.self-model.v1
+        identity:
+          type: string
+          title: Identity
+          default: Sheily
+        node_id:
+          type: string
+          title: Node Id
+        generated_at:
+          type: string
+          format: date-time
+          title: Generated At
+        declared_modules:
+          items:
+            type: string
+          type: array
+          title: Declared Modules
+        registered_modules:
+          items:
+            type: string
+          type: array
+          title: Registered Modules
+        observed_modules:
+          items:
+            type: string
+          type: array
+          title: Observed Modules
+        verified_modules:
+          items:
+            type: string
+          type: array
+          title: Verified Modules
+        observed_capabilities:
+          items:
+            type: string
+          type: array
+          title: Observed Capabilities
+        verified_capabilities:
+          items:
+            type: string
+          type: array
+          title: Verified Capabilities
+        declared_not_observed:
+          items:
+            type: string
+          type: array
+          title: Declared Not Observed
+        registered_not_observed:
+          items:
+            type: string
+          type: array
+          title: Registered Not Observed
+        observed_not_declared:
+          items:
+            type: string
+          type: array
+          title: Observed Not Declared
+        observed_not_verified:
+          items:
+            type: string
+          type: array
+          title: Observed Not Verified
+        services:
+          items:
+            $ref: '#/components/schemas/ServiceObservation'
+          type: array
+          title: Services
+        known_limitations:
+          items:
+            type: string
+          type: array
+          title: Known Limitations
+        internal_state:
+          $ref: '#/components/schemas/InternalStateEvidence'
+        evidence_sources:
+          items:
+            type: string
+          type: array
+          title: Evidence Sources
+        evidence_errors:
+          items:
+            type: string
+          type: array
+          title: Evidence Errors
+        snapshot_hash:
+          type: string
+          pattern: ^[a-f0-9]{64}$
+          title: Snapshot Hash
+      additionalProperties: false
+      type: object
+      required:
+      - node_id
+      - generated_at
+      - declared_modules
+      - registered_modules
+      - observed_modules
+      - verified_modules
+      - observed_capabilities
+      - verified_capabilities
+      - declared_not_observed
+      - registered_not_observed
+      - observed_not_declared
+      - observed_not_verified
+      - services
+      - known_limitations
+      - internal_state
+      - evidence_sources
+      - evidence_errors
+      - snapshot_hash
+      title: SelfModelSnapshot
+    ServiceObservation:
+      properties:
+        service_id:
+          type: string
+          title: Service Id
+        status:
+          type: string
+          enum:
+          - observed
+          - unreachable
+          title: Status
+        version:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Version
+        declared_modules:
+          items:
+            type: string
+          type: array
+          title: Declared Modules
+        observed_modules:
+          items:
+            type: string
+          type: array
+          title: Observed Modules
+        observed_providers:
+          items:
+            type: string
+          type: array
+          title: Observed Providers
+        observed_capabilities:
+          items:
+            type: string
+          type: array
+          title: Observed Capabilities
+        error:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Error
+      additionalProperties: false
+      type: object
+      required:
+      - service_id
+      - status
+      title: ServiceObservation
     StopRequest:
       properties:
         active:
@@ -1407,6 +1627,27 @@ components:
       - active
       - reason
       title: StopRequest
+    SystemEvidenceReference:
+      properties:
+        source:
+          type: string
+          title: Source
+        evidence_hash:
+          type: string
+          pattern: ^[a-f0-9]{64}$
+          title: Evidence Hash
+        label:
+          type: string
+          title: Label
+      additionalProperties: false
+      type: object
+      required:
+      - source
+      - evidence_hash
+      - label
+      title: SystemEvidenceReference
+      description: Referencia a evidencia producida por un subsistema verificable
+        de Sheily.
     TokenResponse:
       properties:
         access_token:

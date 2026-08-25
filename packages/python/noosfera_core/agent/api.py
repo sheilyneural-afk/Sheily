@@ -25,10 +25,16 @@ from noosfera_core.agent.agency import AgencyAuthority, AgencyGateway, RemoteAge
 from noosfera_core.agent.auth import AuthenticationError
 from noosfera_core.agent.cognition import CognitionGateway, CognitiveKernel, RemoteCognitionClient
 from noosfera_core.agent.crypto import Ed25519Signer, Ed25519Verifier
+from noosfera_core.agent.document_verification import (
+    DocumentEvidenceVerifier,
+    DocumentVerificationGateway,
+    RemoteDocumentVerificationClient,
+)
 from noosfera_core.agent.documents import DocumentRejected, parse_upload
 from noosfera_core.agent.events import EventPublisher, NatsEventPublisher, NullEventPublisher
 from noosfera_core.agent.execution import (
     ExecutionGateway,
+    ExecutionRejected,
     InProcessExecutionGateway,
     RustExecutionClient,
 )
@@ -68,6 +74,11 @@ from noosfera_core.agent.models import (
 )
 from noosfera_core.agent.orchestrator import AgentOrchestrator, MissionConflict
 from noosfera_core.agent.persistence import InMemoryStateStore, PostgresStateStore, StateStore
+from noosfera_core.agent.self_model import (
+    RegistrySelfModel,
+    SelfModelSnapshot,
+    parse_runtime_registry_urls,
+)
 from noosfera_core.config import Settings
 from noosfera_core.hashing import canonical_hash
 from noosfera_core.manifest import ServiceManifest, load_service_manifest
@@ -117,7 +128,16 @@ class AgentContainer:
             raise ValueError("unsupported identity backend")
 
         if settings.cognition_backend == "in-process-test":
-            cognition: CognitionGateway = CognitiveKernel()
+            cognition: CognitionGateway = CognitiveKernel(
+                self_model=RegistrySelfModel(
+                    registry_path=settings.self_model_registry_path,
+                    node_id=settings.node_id,
+                    current_manifest=manifest,
+                    service_urls=parse_runtime_registry_urls(settings.runtime_registry_urls),
+                    timeout_seconds=settings.runtime_registry_timeout_seconds,
+                    cache_seconds=settings.self_model_cache_seconds,
+                )
+            )
         elif settings.cognition_backend == "remote":
             cognition = RemoteCognitionClient(
                 settings.cognition_url, service_token=settings.internal_service_token
@@ -178,10 +198,22 @@ class AgentContainer:
                 max_input_chars=settings.model_max_input_chars,
                 context_tokens=settings.model_context_tokens,
                 output_tokens=settings.model_output_tokens,
+                max_concurrency=settings.model_max_concurrency,
                 allow_remote=settings.model_allow_remote,
             )
         else:
             raise ValueError("unsupported model provider")
+
+        if settings.document_verification_backend == "in-process-test":
+            document_verifier: DocumentVerificationGateway = DocumentEvidenceVerifier(
+                Ed25519Signer(settings.audit_private_key_b64, key_id=settings.audit_key_id)
+            )
+        elif settings.document_verification_backend == "remote":
+            document_verifier = RemoteDocumentVerificationClient(
+                settings.audit_url, service_token=settings.internal_service_token
+            )
+        else:
+            raise ValueError("unsupported document verification backend")
 
         orchestrator = AgentOrchestrator(
             store=store,
@@ -191,8 +223,14 @@ class AgentContainer:
             governance=governance,
             identity=identity,
             execution=execution,
+            document_verifier=document_verifier,
+            audit_signature_verifier=Ed25519Verifier(
+                settings.audit_public_key_b64, key_id=settings.audit_key_id
+            ),
             events=events,
             max_output_bytes=settings.max_output_bytes,
+            model_max_input_chars=settings.model_max_input_chars,
+            model_document_max_blocks=settings.model_document_max_blocks,
             model_context_tokens=settings.model_context_tokens,
             model_output_tokens=settings.model_output_tokens,
         )
@@ -278,6 +316,7 @@ def create_agent_app(
             agency_ready,
             governance_ready,
             execution_ready,
+            document_verifier_ready,
             storage_ready,
             events_ready,
         ) = await asyncio.gather(
@@ -287,6 +326,7 @@ def create_agent_app(
             runtime.orchestrator.agency.health(),
             runtime.orchestrator.governance.health(),
             runtime.orchestrator.execution.health(),
+            runtime.orchestrator.document_verifier.health(),
             runtime.store.health(),
             runtime.orchestrator.events.health(),
         )
@@ -297,6 +337,7 @@ def create_agent_app(
             "agency_authority": agency_ready,
             "governance_authority": governance_ready,
             "execution_kernel": execution_ready,
+            "document_verifier": document_verifier_ready,
             "storage": storage_ready,
             "event_bus": events_ready,
         }
@@ -323,6 +364,11 @@ def create_agent_app(
     @app.get("/v1/me", response_model=Principal)
     async def me(principal: PrincipalDependency) -> Principal:
         return principal
+
+    @app.get("/v1/self-model", response_model=SelfModelSnapshot)
+    async def self_model(principal: PrincipalDependency) -> SelfModelSnapshot:
+        del principal
+        return await runtime.orchestrator.cognition.inspect_self(force_refresh=True)
 
     @app.post("/v1/conversations", response_model=Conversation, status_code=201)
     async def create_conversation(
@@ -470,6 +516,12 @@ def create_agent_app(
             name=document.name,
             media_type=document.media_type,
             content_hash=document.content_hash,
+            normalized_hash=document.normalized_hash,
+            version_id=document.version_id,
+            block_count=len(document.blocks),
+            page_count=max(
+                (block.page_number or 1 for block in document.blocks), default=1
+            ),
             size_bytes=document.size_bytes,
             created_at=document.created_at,
         )
@@ -522,7 +574,10 @@ def create_agent_app(
         directive = await runtime.orchestrator.governance.issue_stop(
             active=request.active, reason=request.reason, approval=approval
         )
-        await runtime.orchestrator.execution.set_stop(directive)
+        try:
+            await runtime.orchestrator.execution.set_stop(directive)
+        except ExecutionRejected as exc:
+            raise HTTPException(status_code=502, detail=str(exc)) from exc
         await runtime.store.set_stop(request.active, request.reason)
         await runtime.store.append_control_event(
             "safety.stop-changed",

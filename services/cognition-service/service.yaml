@@ -25,6 +25,13 @@ providers:
     maturity: integrated
     capabilities: [provenance-bearing-belief-read]
     evidence: [tests/agent/test_cognitive_kernel.py]
+  - id: cognition.self-evidence
+    modules: [COG-12]
+    endpoint: /v1/self-model
+    methods: [GET]
+    maturity: integrated
+    capabilities: [declared-observed-separation, runtime-discrepancy-reporting, self-claim-grounding]
+    evidence: [tests/agent/test_self_model.py, tests/agent/test_api_flow.py]
 inbound_buses: [BUS-DAT, BUS-INT, BUS-EVI]
 outbound_buses: [BUS-EVI, BUS-INT, BUS-AUD]
 data_stores: [object-store-models, object-store-evidence, postgres-evaluation-metadata]

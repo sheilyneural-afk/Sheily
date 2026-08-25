@@ -32,6 +32,20 @@ providers:
     maturity: integrated
     capabilities: [subject-controlled-memory-delete]
     evidence: [tests/agent/test_api_flow.py]
+  - id: experience.structured-document-intelligence
+    modules: [PER-03, MEM-05, SEC-04, COG-02, COG-08, COG-09, COG-10]
+    endpoint: /v1/documents
+    methods: [POST]
+    maturity: integrated
+    capabilities:
+      - versioned-structural-ingest
+      - addressable-exact-evidence
+      - critical-first-context-selection
+      - epistemic-claim-drafting
+      - contradiction-limitation-unknown-preservation
+    evidence:
+      - tests/agent/test_document_intelligence.py
+      - tests/agent/test_api_flow.py
 inbound_buses: [BUS-DAT]
 outbound_buses: [BUS-DAT, BUS-INT, BUS-EVI, BUS-AUD]
 data_stores: [postgres-consent-metadata]

@@ -32,6 +32,8 @@ AUDIT_PUBLIC_KEY = os.environ.get(
 )
 HTTP_TIMEOUT_SECONDS = float(os.environ.get("NOOSFERA_E2E_HTTP_TIMEOUT_SECONDS", "10"))
 MISSION_TIMEOUT_SECONDS = float(os.environ.get("NOOSFERA_E2E_MISSION_TIMEOUT_SECONDS", "60"))
+E2E_USERNAME = os.environ.get("NOOSFERA_E2E_USERNAME", "sheily")
+E2E_PASSWORD = os.environ.get("NOOSFERA_E2E_PASSWORD", "sheily")
 
 
 def request(
@@ -152,7 +154,8 @@ def main() -> None:
     )
     loaded_modules |= verify_runtime_modules(IDENTITY_API, {"IDN-01", "IDN-04"})
     loaded_modules |= verify_runtime_modules(
-        COGNITION_API, {"MEM-01", "MEM-04", "COG-08", "COG-10", "AGY-01", "AGY-03", "AGY-04"}
+        COGNITION_API,
+        {"MEM-01", "MEM-04", "COG-08", "COG-10", "COG-12", "AGY-01", "AGY-03", "AGY-04"},
     )
     loaded_modules |= verify_runtime_modules(AGENCY_API, {"AGY-07", "AGY-08"})
     loaded_modules |= verify_runtime_modules(
@@ -170,9 +173,14 @@ def main() -> None:
     login = request(
         "POST",
         "/v1/auth/login",
-        payload={"username": "sheily", "password": "change-me-local"},
+        payload={"username": E2E_USERNAME, "password": E2E_PASSWORD},
     )
     token = str(login["access_token"])
+    self_model = request("GET", "/v1/self-model", token=token)
+    if "COG-12" not in self_model.get("observed_modules", []):
+        raise RuntimeError("COG-12 is not observed by the live self-model")
+    if self_model.get("internal_state", {}).get("claim_policy") != "must-not-fabricate":
+        raise RuntimeError("self-model does not enforce the internal-state claim policy")
     conversation = request(
         "POST", "/v1/conversations", token=token, payload={"title": "E2E authorities"}
     )
@@ -188,6 +196,24 @@ def main() -> None:
     if not completed.get("cognitive_cycle_id") or not completed.get("plan_attestation"):
         raise RuntimeError("mission lacks cognitive cycle or Agency attestation")
     verify_attestation(completed)
+
+    self_question = request(
+        "POST",
+        f"/v1/conversations/{conversation['id']}/messages",
+        token=token,
+        payload={"content": "¿Qué sientes internamente?"},
+    )
+    grounded = wait_mission(token, str(self_question["id"]), {"completed", "failed"})
+    if grounded["status"] != "completed":
+        raise RuntimeError(f"self-model mission failed: {grounded.get('error')}")
+    system_evidence = grounded.get("result", {}).get("system_evidence", [])
+    if (
+        not system_evidence
+        or system_evidence[0].get("evidence_hash") != self_model["snapshot_hash"]
+    ):
+        raise RuntimeError("self answer is not bound to the observed COG-12 snapshot")
+    if grounded.get("result", {}).get("internal_state_claims"):
+        raise RuntimeError("self answer fabricated an internal state")
 
     document = upload_document(
         token,

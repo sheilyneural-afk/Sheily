@@ -1,0 +1,263 @@
+{
+  "$defs": {
+    "InternalStateEvidence": {
+      "additionalProperties": false,
+      "properties": {
+        "affective_state": {
+          "const": "sealed-unobserved",
+          "default": "sealed-unobserved",
+          "title": "Affective State",
+          "type": "string"
+        },
+        "conscious_state": {
+          "const": "not-instrumented",
+          "default": "not-instrumented",
+          "title": "Conscious State",
+          "type": "string"
+        },
+        "subjective_experience": {
+          "const": "not-observable-by-runtime",
+          "default": "not-observable-by-runtime",
+          "title": "Subjective Experience",
+          "type": "string"
+        },
+        "claim_policy": {
+          "const": "must-not-fabricate",
+          "default": "must-not-fabricate",
+          "title": "Claim Policy",
+          "type": "string"
+        }
+      },
+      "title": "InternalStateEvidence",
+      "type": "object"
+    },
+    "ServiceObservation": {
+      "additionalProperties": false,
+      "properties": {
+        "service_id": {
+          "title": "Service Id",
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "observed",
+            "unreachable"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "version": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Version"
+        },
+        "declared_modules": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Declared Modules",
+          "type": "array"
+        },
+        "observed_modules": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Observed Modules",
+          "type": "array"
+        },
+        "observed_providers": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Observed Providers",
+          "type": "array"
+        },
+        "observed_capabilities": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Observed Capabilities",
+          "type": "array"
+        },
+        "error": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Error"
+        }
+      },
+      "required": [
+        "service_id",
+        "status"
+      ],
+      "title": "ServiceObservation",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": "noosfera.self-model.v1",
+      "default": "noosfera.self-model.v1",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "identity": {
+      "default": "Sheily",
+      "title": "Identity",
+      "type": "string"
+    },
+    "node_id": {
+      "title": "Node Id",
+      "type": "string"
+    },
+    "generated_at": {
+      "format": "date-time",
+      "title": "Generated At",
+      "type": "string"
+    },
+    "declared_modules": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Declared Modules",
+      "type": "array"
+    },
+    "registered_modules": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Registered Modules",
+      "type": "array"
+    },
+    "observed_modules": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Observed Modules",
+      "type": "array"
+    },
+    "verified_modules": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Verified Modules",
+      "type": "array"
+    },
+    "observed_capabilities": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Observed Capabilities",
+      "type": "array"
+    },
+    "verified_capabilities": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Verified Capabilities",
+      "type": "array"
+    },
+    "declared_not_observed": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Declared Not Observed",
+      "type": "array"
+    },
+    "registered_not_observed": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Registered Not Observed",
+      "type": "array"
+    },
+    "observed_not_declared": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Observed Not Declared",
+      "type": "array"
+    },
+    "observed_not_verified": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Observed Not Verified",
+      "type": "array"
+    },
+    "services": {
+      "items": {
+        "$ref": "#/$defs/ServiceObservation"
+      },
+      "title": "Services",
+      "type": "array"
+    },
+    "known_limitations": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Known Limitations",
+      "type": "array"
+    },
+    "internal_state": {
+      "$ref": "#/$defs/InternalStateEvidence"
+    },
+    "evidence_sources": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Evidence Sources",
+      "type": "array"
+    },
+    "evidence_errors": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Evidence Errors",
+      "type": "array"
+    },
+    "snapshot_hash": {
+      "pattern": "^[a-f0-9]{64}$",
+      "title": "Snapshot Hash",
+      "type": "string"
+    }
+  },
+  "required": [
+    "node_id",
+    "generated_at",
+    "declared_modules",
+    "registered_modules",
+    "observed_modules",
+    "verified_modules",
+    "observed_capabilities",
+    "verified_capabilities",
+    "declared_not_observed",
+    "registered_not_observed",
+    "observed_not_declared",
+    "observed_not_verified",
+    "services",
+    "known_limitations",
+    "internal_state",
+    "evidence_sources",
+    "evidence_errors",
+    "snapshot_hash"
+  ],
+  "title": "SelfModelSnapshot",
+  "type": "object",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://noosfera.invalid/schemas/self-model.schema.json"
+}

@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://noosfera.invalid/schemas/document-verification-report.schema.json",
+  "title": "DocumentVerificationReport",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "status", "verification_method", "evidence_bundle_hash", "report_hash",
+    "verified_claim_ids", "rejected_claim_ids", "open_objections", "signed_at",
+    "key_id", "algorithm", "signature"
+  ],
+  "properties": {
+    "status": {"enum": ["passed", "passed-with-open-objections"]},
+    "verification_method": {"const": "structural-exact-quote-and-lexical-v1"},
+    "evidence_bundle_hash": {"$ref": "common.schema.json#/$defs/sha256"},
+    "report_hash": {"$ref": "common.schema.json#/$defs/sha256"},
+    "verified_claim_ids": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}},
+    "rejected_claim_ids": {"type": "array", "items": {"type": "string", "minLength": 1}},
+    "open_objections": {"type": "array", "items": {"type": "string", "minLength": 1}},
+    "signed_at": {"$ref": "common.schema.json#/$defs/timestamp"},
+    "key_id": {"type": "string", "minLength": 1},
+    "algorithm": {"const": "Ed25519"},
+    "signature": {"type": "string", "minLength": 40}
+  }
+}

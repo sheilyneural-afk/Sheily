@@ -131,7 +131,64 @@ export interface AgentMission {
   capability_id: string | null;
   result: {
     answer: string;
-    citations: Array<{ document_id: string; label: string }>;
+    citations: Array<{
+      evidence_id: string;
+      document_id: string;
+      version_id: string;
+      block_id: string;
+      label: string;
+      quote: string;
+      page_number: number | null;
+      section_path: string[];
+      relation: "supports" | "contradicts" | "limits";
+    }>;
+    claims: Array<{
+      id: string;
+      statement: string;
+      epistemic_status: "direct-observation" | "source-communication" | "inference" | "hypothesis";
+      confidence: number;
+      evidence_ids: string[];
+    }>;
+    contradictions: Array<{ id: string; statement: string; evidence_ids: string[] }>;
+    limitations: Array<{
+      id: string;
+      statement: string;
+      evidence_ids: string[];
+      system_detected: boolean;
+    }>;
+    unknowns: string[];
+    assumptions: string[];
+    coverage: {
+      total_blocks: number;
+      analyzed_blocks: number;
+      cited_blocks: number;
+      critical_blocks: number;
+      cited_critical_blocks: number;
+      ratio: number;
+      omitted_block_ids: string[];
+    } | null;
+    evidence_bundle: { mission_id: string } | null;
+    verification_report: {
+      status: "passed" | "passed-with-open-objections";
+      verification_method: "structural-exact-quote-and-lexical-v1";
+      evidence_bundle_hash: string;
+      report_hash: string;
+      verified_claim_ids: string[];
+      rejected_claim_ids: string[];
+      open_objections: string[];
+      signed_at: string;
+      key_id: string;
+      algorithm: "Ed25519";
+      signature: string;
+    } | null;
+    system_evidence: Array<{ source: string; evidence_hash: string; label: string }>;
+    internal_state_claims: Array<{
+      claim: string;
+      observation_id: string | null;
+      confidence: number;
+      observed: boolean;
+      sealed: boolean;
+    }>;
   } | null;
   error: string | null;
   version: number;
@@ -153,6 +210,10 @@ export interface DocumentRecord {
   name: string;
   media_type: string;
   content_hash: string;
+  normalized_hash: string;
+  version_id: string;
+  block_count: number;
+  page_count: number | null;
   size_bytes: number;
   created_at: string;
 }

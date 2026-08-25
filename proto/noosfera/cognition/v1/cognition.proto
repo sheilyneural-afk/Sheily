@@ -53,6 +53,56 @@ message DeliberateResponse {
   CognitiveCycle cycle = 1;
 }
 
+message ServiceObservation {
+  string service_id = 1;
+  string status = 2;
+  string version = 3;
+  repeated string declared_modules = 4;
+  repeated string observed_modules = 5;
+  repeated string observed_providers = 6;
+  repeated string observed_capabilities = 7;
+  string error = 8;
+}
+
+message InternalStateEvidence {
+  string affective_state = 1;
+  string conscious_state = 2;
+  string subjective_experience = 3;
+  string claim_policy = 4;
+}
+
+message SelfModelSnapshot {
+  string schema_version = 1;
+  string identity = 2;
+  string node_id = 3;
+  google.protobuf.Timestamp generated_at = 4;
+  repeated string declared_modules = 5;
+  repeated string registered_modules = 6;
+  repeated string observed_modules = 7;
+  repeated string verified_modules = 8;
+  repeated string observed_capabilities = 9;
+  repeated string verified_capabilities = 10;
+  repeated string declared_not_observed = 11;
+  repeated string registered_not_observed = 12;
+  repeated string observed_not_declared = 13;
+  repeated string observed_not_verified = 14;
+  repeated ServiceObservation services = 15;
+  repeated string known_limitations = 16;
+  InternalStateEvidence internal_state = 17;
+  repeated string evidence_sources = 18;
+  repeated string evidence_errors = 19;
+  bytes snapshot_hash = 20;
+}
+
+message InspectSelfRequest {
+  bool force_refresh = 1;
+}
+
+message InspectSelfResponse {
+  SelfModelSnapshot snapshot = 1;
+}
+
 service CognitionService {
   rpc Deliberate(DeliberateRequest) returns (DeliberateResponse);
+  rpc InspectSelf(InspectSelfRequest) returns (InspectSelfResponse);
 }

@@ -14,6 +14,10 @@ cp .env.example deploy/local/.env
 
 Cambie como mínimo `NOOSFERA_LOCAL_PASSWORD` y `NOOSFERA_INTERNAL_SERVICE_TOKEN`. Para un entorno que no sea de desarrollo genere cuatro pares Ed25519 distintos para Identity, Agency, Governance y Audit. Las claves privadas se inyectan únicamente en su servicio propietario; Experience y Rust reciben solo claves públicas.
 
+La demostración local solicitada usa `sheily` como contraseña inicial. Este valor
+está rechazado explícitamente por la validación de producción y debe sustituirse
+antes de exponer un despliegue permanente.
+
 ```bash
 make local-up
 make model-pull
@@ -51,7 +55,7 @@ El usuario inicial es el valor de `NOOSFERA_LOCAL_USERNAME`, por defecto `sheily
 3. Escriba «Analiza estos documentos y crea un informe».
 4. Revise objetivo, pasos, riesgo y motivos.
 5. Autorice una sola vez o rechace.
-6. Observe la línea temporal y las fuentes del resultado.
+6. Observe afirmaciones aceptadas, límites no omitibles, desconocidos, cobertura, fragmentos literales y la firma de Auditoría.
 7. Si habilitó memoria, compruebe o borre el recuerdo en el panel lateral.
 8. Abra la consola operacional para consultar recibos o activar la parada segura.
 

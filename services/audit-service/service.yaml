@@ -12,6 +12,20 @@ providers:
     maturity: integrated
     capabilities: [receipt-chain-validation, signed-merkle-anchor]
     evidence: [tests/security/test_audit_anchor.py, tools/run_local_e2e.py]
+  - id: audit.document-evidence-verification
+    modules: [AUD-03, AUD-04, AUD-06]
+    endpoint: /v1/document-verifications
+    methods: [POST]
+    maturity: verified
+    capabilities:
+      - exact-quote-verification
+      - claim-evidence-binding
+      - coverage-and-critical-omission-detection
+      - signed-evidence-bundle
+      - open-objection-preservation
+    evidence:
+      - tests/agent/test_document_intelligence.py
+      - packages/rust/noosfera-execution-service/src/main.rs
 inbound_buses: [BUS-AUD]
 outbound_buses: [BUS-DAT, BUS-EVI]
 data_stores: [append-only-audit-ledger, sealed-incident-store]

@@ -41,15 +41,20 @@ Experience Service ───────► Cognition Service
   │                                      │ ejecuta OPA
   │                                      └──firma──► CapabilityGrant
   │                                                     │
-  │ LLM local produce ModelOutput candidato             │
-  │ antes de la capacidad; su hash queda ligado ────────┘
+  │ documentos → bloques versionados → contexto crítico │
+  │ LLM local produce ModelDraft sin autoridad          │
+  ├──────────────────────► Audit Service                 │
+  │                         │ valida hash, unión, cita exacta,
+  │                         │ soporte, límites y cobertura
+  │                         └──firma──► ModelOutput + EvidenceBundle
+  │ resultado sellado; su hash queda ligado ────────────┘
   ▼
 Execution Service (Rust)
   │ verifica Ed25519, plan, argumentos, identidades, tiempo,
   │ presupuestos, revocación, safe-stop, allowlist y uso único
   │ consume la capacidad en PostgreSQL antes de responder
   ▼
-Experience verifica evidencia y persiste resultado
+Experience verifica firma de Audit y persiste resultado
   │
   ├──► memoria consentida
   ├──► eventos encadenados
@@ -67,14 +72,15 @@ Experience verifica evidencia y persiste resultado
 7. Agency firma un `PlanAttestation` ligado a misión, persona, prompt, contexto, plan y presupuesto.
 8. Governance verifica la firma de Agency y evalúa riesgo y constitución mediante OPA.
 9. Si la política lo exige, Identity firma un `ApprovalReceipt` ligado a `user_id + mission_id + plan_hash`.
-10. El LLM local realiza el texto. No recibe claves, capacidades ni acceso al ejecutor.
-11. Experience calcula el hash canónico del `ModelOutput`.
-12. Governance vuelve a evaluar el plan, verifica el consentimiento y emite una capacidad para ese plan y ese resultado exactos.
-13. Rust verifica la firma pública de Governance y todas las vinculaciones.
-14. Rust consulta parada y revocación en almacenamiento durable.
-15. Rust valida la herramienta pura, consume la capacidad mediante una inserción única y devuelve un recibo del kernel.
-16. Experience vuelve a validar el `ModelOutput`, las citas y la regla epistemológica de estado interno.
-17. El resultado y, si fue autorizado, la memoria se guardan; toda fase emite duración y recibo.
+10. Experience extrae una versión inmutable y bloques con página, sección, posición y hash; prioriza bloques críticos y relevancia dentro del presupuesto.
+11. El LLM local propone afirmaciones y selecciona alias efímeros de fuente/bloque (`S1/B7`); no recibe autoridad para fijar el texto literal, crear sellos ni declarar estados de verificación.
+12. Experience resuelve cada alias contra el contexto inmutable y extrae el bloque exacto. Audit comprueba hashes, versión, unión bloque-documento, cita literal, soporte léxico, cobertura y omisiones críticas; descarta afirmaciones sin apoyo, conserva objeciones y firma el informe.
+13. Experience verifica la firma pública de Audit y calcula el hash canónico del `ModelOutput` ya sellado.
+14. Governance vuelve a evaluar el plan, verifica el consentimiento y emite una capacidad para ese plan y ese resultado exactos.
+15. Rust verifica las firmas públicas de Governance y Audit, todas las vinculaciones y los hashes del paquete probatorio.
+16. Rust consulta parada y revocación, valida la herramienta pura, consume la capacidad una vez y devuelve un recibo del kernel.
+17. Experience vuelve a validar el resultado y la regla epistemológica de estado interno.
+18. El resultado y, si fue autorizado, la memoria se guardan; toda fase emite duración y recibo.
 
 ## Artefactos criptográficos
 
@@ -87,6 +93,7 @@ Experience verifica evidencia y persiste resultado
 | StopDirective | Governance | Rust | estado, razón, versión monotónica, operador |
 | RevocationDirective | Governance | Rust | capacidad, razón, versión, operador |
 | AuditAnchor | Audit | verificadores externos | primer/último evento, cantidad, raíz Merkle |
+| DocumentVerificationReport | Audit | Experience, Rust | paquete de evidencia, afirmaciones aceptadas/rechazadas, método, objeciones, tiempo |
 
 Las firmas usan Ed25519 y separación de dominio. Un byte nulo separa el identificador de protocolo del JSON canónico para impedir reutilizar una firma en otro tipo de artefacto.
 
@@ -118,6 +125,8 @@ Así, autorizar el plan A no permite ejecutar el plan B, y autorizar el resultad
 | Tabla | Autoridad | Semántica |
 |---|---|---|
 | `agent_missions` | Experience | estado durable de misión |
+| `agent_documents` | Experience | versión, hashes y extractor de cada fuente autorizada |
+| `agent_document_blocks` | Experience | bloques direccionables con página, sección, offsets e integridad |
 | `agent_events` | Experience/Audit | eventos encadenados append-only |
 | `cognitive_cycles` | Cognition | episodios cognitivos completos |
 | `cognitive_beliefs` | Cognition | memoria semántica con procedencia y revisión temporal |
@@ -127,8 +136,35 @@ Así, autorizar el plan A no permite ejecutar el plan B, y autorizar el resultad
 | `execution_control` | Rust | parada durable y visible para todas las réplicas |
 | `execution_revocations` | Rust | revocaciones durables antes del uso |
 | `audit_anchors` | Audit | raíces Merkle firmadas append-only |
+| `audit_document_verifications` | Audit | informes y paquetes probatorios firmados append-only |
 
-Las migraciones `0008_authority_boundaries.sql` y `0009_immutable_audit.sql` crean estas estructuras y bloquean `UPDATE`/`DELETE` sobre los registros probatorios.
+Las migraciones `0008_authority_boundaries.sql`, `0009_immutable_audit.sql` y `0010_document_intelligence.sql` crean estas estructuras y bloquean `UPDATE`/`DELETE` sobre los registros probatorios.
+
+## Inteligencia documental verificable
+
+Qwen es el órgano de lenguaje, no el sistema de verdad. Para documentos, el recorrido real es:
+
+```text
+bytes autorizados
+  → content_hash + version_id
+  → extracción estructural (página, sección, tipo, offsets)
+  → bloques con text_hash y origen «contenido comunicado»
+  → selección reproducible critical-first + relevancia léxica
+  → borrador lingüístico {afirmaciones, alias de evidencia, contradicciones,
+                          límites, desconocidos}
+  → resolución determinista alias → bloque exacto fuera del LLM
+  → ModelDraft con citas derivadas de los bloques inmutables
+  → Audit descarta soporte inválido e incorpora límites críticos omitidos
+  → EvidenceBundle {fuentes, transformaciones, supuestos, contraevidencia,
+                    objeciones, condiciones de invalidación, cobertura}
+  → DocumentVerificationReport firmado
+  → Governance liga el resultado exacto a una capacidad de un uso
+  → Rust recalcula hashes y verifica la firma de Audit
+```
+
+La salida diferencia contenido comunicado por la fuente, inferencia e hipótesis. Una cita tiene `document_id`, `version_id`, `block_id`, fragmento literal, página, ruta de sección y relación. La consola enseña las afirmaciones aceptadas, límites detectados por el sistema, artefactos mencionados pero no adjuntos, cobertura, citas desplegables, hashes, firmante y objeciones abiertas.
+
+`passed-with-open-objections` no significa «verdad demostrada». Significa que integridad, procedencia, coincidencia literal y soporte léxico superaron el método declarado. La implicación semántica completa sigue siendo una objeción explícita hasta disponer de verificadores más fuertes o revisión humana.
 
 ## Núcleo cognitivo
 
@@ -192,7 +228,8 @@ La misión falla o se detiene si ocurre cualquiera de estas condiciones:
 - Falta consentimiento o no permite memoria.
 - La capacidad fue usada o revocada.
 - La parada está activa o el ledger no puede consultarse.
-- Falta una cita para documentos o aparece una cita no autorizada.
+- Falta una cita exacta, cambia su bloque o versión, aparece una fuente no autorizada o ninguna afirmación supera la verificación.
+- El paquete de evidencia o el informe no coincide con sus hashes o con la firma de Audit.
 - El modelo intenta declarar estado interno no observado.
 - Se supera un límite.
 
@@ -201,7 +238,7 @@ No existe fallback silencioso a nube, HMAC compartido ni autorización local den
 ## Pruebas
 
 - Python prueba flujo de API, cognición, firmas, alteraciones, consentimiento, memoria, parada y auditoría.
-- Rust prueba hash del plan, firma Ed25519, argumentos, uso único, parada y revocación.
+- Rust prueba hash del plan, firmas de Governance/Audit, argumentos, paquete documental, uso único, parada y revocación.
 - `governed-e2e` levanta PostgreSQL, NATS, OPA, Identity, Cognition, Agency, Governance, Rust, Audit y Experience en procesos separados.
 - El E2E de CI usa el proveedor determinista para que la seguridad no dependa de descargar un modelo. `make local-e2e-ollama` repite el mismo recorrido con el modelo local real, y `make model-eval` comprueba los contratos estructurados y casos adversariales del adaptador.
 
