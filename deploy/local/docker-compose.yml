@@ -2,7 +2,10 @@ name: noosfera-local
 
 x-noosfera-service: &noosfera-service
   restart: unless-stopped
-  env_file: ../../.env.example
+  env_file:
+    - ../../.env.example
+    - path: ../../.env
+      required: false
   depends_on:
     postgres: {condition: service_healthy}
     nats: {condition: service_started}
@@ -112,7 +115,10 @@ services:
     ports: ["8107:8080"]
   execution-service:
     build: {context: ../.., dockerfile: deploy/images/execution-service.Containerfile}
-    env_file: ../../.env.example
+    env_file:
+      - ../../.env.example
+      - path: ../../.env
+        required: false
     environment:
       NOOSFERA_CAPABILITY_SECRET: ${NOOSFERA_CAPABILITY_SECRET:-local-capability-secret-change-me-32-chars}
     restart: unless-stopped
