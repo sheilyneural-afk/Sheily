@@ -1,5 +1,5 @@
 asyncapi: 3.0.0
-info: {title: Noosfera Event Circuits, version: 0.1.0}
+info: {title: Noosfera Event Circuits, version: 0.2.0}
 servers:
   local:
     host: nats:4222
@@ -23,6 +23,9 @@ channels:
   audit:
     address: audit.event.v1
     messages: {audit: {$ref: "#/components/messages/AuditEvent"}}
+  missionEvent:
+    address: mission.event.v1
+    messages: {missionEvent: {$ref: "#/components/messages/MissionEvent"}}
 operations:
   publishIntent: {action: send, channel: {$ref: "#/channels/intentContract"}}
   publishEvidence: {action: send, channel: {$ref: "#/channels/evidenceBundle"}}
@@ -30,12 +33,14 @@ operations:
   executeCommand: {action: send, channel: {$ref: "#/channels/actionCommand"}}
   requestStop: {action: send, channel: {$ref: "#/channels/stop"}}
   appendAudit: {action: send, channel: {$ref: "#/channels/audit"}}
+  publishMissionEvent: {action: send, channel: {$ref: "#/channels/missionEvent"}}
 components:
   messages:
     IntentContract: {payload: {$ref: ../schemas/intent-contract.schema.json}}
     EvidenceBundle: {payload: {$ref: ../schemas/evidence-bundle.schema.json}}
     Capability: {payload: {$ref: ../schemas/capability.schema.json}}
     AuditEvent: {payload: {$ref: ../schemas/audit-event.schema.json}}
+    MissionEvent: {payload: {$ref: ../schemas/mission-event.schema.json}}
     ActionCommand:
       payload:
         type: object

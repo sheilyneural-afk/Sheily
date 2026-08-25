@@ -1,6 +1,6 @@
 id: resource-service
 family: RES
-version: 0.1.0
+version: 0.2.0
 runtime: python
 target_runtime: rust
 modules: [RES-01, RES-02, RES-03, RES-04, RES-05, RES-06]

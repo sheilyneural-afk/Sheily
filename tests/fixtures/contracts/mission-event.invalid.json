@@ -1,0 +1,10 @@
+{
+  "mission_id": "urn:noosfera:mission:test",
+  "sequence": 0,
+  "event_type": "INVALID EVENT",
+  "payload": [],
+  "event_hash": "not-a-hash",
+  "previous_receipt_hash": "not-a-hash",
+  "receipt_hash": "not-a-hash",
+  "created_at": "never"
+}

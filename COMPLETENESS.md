@@ -1,8 +1,8 @@
 # Matriz de completitud
 
-Esta matriz cierra Noosfera `0.1.0`. Una celda «definida» significa que existen archivos, propietario, contrato y verificación; no afirma que una capacidad del año 2300 sea tecnológicamente realizable hoy.
+Esta matriz cierra Noosfera `0.2.0`. Una celda «definida» significa que existen archivos, propietario, contrato y verificación; no afirma que una capacidad del año 2300 sea tecnológicamente realizable hoy. Una celda «funcional» posee además un recorrido ejecutable y pruebas.
 
-| Área | Estado 0.1 | Evidencia principal |
+| Área | Estado 0.2 | Evidencia principal |
 |---|---|---|
 | Perímetro | Cerrado | `SCOPE.md` |
 | Arquitectura | Definida | `ARCHITECTURE.md`, `docs/architecture/` |
@@ -27,6 +27,14 @@ Esta matriz cierra Noosfera `0.1.0`. Una celda «definida» significa que existe
 | Proveedores externos | Interfaces y referencias seguras | `adapters/`, `packages/python/noosfera_core/ports.py` |
 | Pruebas | Arquitectura, contrato, integración, seguridad, recuperación y caos | `tests/` |
 | Inventario de archivos | Cerrado y automático | `FILE_MANIFEST.yaml`, `tools/verify_repository.py` |
+| Conversación local | Funcional | `packages/python/noosfera_core/agent/`, `tests/agent/` |
+| LLM local | Funcional y configurable | `agent/model_provider.py`, `docs/adr/0009-local-first-model-runtime.md` |
+| Análisis documental | Funcional para texto y PDF | `agent/documents.py`, `schemas/agent-mission.schema.json` |
+| Aprobación humana | Funcional | `agent/orchestrator.py`, `apps/personal-console/` |
+| Herramientas limitadas | Funcional en Rust | `packages/rust/noosfera-execution-service/` |
+| Memoria consentida | Funcional | `database/migrations/0007_agent_runtime.sql`, `policies/privacy/memory_write.rego` |
+| Streaming | Funcional mediante SSE | `agent/api.py`, `apps/personal-console/src/api.ts` |
+| Parada operacional | Funcional de extremo a extremo | `apps/operator-console/`, `tests/agent/test_api_flow.py` |
 
 ## No implementado deliberadamente
 

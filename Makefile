@@ -1,4 +1,4 @@
-.PHONY: verify test test-policy test-contract lint format local-up local-down
+.PHONY: verify test test-policy test-contract lint format local-up local-down model-pull model-eval
 
 verify:
 	python3 tools/verify_repository.py
@@ -23,3 +23,9 @@ local-up:
 
 local-down:
 	docker compose -f deploy/local/docker-compose.yml down
+
+model-pull:
+	bash tools/pull_local_model.sh "$${MODEL:-qwen3:8b}"
+
+model-eval:
+	python3 tools/run_model_evals.py --provider ollama

@@ -1,6 +1,6 @@
 global:
   imageRegistry: ghcr.io/sheilyneural-afk
-  imageTag: "0.1.0"
+  imageTag: "0.2.0"
   nodeId: node-unconfigured
   environment: production
   otlpEndpoint: http://otel-collector:4317

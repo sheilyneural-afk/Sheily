@@ -1,6 +1,6 @@
 id: governance-service
 family: GOV
-version: 0.1.0
+version: 0.2.0
 runtime: python
 target_runtime: rust
 modules: [GOV-01, GOV-02, GOV-03, GOV-04, GOV-05, GOV-06, GOV-07, GOV-08, GOV-09, GOV-10, GOV-11, GOV-12]

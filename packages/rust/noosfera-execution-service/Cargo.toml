@@ -1,0 +1,18 @@
+[package]
+name = "noosfera-execution-service"
+version.workspace = true
+edition.workspace = true
+license-file.workspace = true
+
+[dependencies]
+axum.workspace = true
+hex.workspace = true
+hmac.workspace = true
+noosfera-capability = { path = "../noosfera-capability" }
+noosfera-execution-kernel = { path = "../noosfera-execution-kernel" }
+serde.workspace = true
+serde_json.workspace = true
+sha2.workspace = true
+time.workspace = true
+tokio.workspace = true
+uuid.workspace = true

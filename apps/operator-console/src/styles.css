@@ -1,15 +1,44 @@
-:root { font-family: ui-monospace, SFMono-Regular, monospace; color: #d8e5e4; background: #07100f; }
+:root { font-family: Inter, ui-sans-serif, system-ui, sans-serif; color: #e7ebf0; background: #080b10; }
 * { box-sizing: border-box; }
-body { margin: 0; background: linear-gradient(120deg, #07100f, #0b1b19); min-height: 100vh; }
-main { width: min(1200px, 94vw); margin: auto; padding: 48px 0; }
-header { display: flex; justify-content: space-between; align-items: end; border-bottom: 1px solid #25413d; padding-bottom: 24px; }
-header span, small { color: #718e88; }
-h1 { margin: 8px 0 0; font-size: 2.8rem; }
-button { background: #ff6b5e; color: #1e0806; border: 0; padding: 14px 22px; font: inherit; font-weight: 800; }
-.summary { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: #25413d; margin: 28px 0; }
-.summary article { background: #0b1715; padding: 22px; display: flex; flex-direction: column; }
-.summary b { font-size: 2rem; color: #70e3c1; }
-.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
-.service { border: 1px solid #25413d; padding: 18px; display: grid; grid-template-columns: auto 1fr; gap: 8px; align-items: center; }
-.service i { width: 8px; height: 8px; border-radius: 50%; background: #70e3c1; box-shadow: 0 0 12px #70e3c1; }
-.service small { grid-column: 2; }
+body { margin: 0; min-width: 320px; min-height: 100vh; background: linear-gradient(150deg, #101722, #080b10 45%); }
+button, input { font: inherit; }
+button { border: 0; border-radius: 8px; padding: .75rem 1rem; font-weight: 800; cursor: pointer; }
+.login-shell { min-height: 100vh; display: grid; place-items: center; }
+.login-card { width: min(420px, 90vw); display: grid; gap: 1rem; padding: 2.4rem; border: 1px solid #283545; background: #0e141d; border-radius: 20px; }
+.login-card p, .operator-shell header p, .panel-title p { color: #66d8ff; letter-spacing: .16em; font-size: .7rem; font-weight: 850; }
+.login-card h1 { margin: 0 0 1rem; }
+.login-card label { display: grid; gap: .4rem; color: #9da9b8; }
+.login-card input { padding: .8rem; border: 1px solid #34465c; border-radius: 8px; background: #080b10; color: white; }
+.login-card button { background: #66d8ff; color: #06141b; }
+.operator-shell { width: min(1200px, 100%); margin: auto; padding: 2rem; }
+.operator-shell > header { display: flex; align-items: center; justify-content: space-between; gap: 2rem; }
+.operator-shell h1 { margin: .2rem 0; font-size: 2.3rem; }
+.stop { background: #ff5f68; color: #270306; box-shadow: 0 0 30px #ff5f6844; }
+.resume { background: #63eca5; color: #042415; }
+.summary { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin: 2rem 0 1rem; }
+.summary article { display: grid; padding: 1.25rem; border: 1px solid #273342; border-radius: 12px; background: #0e141d; }
+.summary b { font-size: 2rem; }
+.summary span { color: #8491a1; }
+.summary .healthy b { color: #63eca5; }
+.summary .critical b { color: #ff747c; }
+.runtime-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: .75rem; }
+.runtime-grid article { display: grid; gap: .4rem; padding: 1rem; border: 1px solid #273342; border-radius: 10px; background: #0c121a; }
+.runtime-grid i { width: 8px; height: 8px; border-radius: 50%; background: #63eca5; box-shadow: 0 0 10px #63eca5; }
+.runtime-grid span { color: #788696; font-size: .72rem; text-transform: uppercase; }
+.runtime-grid strong { font-size: .9rem; overflow-wrap: anywhere; }
+.audit-panel { margin-top: 1rem; border: 1px solid #273342; border-radius: 14px; background: #0e141d; padding: 1.2rem; }
+.panel-title { display: flex; justify-content: space-between; align-items: center; }
+.panel-title h2 { margin: .2rem 0 1rem; }
+.panel-title button { background: #1a2735; color: #b8c5d3; }
+.audit-list { display: grid; }
+.audit-list article { display: grid; grid-template-columns: 180px 1fr 130px 150px; gap: 1rem; align-items: center; padding: .75rem; border-top: 1px solid #1e2a37; font-size: .8rem; }
+.audit-list time, .audit-list span { color: #788696; }
+.audit-list code { color: #66d8ff; }
+.error { color: #ff8c92; }
+.banner { border: 1px solid #6d3034; padding: .8rem; border-radius: 8px; }
+@media (max-width: 800px) {
+  .operator-shell > header { align-items: flex-start; flex-direction: column; }
+  .summary { grid-template-columns: 1fr; }
+  .runtime-grid { grid-template-columns: repeat(2, 1fr); }
+  .audit-list article { grid-template-columns: 1fr; gap: .2rem; }
+}

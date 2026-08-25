@@ -1,0 +1,12 @@
+{
+  "id": "not-a-noosfera-urn",
+  "user_id": "urn:noosfera:identity:owner",
+  "conversation_id": "urn:noosfera:conversation:test",
+  "prompt": "",
+  "document_ids": [],
+  "remember": false,
+  "status": "running-arbitrary-code",
+  "version": 0,
+  "created_at": "invalid",
+  "updated_at": "invalid"
+}

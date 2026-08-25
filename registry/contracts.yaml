@@ -14,3 +14,5 @@ contracts:
   - {id: update-candidate, schema: schemas/update-candidate.schema.json, proto: proto/noosfera/evolution/v1/evolution.proto, owner: evolution-team}
   - {id: resource-budget, schema: schemas/resource-budget.schema.json, proto: proto/noosfera/resource/v1/resource.proto, owner: resource-team}
   - {id: policy-decision, schema: schemas/policy-decision.schema.json, proto: proto/noosfera/governance/v1/governance.proto, owner: governance-team}
+  - {id: agent-mission, schema: schemas/agent-mission.schema.json, proto: proto/noosfera/mission/v1/mission.proto, owner: experience-team}
+  - {id: mission-event, schema: schemas/mission-event.schema.json, proto: proto/noosfera/mission/v1/mission.proto, owner: audit-team}

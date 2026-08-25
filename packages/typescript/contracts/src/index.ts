@@ -88,3 +88,99 @@ export interface MissionState {
   last_event_id: Urn;
   active_capability_ids: Urn[];
 }
+
+export type AgentMissionStatus =
+  | "received"
+  | "planning"
+  | "awaiting-approval"
+  | "authorized"
+  | "executing"
+  | "verifying"
+  | "completed"
+  | "rejected"
+  | "failed"
+  | "stopped";
+
+export interface AgentPlan {
+  objective: string;
+  tool: "conversation.answer" | "document.report";
+  operation: "answer" | "generate";
+  resource: string;
+  steps: Array<{ index: number; description: string }>;
+  success_criteria: string[];
+  risk_factors: string[];
+  requires_documents: boolean;
+}
+
+export interface AgentMission {
+  id: string;
+  user_id: string;
+  conversation_id: string;
+  prompt: string;
+  document_ids: string[];
+  remember: boolean;
+  status: AgentMissionStatus;
+  plan: AgentPlan | null;
+  plan_hash: string | null;
+  risk: {
+    risk_class: RiskClass;
+    score: number;
+    requires_approval: boolean;
+    reasons: string[];
+  } | null;
+  capability_id: string | null;
+  result: {
+    answer: string;
+    citations: Array<{ document_id: string; label: string }>;
+  } | null;
+  error: string | null;
+  version: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface MissionEvent {
+  mission_id: string;
+  sequence: number;
+  event_type: string;
+  payload: Record<string, unknown>;
+  receipt_hash: string;
+  created_at: string;
+}
+
+export interface DocumentRecord {
+  id: string;
+  name: string;
+  media_type: string;
+  content_hash: string;
+  size_bytes: number;
+  created_at: string;
+}
+
+export interface MemoryRecord {
+  id: string;
+  purpose: string;
+  content: string;
+  source_mission_id: string;
+  retention_days: number;
+  created_at: string;
+}
+
+export interface OperatorStatus {
+  stop_active: boolean;
+  model_provider: string;
+  model_name: string;
+  storage_backend: string;
+  event_bus: string;
+  policy_engine: string;
+  execution_kernel: string;
+}
+
+export interface AuditEntry {
+  mission_id: string;
+  sequence: number;
+  event_type: string;
+  event_hash: string;
+  receipt_hash: string;
+  created_at: string;
+}

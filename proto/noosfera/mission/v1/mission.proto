@@ -3,6 +3,7 @@ syntax = "proto3";
 package noosfera.mission.v1;
 
 import "google/protobuf/timestamp.proto";
+import "google/protobuf/struct.proto";
 
 message MissionState {
   string mission_id = 1;
@@ -28,4 +29,67 @@ message TransitionResponse {
 
 service MissionService {
   rpc Transition(TransitionRequest) returns (TransitionResponse);
+}
+
+message AgentPlanStep {
+  uint32 index = 1;
+  string description = 2;
+}
+
+message AgentPlan {
+  string objective = 1;
+  string tool = 2;
+  string operation = 3;
+  string resource = 4;
+  repeated AgentPlanStep steps = 5;
+  repeated string success_criteria = 6;
+  repeated string risk_factors = 7;
+  bool requires_documents = 8;
+}
+
+message AgentRiskDecision {
+  string risk_class = 1;
+  double score = 2;
+  bool requires_approval = 3;
+  repeated string reasons = 4;
+}
+
+message EvidenceReference {
+  string document_id = 1;
+  string label = 2;
+}
+
+message AgentResult {
+  string answer = 1;
+  repeated EvidenceReference citations = 2;
+}
+
+message AgentMission {
+  string id = 1;
+  string user_id = 2;
+  string conversation_id = 3;
+  string prompt = 4;
+  repeated string document_ids = 5;
+  bool remember = 6;
+  string status = 7;
+  AgentPlan plan = 8;
+  string plan_hash = 9;
+  AgentRiskDecision risk = 10;
+  string capability_id = 11;
+  AgentResult result = 12;
+  string error = 13;
+  uint64 version = 14;
+  google.protobuf.Timestamp created_at = 15;
+  google.protobuf.Timestamp updated_at = 16;
+}
+
+message MissionEvent {
+  string mission_id = 1;
+  uint64 sequence = 2;
+  string event_type = 3;
+  google.protobuf.Struct payload = 4;
+  string event_hash = 5;
+  string previous_receipt_hash = 6;
+  string receipt_hash = 7;
+  google.protobuf.Timestamp created_at = 8;
 }

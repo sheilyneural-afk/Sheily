@@ -1,12 +1,14 @@
 # Noosfera
 
-Repositorio de referencia para convertir la arquitectura conceptual **Noosfera 2300** en un sistema construible, verificable y evolutivo.
+Repositorio de referencia para convertir la arquitectura conceptual **Noosfera 2300** en un sistema construible, verificable y evolutivo. La versión 0.2 añade **Sheily**, un agente local funcional para conversación y análisis de documentos.
 
-Este repositorio no afirma implementar una superinteligencia ni tecnología inexistente. Implementa el **esqueleto real del sistema**: límites de confianza, contratos, módulos lógicos, servicios, políticas, topología, observabilidad, pruebas y mecanismos de completitud.
+Este repositorio no afirma implementar una superinteligencia ni tecnología inexistente. Implementa el **plano de control real** y un primer recorrido ejecutable: límites de confianza, contratos, módulos lógicos, servicios, políticas, inferencia local, kernel Rust, persistencia, consolas, observabilidad y pruebas.
 
 ## Estado
 
-- Versión de arquitectura: `0.1.0`
+- Versión de arquitectura: `0.2.0`
+- Agente funcional: conversación y análisis documental con Ollama local
+- Autoridad de ejecución: kernel Rust con dos herramientas puras permitidas
 - Módulos lógicos registrados: `105`
 - Dominios de servicio: `14`
 - Circuitos operativos: `6`
@@ -27,8 +29,12 @@ Todo archivo normativo nombrado por la arquitectura debe:
 ```bash
 make verify
 make test
+cp .env.example .env
 make local-up
+make model-pull
 ```
+
+Después, abra la consola personal en `http://localhost:3001` o la operacional en `http://localhost:3002`. La guía completa está en [`docs/guides/local-agent-quickstart.md`](docs/guides/local-agent-quickstart.md).
 
 ## Navegación
 
@@ -37,6 +43,7 @@ make local-up
 - [`COMPLETENESS.md`](COMPLETENESS.md): matriz de cobertura y definición de terminado.
 - [`docs/specification/noosfera-2300-arquitectura.md`](docs/specification/noosfera-2300-arquitectura.md): especificación conceptual completa de 2300.
 - [`docs/architecture/`](docs/architecture/): vistas técnicas.
+- [`docs/architecture/agent-runtime-0.2.md`](docs/architecture/agent-runtime-0.2.md): cableado del agente ejecutable.
 - [`registry/`](registry/): fuente de verdad de módulos, servicios, buses y nodos.
 - [`schemas/`](schemas/): contratos JSON Schema.
 - [`proto/`](proto/): APIs y eventos Protobuf.

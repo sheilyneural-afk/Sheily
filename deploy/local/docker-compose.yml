@@ -8,6 +8,19 @@ x-noosfera-service: &noosfera-service
     nats: {condition: service_started}
     opa: {condition: service_started}
   networks: [control, data]
+  environment:
+    NOOSFERA_DATABASE_URL: postgresql://noosfera:noosfera@postgres:5432/noosfera
+    NOOSFERA_NATS_URL: nats://nats:4222
+    NOOSFERA_OBJECT_STORE_ENDPOINT: http://minio:9000
+    NOOSFERA_OPA_URL: http://opa:8181
+    NOOSFERA_OTLP_ENDPOINT: http://otel-collector:4317
+    NOOSFERA_EXECUTION_URL: http://execution-service:8080
+    NOOSFERA_MODEL_BASE_URL: http://ollama:11434
+    NOOSFERA_MODEL_PROVIDER: ${NOOSFERA_MODEL_PROVIDER:-ollama}
+    NOOSFERA_MODEL_NAME: ${NOOSFERA_MODEL_NAME:-qwen3:8b}
+    NOOSFERA_LOCAL_PASSWORD: ${NOOSFERA_LOCAL_PASSWORD:-change-me-local}
+    NOOSFERA_TOKEN_SECRET: ${NOOSFERA_TOKEN_SECRET:-local-token-secret-change-me-32-characters}
+    NOOSFERA_CAPABILITY_SECRET: ${NOOSFERA_CAPABILITY_SECRET:-local-capability-secret-change-me-32-chars}
   read_only: true
   tmpfs: [/tmp]
   security_opt: [no-new-privileges:true]
@@ -20,7 +33,9 @@ services:
       POSTGRES_USER: noosfera
       POSTGRES_PASSWORD: noosfera
     healthcheck: {test: [CMD-SHELL, "pg_isready -U noosfera"], interval: 5s, timeout: 3s, retries: 20}
-    volumes: [postgres-data:/var/lib/postgresql/data]
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ../../database/migrations:/docker-entrypoint-initdb.d:ro
     networks: [data]
 
   nats:
@@ -53,10 +68,24 @@ services:
     ports: ["4317:4317", "4318:4318", "8889:8889"]
     networks: [control, audit]
 
+  ollama:
+    image: ollama/ollama:latest
+    container_name: sheily-ollama
+    volumes: [ollama-data:/root/.ollama]
+    ports: ["11434:11434"]
+    networks: [model]
+    restart: unless-stopped
+
   experience-service:
     <<: *noosfera-service
     build: {context: ../.., dockerfile: deploy/images/reference-service.Containerfile, args: {SERVICE_DIR: experience-service}}
     ports: ["8101:8080"]
+    depends_on:
+      postgres: {condition: service_healthy}
+      nats: {condition: service_started}
+      opa: {condition: service_started}
+      execution-service: {condition: service_started}
+    networks: [edge, control, data, model]
   identity-service:
     <<: *noosfera-service
     build: {context: ../.., dockerfile: deploy/images/reference-service.Containerfile, args: {SERVICE_DIR: identity-service}}
@@ -82,8 +111,15 @@ services:
     build: {context: ../.., dockerfile: deploy/images/reference-service.Containerfile, args: {SERVICE_DIR: governance-service}}
     ports: ["8107:8080"]
   execution-service:
-    <<: *noosfera-service
-    build: {context: ../.., dockerfile: deploy/images/reference-service.Containerfile, args: {SERVICE_DIR: execution-service}}
+    build: {context: ../.., dockerfile: deploy/images/execution-service.Containerfile}
+    env_file: ../../.env.example
+    environment:
+      NOOSFERA_CAPABILITY_SECRET: ${NOOSFERA_CAPABILITY_SECRET:-local-capability-secret-change-me-32-chars}
+    restart: unless-stopped
+    read_only: true
+    tmpfs: [/tmp]
+    security_opt: [no-new-privileges:true]
+    networks: [control, audit]
     ports: ["8108:8080"]
   federation-service:
     <<: *noosfera-service
@@ -111,12 +147,39 @@ services:
     build: {context: ../.., dockerfile: deploy/images/reference-service.Containerfile, args: {SERVICE_DIR: resource-service}}
     ports: ["8114:8080"]
 
+  personal-console:
+    build:
+      context: ../..
+      dockerfile: deploy/images/console.Containerfile
+      args: {APP_NAME: personal-console, VITE_SHEILY_API_URL: http://localhost:8101}
+    depends_on: [experience-service]
+    read_only: true
+    tmpfs: [/tmp, /var/cache/nginx, /var/run]
+    security_opt: [no-new-privileges:true]
+    ports: ["3001:8080"]
+    networks: [edge]
+
+  operator-console:
+    build:
+      context: ../..
+      dockerfile: deploy/images/console.Containerfile
+      args: {APP_NAME: operator-console, VITE_SHEILY_API_URL: http://localhost:8101}
+    depends_on: [experience-service]
+    read_only: true
+    tmpfs: [/tmp, /var/cache/nginx, /var/run]
+    security_opt: [no-new-privileges:true]
+    ports: ["3002:8080"]
+    networks: [edge]
+
 networks:
+  edge: {}
   control: {internal: true}
   data: {internal: true}
   audit: {internal: true}
+  model: {internal: true}
 
 volumes:
   postgres-data: {}
   nats-data: {}
   object-data: {}
+  ollama-data: {}

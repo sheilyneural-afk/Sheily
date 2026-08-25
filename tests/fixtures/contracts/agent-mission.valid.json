@@ -1,0 +1,18 @@
+{
+  "id": "urn:noosfera:mission:00000000-0000-4000-8000-000000000001",
+  "user_id": "urn:noosfera:identity:owner",
+  "conversation_id": "urn:noosfera:conversation:00000000-0000-4000-8000-000000000002",
+  "prompt": "Analiza el documento.",
+  "document_ids": ["urn:noosfera:document:00000000-0000-4000-8000-000000000003"],
+  "remember": false,
+  "status": "awaiting-approval",
+  "plan": null,
+  "plan_hash": null,
+  "risk": null,
+  "capability_id": null,
+  "result": null,
+  "error": null,
+  "version": 2,
+  "created_at": "2026-08-25T18:00:00Z",
+  "updated_at": "2026-08-25T18:00:01Z"
+}

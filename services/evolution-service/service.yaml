@@ -1,6 +1,6 @@
 id: evolution-service
 family: EVO
-version: 0.1.0
+version: 0.2.0
 runtime: python
 modules: [EVO-01, EVO-02, EVO-03, EVO-04, EVO-05, EVO-06, EVO-07]
 inbound_buses: [BUS-EVO, BUS-EVI, BUS-AUT]

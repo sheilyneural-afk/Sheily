@@ -7,6 +7,10 @@ use sha2::{Digest, Sha256};
 use std::collections::BTreeSet;
 use time::OffsetDateTime;
 
+pub fn sha256_hex(value: &[u8]) -> String {
+    format!("{:x}", Sha256::digest(value))
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct AuthorizedCommand {
     pub capability_id: String,
@@ -39,7 +43,7 @@ pub struct ExecutionRequest<'a> {
 
 pub fn plan_hash(plan: &Value) -> Result<String, ExecutionError> {
     let bytes = serde_json::to_vec(plan).map_err(|_| ExecutionError::InvalidPlan)?;
-    Ok(format!("{:x}", Sha256::digest(bytes)))
+    Ok(sha256_hex(&bytes))
 }
 
 pub fn authorize_command(

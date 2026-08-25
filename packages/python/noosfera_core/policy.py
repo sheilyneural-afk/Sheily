@@ -16,6 +16,14 @@ class OpaClient:
         self.base_url = base_url.rstrip("/")
         self.timeout_seconds = timeout_seconds
 
+    async def health(self) -> bool:
+        try:
+            async with httpx.AsyncClient(timeout=self.timeout_seconds) as client:
+                response = await client.get(f"{self.base_url}/health")
+                return response.is_success
+        except httpx.HTTPError:
+            return False
+
     async def evaluate(self, package_path: str, value: dict[str, Any]) -> dict[str, Any]:
         url = f"{self.base_url}/v1/data/{package_path.strip('/')}"
         try:

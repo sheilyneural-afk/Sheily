@@ -1,8 +1,8 @@
 openapi: 3.1.0
 info:
   title: Noosfera Control Plane
-  version: 0.1.0
-  description: API de referencia; no conecta actuadores reales.
+  version: 0.2.0
+  description: API del plano de control y del agente local soberano; no conecta actuadores reales.
 servers:
   - url: https://node.example.invalid
 security: [{mutualTLS: []}]
@@ -17,6 +17,138 @@ paths:
       operationId: readiness
       security: []
       responses: {"200": {description: Dependencias y políticas preparadas}, "503": {description: Denegación segura}}
+  /v1/auth/login:
+    post:
+      operationId: localLogin
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [username, password]
+              properties: {username: {type: string}, password: {type: string, format: password}}
+      responses: {"200": {description: Token local temporal}, "401": {description: Credenciales inválidas}}
+  /v1/me:
+    get:
+      operationId: getPrincipal
+      security: [{bearerAuth: []}]
+      responses: {"200": {description: Identidad autenticada}, "401": {description: Token inválido}}
+  /v1/conversations:
+    post:
+      operationId: createConversation
+      x-noosfera-owner: experience-service
+      security: [{bearerAuth: []}]
+      responses: {"201": {description: Conversación local creada}}
+  /v1/conversations/{conversationId}/messages:
+    get:
+      operationId: listConversationMessages
+      x-noosfera-owner: experience-service
+      security: [{bearerAuth: []}]
+      parameters: [{name: conversationId, in: path, required: true, schema: {type: string}}]
+      responses: {"200": {description: Mensajes de la conversación}, "404": {description: Conversación ajena o inexistente}}
+    post:
+      operationId: createAgentMission
+      x-noosfera-owner: experience-service
+      security: [{bearerAuth: []}]
+      parameters: [{name: conversationId, in: path, required: true, schema: {type: string}}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [content]
+              properties:
+                content: {type: string, minLength: 1, maxLength: 20000}
+                document_ids: {type: array, maxItems: 20, uniqueItems: true, items: {type: string}}
+                remember: {type: boolean, default: false}
+      responses:
+        "202": {description: Misión recibida, content: {application/json: {schema: {$ref: ../schemas/agent-mission.schema.json}}}}
+        "404": {description: Conversación o documento no encontrado}
+  /v1/documents:
+    post:
+      operationId: uploadLocalDocument
+      x-noosfera-owner: experience-service
+      security: [{bearerAuth: []}]
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema: {type: object, required: [upload], properties: {upload: {type: string, format: binary}}}
+      responses: {"201": {description: Documento extraído dentro del nodo}, "422": {description: Tipo tamaño o contenido rechazado}}
+  /v1/missions/{missionId}:
+    get:
+      operationId: getAgentMission
+      x-noosfera-owner: experience-service
+      security: [{bearerAuth: []}]
+      parameters: [{name: missionId, in: path, required: true, schema: {type: string}}]
+      responses:
+        "200": {description: Estado de misión, content: {application/json: {schema: {$ref: ../schemas/agent-mission.schema.json}}}}
+        "404": {description: Misión ajena o inexistente}
+  /v1/missions/{missionId}/approval:
+    post:
+      operationId: decideAgentMission
+      x-noosfera-owner: experience-service
+      security: [{bearerAuth: []}]
+      parameters: [{name: missionId, in: path, required: true, schema: {type: string}}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [approved]
+              properties:
+                approved: {type: boolean}
+                remember_result: {type: [boolean, "null"]}
+                reason: {type: string, maxLength: 1000}
+      responses: {"202": {description: Decisión registrada}, "409": {description: La misión no espera aprobación}}
+  /v1/missions/{missionId}/events:
+    get:
+      operationId: streamMissionEvents
+      x-noosfera-owner: experience-service
+      security: [{bearerAuth: []}]
+      parameters:
+        - {name: missionId, in: path, required: true, schema: {type: string}}
+        - {name: after, in: query, required: false, schema: {type: integer, minimum: 0}}
+      responses:
+        "200": {description: Flujo SSE de eventos encadenados, content: {text/event-stream: {schema: {type: string}}}}
+  /v1/memories:
+    get:
+      operationId: listAgentMemories
+      x-noosfera-owner: experience-service
+      security: [{bearerAuth: []}]
+      responses: {"200": {description: Memorias activas de la persona}}
+  /v1/memories/{memoryId}:
+    delete:
+      operationId: deleteAgentMemory
+      x-noosfera-owner: experience-service
+      security: [{bearerAuth: []}]
+      parameters: [{name: memoryId, in: path, required: true, schema: {type: string}}]
+      responses: {"204": {description: Memoria marcada como borrada}, "404": {description: Memoria ajena o inexistente}}
+  /v1/operator/status:
+    get:
+      operationId: getAgentRuntimeStatus
+      x-noosfera-owner: experience-service
+      security: [{bearerAuth: []}]
+      responses: {"200": {description: Estado y proveedores activos}}
+  /v1/operator/audit:
+    get:
+      operationId: listAgentAudit
+      x-noosfera-owner: audit-service
+      security: [{bearerAuth: []}]
+      responses: {"200": {description: Recibos de auditoría encadenados}}
+  /v1/operator/stop:
+    post:
+      operationId: setNodeSafeStop
+      x-noosfera-owner: execution-service
+      security: [{bearerAuth: []}]
+      responses: {"202": {description: Parada o reanudación propagada al kernel Rust}}
   /v1/intent/compile:
     post:
       operationId: compileIntent
@@ -54,3 +186,4 @@ components:
   securitySchemes:
     mutualTLS: {type: mutualTLS}
     capabilityToken: {type: http, scheme: bearer, bearerFormat: Noosfera-Capability}
+    bearerAuth: {type: http, scheme: bearer, bearerFormat: Sheily-Local-HMAC}

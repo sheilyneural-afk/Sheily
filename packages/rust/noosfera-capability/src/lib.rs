@@ -22,7 +22,9 @@ pub struct Capability {
     pub preconditions: Vec<String>,
     pub mandatory_monitors: BTreeSet<String>,
     pub stop_conditions: Vec<String>,
+    #[serde(with = "time::serde::rfc3339")]
     pub not_before: OffsetDateTime,
+    #[serde(with = "time::serde::rfc3339")]
     pub expiry: OffsetDateTime,
     pub max_uses: u32,
     pub delegation: Delegation,
